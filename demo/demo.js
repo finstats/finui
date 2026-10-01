@@ -1,6 +1,6 @@
-// The finui demo: every component drawn from its own `meta`, each example in both themes side by side or at phone
+// The FinUI demo: every component drawn from its own `meta`, each example in both themes side by side or at phone
 // width, a page of the foundation (tokens and icons), and a showcase of the components together. Invented data only.
-// It is finui using itself: the page is built with h() and finui's own components, and its styles come from
+// It is FinUI using itself: the page is built with h() and FinUI's own components, and its styles come from
 // registry.json in its order, as a host page would load them.
 
 import { h, icon, mount, iconNames } from '../core.js';
@@ -116,24 +116,24 @@ async function start() {
     const js = c.files.find((f) => f.endsWith('.js'));
     return js ? ((await import('../' + js)).meta || {}) : {};
   }));
-  const sections = [{ key: 'showcase', label: 'Showcase', icon: 'sparkle', group: 'finui' }, { key: 'foundation', label: 'Foundation', icon: 'layers', group: 'finui' },
+  const sections = [{ key: 'showcase', label: 'Showcase', icon: 'sparkle', group: 'FinUI' }, { key: 'foundation', label: 'Foundation', icon: 'layers', group: 'FinUI' },
     ...registry.components.map((c, i) => ({ key: c.name, label: c.name, icon: 'layers', group: CATEGORY[c.category] || 'Components', meta: metas[i] }))];
 
   const slot = h('div', { class: 'demo-stack' });
   const navSlot = h('div');
   mount(root,
     h('header', { class: 'demo-top' },
-      h('div', { class: 'demo-brand' }, h('h1', null, 'finui'), h('p', null, `The components finstats is built from. ${registry.components.length} of them, no build step, light and dark from one set of tokens.`)),
-      h('div', { class: 'demo-top-right' }, h('a', { href: 'https://github.com/finstats/finui' }, 'Source'), h('a', { href: 'https://github.com/finstats/finstats' }, 'finstats'),
+      h('div', { class: 'demo-brand' }, h('h1', null, 'FinUI'), h('p', null, `The components finstats is built from. ${registry.components.length} of them, no build step, light and dark from one set of tokens.`)),
+      h('div', { class: 'demo-top-right' }, button({ href: 'create/', variant: 'primary', size: 'sm' }, icon('sliders', 14), 'Create'), h('a', { href: 'https://github.com/finstats/finui' }, 'Source'), h('a', { href: 'https://github.com/finstats/finstats' }, 'finstats'),
         themeSwitch({ value: stored, onChange: applyTheme }))),
     sectionLayout(navSlot, slot),
-    h('p', { class: 'demo-foot' }, `finui is free software under the GNU GPL v3. Its fonts, Inter and JetBrains Mono, are under the SIL Open Font License.`));
+    h('p', { class: 'demo-foot' }, `FinUI is free software under the GNU GPL v3. Its fonts, Inter and JetBrains Mono, are under the SIL Open Font License.`));
 
   async function route() {
     const key = location.hash.replace(/^#\/?/, '') || 'showcase';
     const section = sections.find((s) => s.key === key) || sections[0];
-    mount(navSlot, sectionNav('#', sections, section.key, 'finui'));
-    document.title = `${section.label} · finui`;
+    mount(navSlot, sectionNav('#', sections, section.key, 'FinUI'));
+    document.title = `${section.label} · FinUI`;
     if (section.key === 'showcase') return showcase(slot);
     if (section.key === 'foundation') return foundation(slot);
     const meta = section.meta || {};

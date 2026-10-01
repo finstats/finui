@@ -1,4 +1,4 @@
-/* The demo site's own layout. Every colour is a finui token: the page is in the same two themes it shows. */
+/* The demo site's own layout. Every colour is a FinUI token: the page is in the same two themes it shows. */
 body { background: var(--page-bg); }
 .demo { max-width: 1240px; margin: 0 auto; padding: 28px 24px 64px; }
 .demo-loading { padding: 40px; color: var(--text-faint); }
