@@ -1,0 +1,12 @@
+{
+  "name": "finui",
+  "version": "0.1.0",
+  "description": "The components finstats is built from: vanilla ES modules and plain CSS, no build step, light and dark from one set of tokens.",
+  "license": "GPL-3.0-only",
+  "type": "module",
+  "private": true,
+  "repository": { "type": "git", "url": "git+https://github.com/finstats/finui.git" },
+  "bin": { "finui": "bin/finui.mjs" },
+  "files": ["bin", "create/preset.js", "create/presets.json", "tokens.css", "base.css", "core.js", "format.js", "registry.json", "components", "fonts", "LICENSE"],
+  "scripts": { "test": "node --test test/*.test.mjs && node tools/check.mjs" }
+}
