@@ -1,14 +1,14 @@
-# finui
+# FinUI
 
 The components [finstats](https://github.com/finstats/finstats) is built from: buttons, cards, tables that sort by
 meaning, dialogs that stack, a theme switch, and two dozen more. Vanilla ES modules and plain CSS, no build step and no
 dependencies, light and dark from one set of tokens.
 
-**[See every component in both themes →](https://finstats.github.io/finui/)**
+**[See every component in both themes →](https://finstats.github.io/finui/)** · **[Make it yours in FinUI create →](https://finstats.github.io/finui/create/)**
 
 ## What it is
 
-finui is a registry in the spirit of shadcn/ui: the components are source you copy and own, not a package you install.
+FinUI is a registry in the spirit of shadcn/ui: the components are source you copy and own, not a package you install.
 
 - **No build step, no dependencies, no CDN.** Each component is an ES module built with `h()` (a small element builder in
   `core.js`) and a CSS file of its own.
@@ -23,9 +23,27 @@ finui is a registry in the spirit of shadcn/ui: the components are source you co
 - **The same contract everywhere**: operable from the keyboard with a visible focus ring, the right roles and ARIA,
   quiet under `prefers-reduced-motion`, readable in both themes and at 360 px, and data reaches the DOM only as text.
 
+## Make it yours
+
+[FinUI create](https://finstats.github.io/finui/create/) shows a page of FinUI and lets you change it as you watch: base
+colour, accent, chart colours, radius, density, borders, cards, highlight, motion and icon stroke, in light, dark or both.
+Lock what you like and shuffle the rest. What you made is a short code, and one command takes it home:
+
+```sh
+npx github:finstats/finui init --preset 0101      # FinUI into ./finui, your tokens after tokens.css' own
+npx github:finstats/finui init --preset 0101 --css   # or one finui.css, with its fonts beside it
+```
+
+The installer has no dependencies and writes only into an empty folder. A preset is nothing but tokens: a `:root` block
+after `tokens.css`, which you can also copy from the page and paste into a FinUI you already have. The choices live in
+`create/presets.json` and are worked into tokens by `create/preset.js`, the one module both the page and the installer
+use. Every chart palette but finstats' own is an ordering of validated hues whose neighbours stay apart by day and by
+night, and a test holds that.
+
 ## Using it
 
-Copy the folder. Load the stylesheets in `registry.json`'s order — `tokens.css`, `base.css`, then each component's CSS
+Copy the folder, or let `npx github:finstats/finui init` copy it.
+Load the stylesheets in `registry.json`'s order — `tokens.css`, `base.css`, then each component's CSS
 — either as separate `<link>`s or as one file joined in that order (finstats serves them joined, as `/assets/finui.css`).
 Then import what you need:
 
@@ -41,14 +59,15 @@ The theme follows the device (`color-scheme: light dark`); `data-theme="light"` 
 Fonts are Inter and JetBrains Mono, in `fonts/` beside `base.css`.
 
 `registry.json` lists every component with its files, the tokens its CSS reads and the components it is built with.
-`node tools/check.mjs` holds the registry to the files and keeps the rules above; it runs on every push.
+`node tools/check.mjs` holds the registry to the files and keeps the rules above, and `node --test test/*.test.mjs` holds
+the presets and the installer; both run on every push.
 
 ## Where it is made
 
-finui is developed inside finstats (`web/assets/finui`), where its gallery is part of the app and every component is
-tested in finstats' own suite, and copied here as it changes. Issues and changes are welcome in either place.
+FinUI's components are developed inside finstats (`web/assets/finui`), where every one of them is used and tested, and
+copied here as they change; the gallery and FinUI create live here only. Issues and changes are welcome in either place.
 
 ## Licence
 
-finui is free software under the [GNU General Public License v3.0](LICENSE) only, like finstats. The bundled fonts are
+FinUI is free software under the [GNU General Public License v3.0](LICENSE) only, like finstats. The bundled fonts are
 under the SIL Open Font License 1.1; their licences are in `fonts/`.
