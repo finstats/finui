@@ -23,7 +23,7 @@ export function statTile({ label, value, title, current, previous, vsLabel, spar
 export const meta = {
   name: 'stat-tile',
   purpose: 'Shows one number with its label, and how it changed since the period before.',
-  use: 'A row of the few numbers a page is about (fui-stat-tile__grid). --pressable when a tile also picks what is shown below it (aria-pressed). The grid --three for three, --quiet for figures that support rather than lead.',
+  use: 'A row of the few numbers a page is about (fui-stat-tile__grid). --pressable when a tile also picks what is shown below it (aria-pressed). The grid --three for three, --quiet for figures that support rather than lead. Three, four, six or eight tiles keep their rows even: never one left alone under the others.',
   avoid: 'A tile for a sentence. More than six in a row. A delta without the period it compares with (vsLabel).',
   variants: ['plain', 'with a change', 'with a hint', 'pressable', 'quiet grid'],
   states: ['up, down, no change, new', 'pressed'],
