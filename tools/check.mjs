@@ -64,7 +64,7 @@ const tokens = uncommented(read('tokens.css'));
 for (const c of reg.components) for (const t of c.tokens) if (!new RegExp(`${t}\\s*:`).test(tokens)) fail(`${c.name} reads ${t}, which tokens.css does not define`);
 
 // Every module parses.
-for (const f of [...onDisk, ...pages, 'bin/finui.mjs'].filter((x) => /\.m?js$/.test(x))) {
+for (const f of [...onDisk, ...pages, 'tools/build-site.mjs'].filter((x) => /\.m?js$/.test(x))) {
   try { execFileSync(process.execPath, ['--check', path.join(root, f)], { stdio: 'pipe' }); } catch (e) { fail(`${f} does not parse: ${String(e.stderr).split('\n')[0]}`); }
 }
 

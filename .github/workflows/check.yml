@@ -1,5 +1,6 @@
+# A pull request is held to what the pages workflow holds main to before it publishes.
 name: check
-on: [push, pull_request]
+on: [pull_request]
 permissions:
   contents: read
 jobs:
