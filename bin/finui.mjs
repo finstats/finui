@@ -1,7 +1,8 @@
 #!/usr/bin/env node
 // FinUI's installer: FinUI is source you copy and own, so installing it is copying it — with the tokens of a preset
 // made at FinUI create after tokens.css' own. No dependencies; run it from GitHub:
-//   npx github:finstats/finui init --preset <code>
+//   pnpm dlx github:finstats/finui init --preset <code>
+//   npx --allow-git=all github:finstats/finui init --preset <code>     (npm 12 fetches nothing from git unless allowed)
 import fs from 'node:fs';
 import path from 'node:path';
 import { decode, overlay, stylesheet } from '../create/preset.js';
@@ -10,7 +11,8 @@ const root = path.resolve(path.dirname(new URL(import.meta.url).pathname), '..')
 const read = (f) => fs.readFileSync(path.join(root, f), 'utf8');
 const HELP = `FinUI — the components finstats is built from.
 
-  npx github:finstats/finui init [--preset <code>] [--dir <folder>] [--css]
+  pnpm dlx github:finstats/finui init [--preset <code>] [--dir <folder>] [--css]
+  npx --allow-git=all github:finstats/finui init …   (npm 12 fetches nothing from git unless it is allowed)
 
   init            copy FinUI into ./finui: tokens, base styles, core and every component, its fonts and licence
   --preset <code> a preset made at https://finstats.github.io/finui/create/, its tokens after tokens.css' own

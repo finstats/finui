@@ -1,4 +1,4 @@
-// The installer: `npx github:finstats/finui init --preset <code>` copies FinUI into a project with the preset's tokens.
+// The installer: `pnpm dlx github:finstats/finui init --preset <code>` copies FinUI into a project with the preset's tokens.
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
 import fs from 'node:fs';
@@ -66,6 +66,7 @@ test('a folder that already holds files is left alone', () => {
 test('help says how, and anything else is refused', () => {
   const help = finui(temp(), '--help');
   assert.equal(help.status, 0);
-  assert.match(help.stdout, /npx github:finstats\/finui init \[--preset <code>\]/);
+  assert.match(help.stdout, /pnpm dlx github:finstats\/finui init \[--preset <code>\]/);
+  assert.match(help.stdout, /npx --allow-git=all github:finstats\/finui init/, "npm 12 refuses a package from git unless it is allowed");
   assert.equal(finui(temp(), 'nonsense').status, 1);
 });

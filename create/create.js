@@ -1,6 +1,6 @@
 // FinUI create: a picker for every axis of presets.json, a live preview drawn with FinUI's own stylesheets and the
 // preset's tokens (in frames of their own, so nothing of this page reaches in), and the one line that takes it home:
-// npx github:finstats/finui init --preset <code>. A static page: the preset is worked out here, by the same module the
+// pnpm dlx github:finstats/finui init --preset <code>. A static page: the preset is worked out here, by the same module the
 // installer uses, and the code is kept in the address.
 
 import { h, icon, mount } from '../core.js';
@@ -19,7 +19,7 @@ const at = (f) => new URL(f, ROOT).href;
 const VIEWS = [{ value: 'light', label: 'Light' }, { value: 'dark', label: 'Dark' }, { value: 'both', label: 'Both' }];
 const root = document.getElementById('create');
 
-/** The code in anything that holds one: the code itself, the npx line, a stylesheet's name. */
+/** The code in anything that holds one: the code itself, the install line, a stylesheet's name. */
 const codeIn = (text) => (/--preset\s+([0-9a-z]+)/.exec(text) || /finui-([0-9a-z]+)(?:\.tokens)?\.css/.exec(text) || /^\s*([0-9a-z]+)\s*$/.exec(text) || [])[1] || null;
 const paint = (el, colour) => { el.style.background = colour; return el; };
 const first = (c) => (Array.isArray(c) ? c[0] : c);
@@ -149,15 +149,16 @@ function snippet(text, label) {
 }
 
 function installDialog({ code, axes, choice, block, registry }) {
-  const npx = `npx github:finstats/finui init --preset ${code}`;
+  const pnpm = `pnpm dlx github:finstats/finui init --preset ${code}`;
+  const npm = `npx --allow-git=all github:finstats/finui init --preset ${code}`;
+  const what = 'Copies FinUI into ./finui: the tokens with this preset’s values after their own, the base styles, core and every component, the fonts and the licence. FinUI is source you own; change anything after.';
   const panes = {
-    npx: h('div', { class: 'create-install__pane' },
-      h('p', { class: 'muted' }, 'Copies FinUI into ./finui: the tokens with this preset’s values after their own, the base styles, core and every component, the fonts and the licence. FinUI is source you own; change anything after.'),
-      snippet(npx, 'Copy the command'),
-      h('p', { class: 'muted' }, 'One stylesheet instead of the source, with the fonts beside it:'),
-      snippet(`${npx} --css`, 'Copy the command')),
+    pnpm: h('div', { class: 'create-install__pane' }, h('p', { class: 'muted' }, what), snippet(pnpm, 'Copy the command'),
+      h('p', { class: 'muted' }, 'One stylesheet instead of the source, with the fonts beside it:'), snippet(`${pnpm} --css`, 'Copy the command')),
+    npm: h('div', { class: 'create-install__pane', hidden: true }, h('p', { class: 'muted' }, `${what} npm 12 fetches nothing from git unless it is allowed, hence --allow-git.`), snippet(npm, 'Copy the command'),
+      h('p', { class: 'muted' }, 'One stylesheet instead of the source, with the fonts beside it:'), snippet(`${npm} --css`, 'Copy the command')),
     file: h('div', { class: 'create-install__pane', hidden: true },
-      h('p', { class: 'muted' }, 'Every stylesheet in one file, this preset’s tokens after tokens.css. It reads its fonts from fonts/ beside it, which npx … --css brings.'),
+      h('p', { class: 'muted' }, 'Every stylesheet in one file, this preset’s tokens after tokens.css. It reads its fonts from fonts/ beside it, which the command with --css brings.'),
       button({ variant: 'primary', onClick: async () => download(`finui-${code}.css`, await stylesheet(registry, async (f) => (await fetch(at(f))).text(), block)) }, icon('download', 14), `Download finui-${code}.css`)),
     tokens: h('div', { class: 'create-install__pane', hidden: true },
       h('p', { class: 'muted' }, 'The preset’s tokens alone, to put after tokens.css in a FinUI you already have.'),
@@ -166,7 +167,7 @@ function installDialog({ code, axes, choice, block, registry }) {
   const named = axes.map((a, i) => (choice[i] ? `${a.label}: ${a.options[choice[i]].label}` : null)).filter(Boolean);
   openModal({ title: 'Take it home', wide: true, body: h('div', { class: 'create-install' },
     h('p', null, named.length ? named.join(' · ') : 'FinUI as it ships: every choice at its default.'),
-    segmented({ label: 'How to take it', size: 'sm', value: 'npx', options: [{ value: 'npx', label: 'npx' }, { value: 'file', label: 'Download' }, { value: 'tokens', label: 'Tokens only' }],
+    segmented({ label: 'How to take it', size: 'sm', value: 'pnpm', options: [{ value: 'pnpm', label: 'pnpm' }, { value: 'npm', label: 'npm' }, { value: 'file', label: 'Download' }, { value: 'tokens', label: 'Tokens only' }],
       onChange: (v) => { for (const [k, el] of Object.entries(panes)) el.hidden = k !== v; } }),
     Object.values(panes),
     h('p', { class: 'create-install__foot muted' }, 'FinUI is free software under the GNU GPL v3. Inter and JetBrains Mono are under the SIL Open Font License, whose texts come with them.')) });
@@ -174,7 +175,7 @@ function installDialog({ code, axes, choice, block, registry }) {
 
 function openDialog(axes, apply) {
   const input = h('input', { class: 'fui-field__input mono', id: 'create-open', type: 'text', autocomplete: 'off', spellcheck: false,
-    placeholder: 'A code, or the npx line with one in it', 'aria-describedby': 'create-open-error' });
+    placeholder: 'A code, or the install line with one in it', 'aria-describedby': 'create-open-error' });
   const error = h('div');
   const form = h('form', { class: 'create-open', novalidate: true },
     h('label', { class: 'fui-field__label', htmlFor: 'create-open' }, 'Preset'), input, error,

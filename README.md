@@ -30,8 +30,9 @@ colour, accent, chart colours, radius, density, borders, cards, highlight, motio
 Lock what you like and shuffle the rest. What you made is a short code, and one command takes it home:
 
 ```sh
-npx github:finstats/finui init --preset 0101      # FinUI into ./finui, your tokens after tokens.css' own
-npx github:finstats/finui init --preset 0101 --css   # or one finui.css, with its fonts beside it
+pnpm dlx github:finstats/finui init --preset 0101         # FinUI into ./finui, your tokens after tokens.css' own
+pnpm dlx github:finstats/finui init --preset 0101 --css   # or one finui.css, with its fonts beside it
+npx --allow-git=all github:finstats/finui init --preset 0101   # with npm: version 12 fetches nothing from git unless allowed
 ```
 
 The installer has no dependencies and writes only into an empty folder. A preset is nothing but tokens: a `:root` block
@@ -42,7 +43,7 @@ night, and a test holds that.
 
 ## Using it
 
-Copy the folder, or let `npx github:finstats/finui init` copy it.
+Copy the folder, or let `pnpm dlx github:finstats/finui init` copy it.
 Load the stylesheets in `registry.json`'s order — `tokens.css`, `base.css`, then each component's CSS
 — either as separate `<link>`s or as one file joined in that order (finstats serves them joined, as `/assets/finui.css`).
 Then import what you need:
