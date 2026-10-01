@@ -24,9 +24,12 @@
         "--critical",
         "--critical-hover",
         "--critical-text",
+        "--density",
         "--ease",
         "--hover",
+        "--on-accent",
         "--on-fill",
+        "--radius-control",
         "--radius-sm",
         "--text",
         "--text-muted"
@@ -45,6 +48,8 @@
       "tokens": [
         "--bg-2",
         "--border-soft",
+        "--card-shadow",
+        "--density",
         "--radius",
         "--text-faint",
         "--text-strong"
@@ -67,6 +72,7 @@
         "--accent-wash",
         "--border",
         "--hover",
+        "--radius-pill",
         "--text",
         "--text-faint",
         "--text-muted"
@@ -89,6 +95,7 @@
         "--critical-text",
         "--good",
         "--hover",
+        "--radius-pill",
         "--text",
         "--text-faint",
         "--text-muted",
@@ -160,6 +167,7 @@
       ],
       "tokens": [
         "--radius",
+        "--radius-control",
         "--radius-sm",
         "--skeleton"
       ],
@@ -183,7 +191,9 @@
         "--border-strong",
         "--critical",
         "--critical-text",
+        "--density",
         "--ease",
+        "--radius-control",
         "--text",
         "--text-faint",
         "--text-muted"
@@ -205,7 +215,8 @@
         "--ease",
         "--hover",
         "--knob",
-        "--on-fill",
+        "--on-accent",
+        "--radius-pill",
         "--shadow"
       ],
       "requires": [
@@ -223,8 +234,10 @@
         "--bg-sunken",
         "--border",
         "--border-soft",
+        "--density",
         "--ease",
         "--hover",
+        "--radius-control",
         "--text",
         "--text-muted"
       ],
@@ -247,9 +260,11 @@
         "--bg-sunken",
         "--border",
         "--border-soft",
+        "--density",
         "--ease",
         "--hover",
         "--radius",
+        "--radius-control",
         "--radius-sm",
         "--shadow",
         "--text",
@@ -291,6 +306,8 @@
         "--bg-2",
         "--border",
         "--border-soft",
+        "--card-shadow",
+        "--density",
         "--good",
         "--hover",
         "--mono",
@@ -331,6 +348,7 @@
       ],
       "tokens": [
         "--accent-hi",
+        "--radius-pill",
         "--wash-2"
       ],
       "requires": [
@@ -349,6 +367,7 @@
         "--border-soft",
         "--placeholder",
         "--radius",
+        "--radius-control",
         "--radius-sm",
         "--shadow",
         "--text-faint"
@@ -402,6 +421,8 @@
         "--border",
         "--border-soft",
         "--hover",
+        "--radius-control",
+        "--radius-pill",
         "--text",
         "--text-faint",
         "--text-muted"
@@ -437,6 +458,9 @@
       "tokens": [
         "--accent",
         "--accent-hi",
+        "--border-soft",
+        "--density",
+        "--radius-control",
         "--text"
       ],
       "requires": [
@@ -457,6 +481,7 @@
         "--border",
         "--border-soft",
         "--ease",
+        "--radius-lg",
         "--shadow"
       ],
       "requires": [
@@ -474,6 +499,7 @@
       "tokens": [
         "--accent-hi",
         "--border-soft",
+        "--density",
         "--ease",
         "--hover",
         "--radius-sm",
@@ -514,6 +540,7 @@
       "tokens": [
         "--accent",
         "--placeholder",
+        "--radius-control",
         "--text",
         "--text-faint"
       ],
@@ -532,6 +559,7 @@
       "tokens": [
         "--border",
         "--mono",
+        "--radius-control",
         "--radius-sm",
         "--shadow",
         "--text-muted",
@@ -555,6 +583,7 @@
         "--border-strong",
         "--ease",
         "--knob",
+        "--radius-pill",
         "--series-1",
         "--shadow",
         "--text-faint",

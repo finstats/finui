@@ -1,4 +1,4 @@
-// finui core: the element builder and the icons. Everything a finui component draws is made here; data reaches the
+// FinUI core: the element builder and the icons. Everything a FinUI component draws is made here; data reaches the
 // DOM as text nodes, never as markup. The only markup strings are the static icon paths below.
 
 const SVG_NS = 'http://www.w3.org/2000/svg';
@@ -115,6 +115,9 @@ const ICONS = {
   sun: '<circle cx="12" cy="12" r="4"/><path d="M12 2v2"/><path d="M12 20v2"/><path d="m4.9 4.9 1.4 1.4"/><path d="m17.7 17.7 1.4 1.4"/><path d="M2 12h2"/><path d="M20 12h2"/><path d="m6.3 17.7-1.4 1.4"/><path d="m19.1 4.9-1.4 1.4"/>',
   moon: '<path d="M20.5 14.5A8.5 8.5 0 1 1 9.5 3.5a7 7 0 0 0 11 11z"/>',
   gauge: '<path d="M4.2 17.5a8.5 8.5 0 1 1 15.6 0"/><path d="m12 14 4-4.5"/><circle cx="12" cy="14" r="1.3"/>',
+  lock: '<rect x="5" y="11" width="14" height="10" rx="2"/><path d="M8 11V7a4 4 0 0 1 8 0v4"/>',
+  unlock: '<rect x="5" y="11" width="14" height="10" rx="2"/><path d="M8 11V7a4 4 0 0 1 7.6-1.7"/>',
+  shuffle: '<path d="M3 7h3.5c2 0 3.2 1 4.3 2.7l2.4 4.6c1.1 1.7 2.3 2.7 4.3 2.7H21"/><path d="m18 14 3 3-3 3"/><path d="M3 17h3.5c1.3 0 2.2-.4 3-1.2"/><path d="M14.5 8.2c.8-.8 1.7-1.2 3-1.2H21"/><path d="m18 4 3 3-3 3"/>',
   anchor: '<circle cx="12" cy="5" r="2"/><path d="M12 7v14"/><path d="M8.5 10.5h7"/><path d="M4.5 13.5a7.5 7.5 0 0 0 15 0"/>',
 };
 
@@ -135,7 +138,7 @@ export const iconNames = () => Object.keys(ICONS);
 export const meta = {
   name: 'core',
   purpose: 'Builds elements (h for HTML, s for SVG), replaces an element’s children (mount, clear), and draws an icon.',
-  use: 'Everything in finui is built with h(). Data goes in as children, which become text nodes; never as markup.',
+  use: 'Everything in FinUI is built with h(). Data goes in as children, which become text nodes; never as markup.',
   avoid: 'innerHTML with anything but the static icon paths. el.append(null) prints "null": pass children through h() or mount(), which skip null, false and true.',
   props: {
     'h(tag, props, ...children)': 'props: class (a string, or an array whose falsy entries are dropped), style (an object), dataset, on<Event> handlers, attributes. Children nest in arrays.',
