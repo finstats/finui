@@ -1,0 +1,20 @@
+/* The layout of FinUI create's preview, and nothing else: it is loaded in the preview's frame beside FinUI's stylesheets
+   and a preset's tokens, and every colour, corner and gap of the components comes from those. Tokens only, like the rest. */
+.pv { display: grid; gap: 16px; padding: 24px; max-width: 1180px; margin: 0 auto; }
+.pv-grid { display: grid; gap: 16px; grid-template-columns: minmax(0, 1.6fr) minmax(0, 1fr); align-items: start; }
+.pv-grid--even { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+@media (max-width: 860px) { .pv-grid, .pv-grid--even { grid-template-columns: minmax(0, 1fr); } }
+@media (max-width: 480px) { .pv { padding: 16px; } }
+.pv-stack { display: grid; gap: 14px; }
+.pv-row { display: flex; flex-wrap: wrap; align-items: center; gap: 8px; }
+.pv-row--end { justify-content: flex-end; }
+.pv-chart { display: block; width: 100%; height: auto; }
+.pv-tick { fill: var(--text-faint); font-size: 11px; }
+.pv-legend { display: flex; flex-wrap: wrap; gap: 6px 16px; font-size: 12.5px; color: var(--text-muted); }
+.pv-legend li { display: inline-flex; align-items: center; gap: 6px; }
+.pv-key { width: 10px; height: 10px; border-radius: var(--radius-sm); }
+.pv-heat { display: grid; grid-template-columns: auto repeat(24, minmax(0, 1fr)); gap: 3px; align-items: center; }
+.pv-heat__day { font-size: 11px; color: var(--text-faint); padding-right: 6px; }
+.pv-heat__cell { aspect-ratio: 1; border-radius: var(--radius-sm); }
+.pv-who { display: inline-flex; align-items: center; gap: 8px; }
+.pv-done { display: inline-flex; align-items: center; gap: 8px; }

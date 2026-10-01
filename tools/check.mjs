@@ -36,7 +36,9 @@ for (const f of onDisk.filter((x) => x.endsWith('.js'))) {
 }
 
 // Colours live in tokens.css alone.
-for (const f of [...onDisk, 'demo/demo.css', 'demo/demo.js'].filter((x) => /\.(css|js)$/.test(x) && x !== 'tokens.css')) {
+// The pages beside it (the gallery, FinUI create) are held to it too; create/preset.js writes tokens' values, as tokens.css does.
+const pages = ['demo/demo.css', 'demo/demo.js', ...walk('create').map((f) => f.split(path.sep).join('/')).filter((f) => /\.(css|js)$/.test(f))];
+for (const f of [...onDisk, ...pages].filter((x) => /\.(css|js)$/.test(x) && x !== 'tokens.css' && x !== 'create/preset.js')) {
   const t = f.endsWith('.css') ? uncommented(read(f)) : code(read(f));
   t.split('\n').forEach((line, n) => {
     if (/(^|[\s:'"(])#[0-9a-fA-F]{3,8}\b/.test(line) || /\b(rgba?|hsla?|light-dark)\(/.test(line)) fail(`${f}:${n + 1}: a colour that is not a token: ${line.trim().slice(0, 100)}`);
@@ -62,7 +64,7 @@ const tokens = uncommented(read('tokens.css'));
 for (const c of reg.components) for (const t of c.tokens) if (!new RegExp(`${t}\\s*:`).test(tokens)) fail(`${c.name} reads ${t}, which tokens.css does not define`);
 
 // Every module parses.
-for (const f of [...onDisk, 'demo/demo.js'].filter((x) => x.endsWith('.js'))) {
+for (const f of [...onDisk, ...pages, 'bin/finui.mjs'].filter((x) => /\.m?js$/.test(x))) {
   try { execFileSync(process.execPath, ['--check', path.join(root, f)], { stdio: 'pipe' }); } catch (e) { fail(`${f} does not parse: ${String(e.stderr).split('\n')[0]}`); }
 }
 
