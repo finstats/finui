@@ -1,0 +1,572 @@
+{
+  "name": "finui",
+  "license": "GPL-3.0-only",
+  "prefix": "fui-",
+  "foundation": [
+    "tokens.css",
+    "base.css",
+    "core.js",
+    "format.js"
+  ],
+  "components": [
+    {
+      "name": "button",
+      "category": "primitive",
+      "files": [
+        "components/button/button.js",
+        "components/button/button.css"
+      ],
+      "tokens": [
+        "--accent",
+        "--accent-hover",
+        "--border",
+        "--btn-hover",
+        "--critical",
+        "--critical-hover",
+        "--critical-text",
+        "--ease",
+        "--hover",
+        "--on-fill",
+        "--radius-sm",
+        "--text",
+        "--text-muted"
+      ],
+      "requires": [
+        "core"
+      ]
+    },
+    {
+      "name": "card",
+      "category": "primitive",
+      "files": [
+        "components/card/card.js",
+        "components/card/card.css"
+      ],
+      "tokens": [
+        "--bg-2",
+        "--border-soft",
+        "--radius",
+        "--text-faint",
+        "--text-strong"
+      ],
+      "requires": [
+        "core",
+        "button"
+      ]
+    },
+    {
+      "name": "chip",
+      "category": "primitive",
+      "files": [
+        "components/chip/chip.js",
+        "components/chip/chip.css"
+      ],
+      "tokens": [
+        "--accent",
+        "--accent-hi",
+        "--accent-wash",
+        "--border",
+        "--hover",
+        "--text",
+        "--text-faint",
+        "--text-muted"
+      ],
+      "requires": [
+        "core"
+      ]
+    },
+    {
+      "name": "badge",
+      "category": "primitive",
+      "files": [
+        "components/badge/badge.js",
+        "components/badge/badge.css"
+      ],
+      "tokens": [
+        "--accent-hi",
+        "--accent-wash",
+        "--border",
+        "--critical-text",
+        "--good",
+        "--hover",
+        "--text",
+        "--text-faint",
+        "--text-muted",
+        "--warning"
+      ],
+      "requires": [
+        "core"
+      ]
+    },
+    {
+      "name": "empty",
+      "category": "primitive",
+      "files": [
+        "components/empty/empty.js",
+        "components/empty/empty.css"
+      ],
+      "tokens": [
+        "--border",
+        "--radius",
+        "--text",
+        "--text-faint",
+        "--text-muted"
+      ],
+      "requires": [
+        "core",
+        "button",
+        "card"
+      ]
+    },
+    {
+      "name": "error",
+      "category": "primitive",
+      "files": [
+        "components/error/error.js",
+        "components/error/error.css"
+      ],
+      "tokens": [
+        "--critical",
+        "--critical-text",
+        "--radius",
+        "--text-muted"
+      ],
+      "requires": [
+        "core",
+        "button",
+        "card"
+      ]
+    },
+    {
+      "name": "spinner",
+      "category": "primitive",
+      "files": [
+        "components/spinner/spinner.js",
+        "components/spinner/spinner.css"
+      ],
+      "tokens": [
+        "--text-muted"
+      ],
+      "requires": [
+        "core"
+      ]
+    },
+    {
+      "name": "skeleton",
+      "category": "primitive",
+      "files": [
+        "components/skeleton/skeleton.js",
+        "components/skeleton/skeleton.css"
+      ],
+      "tokens": [
+        "--radius",
+        "--radius-sm",
+        "--skeleton"
+      ],
+      "requires": [
+        "core",
+        "card"
+      ]
+    },
+    {
+      "name": "field",
+      "category": "primitive",
+      "files": [
+        "components/field/field.js",
+        "components/field/field.css"
+      ],
+      "tokens": [
+        "--accent",
+        "--accent-wash",
+        "--bg",
+        "--border",
+        "--border-strong",
+        "--critical",
+        "--critical-text",
+        "--ease",
+        "--text",
+        "--text-faint",
+        "--text-muted"
+      ],
+      "requires": [
+        "core"
+      ]
+    },
+    {
+      "name": "toggle",
+      "category": "primitive",
+      "files": [
+        "components/toggle/toggle.js",
+        "components/toggle/toggle.css"
+      ],
+      "tokens": [
+        "--accent",
+        "--border",
+        "--ease",
+        "--hover",
+        "--knob",
+        "--on-fill",
+        "--shadow"
+      ],
+      "requires": [
+        "core"
+      ]
+    },
+    {
+      "name": "segmented",
+      "category": "primitive",
+      "files": [
+        "components/segmented/segmented.js",
+        "components/segmented/segmented.css"
+      ],
+      "tokens": [
+        "--bg-sunken",
+        "--border",
+        "--border-soft",
+        "--ease",
+        "--hover",
+        "--text",
+        "--text-muted"
+      ],
+      "requires": [
+        "core"
+      ]
+    },
+    {
+      "name": "combobox",
+      "category": "primitive",
+      "files": [
+        "components/combobox/combobox.js",
+        "components/combobox/combobox.css"
+      ],
+      "tokens": [
+        "--accent",
+        "--accent-hi",
+        "--accent-wash",
+        "--bg-2",
+        "--bg-sunken",
+        "--border",
+        "--border-soft",
+        "--ease",
+        "--hover",
+        "--radius",
+        "--radius-sm",
+        "--shadow",
+        "--text",
+        "--text-faint",
+        "--text-muted"
+      ],
+      "requires": [
+        "core"
+      ]
+    },
+    {
+      "name": "copy",
+      "category": "primitive",
+      "files": [
+        "components/copy/copy.js",
+        "components/copy/copy.css"
+      ],
+      "tokens": [
+        "--good",
+        "--hover",
+        "--radius-sm",
+        "--text",
+        "--text-faint",
+        "--text-muted"
+      ],
+      "requires": [
+        "core"
+      ]
+    },
+    {
+      "name": "stat-tile",
+      "category": "primitive",
+      "files": [
+        "components/stat-tile/stat-tile.js",
+        "components/stat-tile/stat-tile.css"
+      ],
+      "tokens": [
+        "--accent",
+        "--bg-2",
+        "--border",
+        "--border-soft",
+        "--good",
+        "--hover",
+        "--mono",
+        "--radius",
+        "--serious",
+        "--text",
+        "--text-faint",
+        "--text-muted",
+        "--text-strong"
+      ],
+      "requires": [
+        "core",
+        "skeleton"
+      ]
+    },
+    {
+      "name": "facts",
+      "category": "primitive",
+      "files": [
+        "components/facts/facts.js",
+        "components/facts/facts.css"
+      ],
+      "tokens": [
+        "--text",
+        "--text-faint"
+      ],
+      "requires": [
+        "core",
+        "field"
+      ]
+    },
+    {
+      "name": "meter",
+      "category": "primitive",
+      "files": [
+        "components/meter/meter.js",
+        "components/meter/meter.css"
+      ],
+      "tokens": [
+        "--accent-hi",
+        "--wash-2"
+      ],
+      "requires": [
+        "core"
+      ]
+    },
+    {
+      "name": "poster",
+      "category": "primitive",
+      "files": [
+        "components/poster/poster.js",
+        "components/poster/poster.css"
+      ],
+      "tokens": [
+        "--bg-sunken",
+        "--border-soft",
+        "--placeholder",
+        "--radius",
+        "--radius-sm",
+        "--shadow",
+        "--text-faint"
+      ],
+      "requires": [
+        "core"
+      ]
+    },
+    {
+      "name": "avatar",
+      "category": "primitive",
+      "files": [
+        "components/avatar/avatar.js",
+        "components/avatar/avatar.css"
+      ],
+      "tokens": [
+        "--wash-2",
+        "--wash-2-text"
+      ],
+      "requires": [
+        "core"
+      ]
+    },
+    {
+      "name": "pagination",
+      "category": "primitive",
+      "files": [
+        "components/pagination/pagination.js",
+        "components/pagination/pagination.css"
+      ],
+      "tokens": [
+        "--border-soft",
+        "--text-muted"
+      ],
+      "requires": [
+        "core",
+        "button"
+      ]
+    },
+    {
+      "name": "sections",
+      "category": "pattern",
+      "files": [
+        "components/sections/sections.js",
+        "components/sections/sections.css"
+      ],
+      "tokens": [
+        "--accent",
+        "--accent-hi",
+        "--accent-wash",
+        "--border",
+        "--border-soft",
+        "--hover",
+        "--text",
+        "--text-faint",
+        "--text-muted"
+      ],
+      "requires": [
+        "core",
+        "card",
+        "setting-row"
+      ]
+    },
+    {
+      "name": "page-header",
+      "category": "pattern",
+      "files": [
+        "components/page-header/page-header.js",
+        "components/page-header/page-header.css"
+      ],
+      "tokens": [
+        "--text-muted",
+        "--text-strong"
+      ],
+      "requires": [
+        "core"
+      ]
+    },
+    {
+      "name": "setting-row",
+      "category": "pattern",
+      "files": [
+        "components/setting-row/setting-row.js",
+        "components/setting-row/setting-row.css"
+      ],
+      "tokens": [
+        "--accent",
+        "--accent-hi",
+        "--text"
+      ],
+      "requires": [
+        "core",
+        "field"
+      ]
+    },
+    {
+      "name": "modal",
+      "category": "pattern",
+      "files": [
+        "components/modal/modal.js",
+        "components/modal/modal.css"
+      ],
+      "tokens": [
+        "--backdrop",
+        "--bg-2",
+        "--border",
+        "--border-soft",
+        "--ease",
+        "--shadow"
+      ],
+      "requires": [
+        "core",
+        "button"
+      ]
+    },
+    {
+      "name": "data-table",
+      "category": "pattern",
+      "files": [
+        "components/data-table/data-table.js",
+        "components/data-table/data-table.css"
+      ],
+      "tokens": [
+        "--accent-hi",
+        "--border-soft",
+        "--ease",
+        "--hover",
+        "--radius-sm",
+        "--text",
+        "--text-faint",
+        "--text-muted",
+        "--tint"
+      ],
+      "requires": [
+        "core",
+        "card",
+        "field"
+      ]
+    },
+    {
+      "name": "rank-list",
+      "category": "pattern",
+      "files": [
+        "components/rank-list/rank-list.js",
+        "components/rank-list/rank-list.css"
+      ],
+      "tokens": [
+        "--border-soft",
+        "--text",
+        "--text-faint"
+      ],
+      "requires": [
+        "core"
+      ]
+    },
+    {
+      "name": "media-card",
+      "category": "pattern",
+      "files": [
+        "components/media-card/media-card.js",
+        "components/media-card/media-card.css"
+      ],
+      "tokens": [
+        "--accent",
+        "--placeholder",
+        "--text",
+        "--text-faint"
+      ],
+      "requires": [
+        "core",
+        "poster"
+      ]
+    },
+    {
+      "name": "tooltip",
+      "category": "pattern",
+      "files": [
+        "components/tooltip/tooltip.js",
+        "components/tooltip/tooltip.css"
+      ],
+      "tokens": [
+        "--border",
+        "--mono",
+        "--radius-sm",
+        "--shadow",
+        "--text-muted",
+        "--text-strong",
+        "--tooltip-bg"
+      ],
+      "requires": [
+        "core"
+      ]
+    },
+    {
+      "name": "theme-switch",
+      "category": "pattern",
+      "files": [
+        "components/theme-switch/theme-switch.js",
+        "components/theme-switch/theme-switch.css"
+      ],
+      "tokens": [
+        "--accent",
+        "--border",
+        "--border-strong",
+        "--ease",
+        "--knob",
+        "--series-1",
+        "--shadow",
+        "--text-faint",
+        "--theme-device",
+        "--theme-moon",
+        "--theme-sun",
+        "--track",
+        "--warning"
+      ],
+      "requires": [
+        "core"
+      ]
+    }
+  ]
+}

@@ -1,0 +1,35 @@
+/* The demo site's own layout. Every colour is a finui token: the page is in the same two themes it shows. */
+body { background: var(--page-bg); }
+.demo { max-width: 1240px; margin: 0 auto; padding: 28px 24px 64px; }
+.demo-loading { padding: 40px; color: var(--text-faint); }
+.demo-top { display: flex; align-items: center; justify-content: space-between; gap: 16px; flex-wrap: wrap; margin-bottom: 22px; }
+.demo-brand { display: flex; align-items: baseline; gap: 12px; flex-wrap: wrap; }
+.demo-brand h1 { font-size: 26px; font-weight: 700; letter-spacing: -.02em; color: var(--text-strong); }
+.demo-brand p { color: var(--text-muted); }
+.demo-top-right { display: flex; align-items: center; gap: 14px; }
+.demo-top-right a { font-size: 13px; }
+.demo-purpose { font-size: 15px; color: var(--text); max-width: 70ch; }
+.demo-h { font-size: 13px; font-weight: 600; color: var(--text-muted); }
+.demo-bar { display: flex; align-items: center; justify-content: space-between; gap: 12px; flex-wrap: wrap; }
+.demo-about, .demo-props { display: grid; grid-template-columns: minmax(90px, 30%) minmax(0, 1fr); gap: 6px 16px; font-size: 13px; }
+.demo-about dt, .demo-props dt { color: var(--text-faint); overflow-wrap: anywhere; }
+.demo-stack { display: grid; gap: 16px; }
+.demo-example { display: grid; gap: 8px; }
+.demo-name { font-size: 12.5px; font-weight: 550; color: var(--text-faint); }
+.demo-frames { display: grid; grid-template-columns: repeat(auto-fit, minmax(min(100%, 320px), 1fr)); gap: 12px; }
+.demo-frames.is-single { grid-template-columns: repeat(auto-fit, minmax(min(100%, 360px), max-content)); }
+/* A frame decides its own theme: light-dark() follows the colour scheme of the element that uses it. */
+.demo-frame { padding: 20px; border: 1px solid var(--border-soft); border-radius: var(--radius); background: var(--bg); color: var(--text); min-width: 0; }
+.demo-frame.is-light { color-scheme: light; }
+.demo-frame.is-dark { color-scheme: dark; }
+.demo-frame.is-phone { width: 360px; max-width: 100%; padding: 16px; }
+.demo-icons { display: grid; grid-template-columns: repeat(auto-fill, minmax(118px, 1fr)); gap: 6px; }
+.demo-icon { display: flex; align-items: center; gap: 8px; font-size: 11.5px; color: var(--text-muted); min-width: 0; }
+.demo-icon .mono { overflow: hidden; text-overflow: ellipsis; }
+.demo-swatches { display: grid; grid-template-columns: repeat(auto-fill, minmax(150px, 1fr)); gap: 10px; }
+.demo-swatch { display: grid; gap: 4px; font-size: 11.5px; color: var(--text-muted); min-width: 0; }
+.demo-swatch-chip { height: 34px; border-radius: var(--radius-sm); border: 1px solid var(--border-soft); }
+.demo-grid-2 { display: grid; grid-template-columns: repeat(auto-fit, minmax(min(100%, 360px), 1fr)); gap: 16px; }
+.demo-row { display: flex; flex-wrap: wrap; align-items: center; gap: 10px; }
+.demo-foot { margin-top: 40px; color: var(--text-faint); font-size: 12.5px; }
+@media (max-width: 560px) { .demo-about, .demo-props { grid-template-columns: minmax(0, 1fr); } .demo { padding: 20px 16px 48px; } }
