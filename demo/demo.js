@@ -84,7 +84,7 @@ function showcase(slot) {
       statTile({ label: 'Last played', value: 'just now', hint: 'Spring' })),
     h('div', { class: 'demo-grid-2' },
       card({ title: 'Most watched', sub: 'By watch time', body: rankList(films.slice(0, 5).map((f, i) => ({ href: '#/showcase', thumb: poster(null, f, { cls: 'fui-poster--sm' }), name: f, sub: `${2008 + i * 2} · ${5 - i} users`, value: `${12 - i * 2}h ${10 + i * 7}m`, note: `${num(31 - i * 5)} plays` }))) }),
-      card({ title: 'Who watched', body: rankList(['alice', 'bob', 'carol'].map((p, i) => ({ href: '#/showcase', thumb: avatar(null, p, { size: 36 }), name: p, sub: ' ', value: `${20 - i * 6}h`, note: `${num(40 - i * 11)} plays` }))) })),
+      card({ title: 'Who watched', body: rankList(['alice', 'bob', 'carol'].map((p, i) => ({ href: '#/showcase', thumb: avatar(null, p, { size: 36 }), name: p, value: `${20 - i * 6}h`, note: `${num(40 - i * 11)} plays` }))) })),
     card({ title: 'Recently added', actions: button({ size: 'sm', variant: 'ghost', href: '#/showcase' }, 'Everything in it', icon('chevronRight', 13)),
       body: mediaGrid(films.map((f, i) => mediaCard({ href: '#/showcase', poster: poster(null, f, { cls: 'fui-poster--grid' }), name: f, sub: `${2006 + i} · added ${i + 1}d ago` }))) }),
     card({ title: 'Plays', cls: 'fui-card--flush', body: [dataTable(h('table', { class: 'fui-data-table' },
