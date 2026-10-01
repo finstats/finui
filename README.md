@@ -30,20 +30,23 @@ colour, accent, chart colours, radius, density, borders, cards, highlight, motio
 Lock what you like and shuffle the rest. What you made is a short code, and one command takes it home:
 
 ```sh
-pnpm dlx github:finstats/finui init --preset 0101         # FinUI into ./finui, your tokens after tokens.css' own
-pnpm dlx github:finstats/finui init --preset 0101 --css   # or one finui.css, with its fonts beside it
-npx --allow-git=all github:finstats/finui init --preset 0101   # with npm: version 12 fetches nothing from git unless allowed
+curl -fsSL https://finstats.github.io/finui/install.sh | sh -s -- 0101         # FinUI into ./finui, your tokens after tokens.css' own
+curl -fsSL https://finstats.github.io/finui/install.sh | sh -s -- 0101 --css   # or one finui.css, with its fonts beside it
 ```
 
-The installer has no dependencies and writes only into an empty folder. A preset is nothing but tokens: a `:root` block
+Nothing but `curl` and `sh`: no package manager, no Node. The installer writes only into an empty folder (`--dir` names
+another), and fetches everything before it writes anything. Without a shell, the page downloads the stylesheet itself.
+The site, installer included, is built by the pages workflow (`tools/build-site.mjs`) on every push to `main`, once the
+checks and tests pass: FinUI's files, `finui.css`, and one small file of tokens per choice (`p/<axis>/<option>.css`),
+which the installer fetches in axis order, so a later choice sets a token last, as the page does. A preset is nothing but tokens: a `:root` block
 after `tokens.css`, which you can also copy from the page and paste into a FinUI you already have. The choices live in
-`create/presets.json` and are worked into tokens by `create/preset.js`, the one module both the page and the installer
-use. Every chart palette but finstats' own is an ordering of validated hues whose neighbours stay apart by day and by
+`create/presets.json` and are worked into tokens by `create/preset.js`, the one module both the page and the site's
+builder use. Every chart palette but finstats' own is an ordering of validated hues whose neighbours stay apart by day and by
 night, and a test holds that.
 
 ## Using it
 
-Copy the folder, or let `pnpm dlx github:finstats/finui init` copy it.
+Copy the folder, or let the installer above copy it.
 Load the stylesheets in `registry.json`'s order — `tokens.css`, `base.css`, then each component's CSS
 — either as separate `<link>`s or as one file joined in that order (finstats serves them joined, as `/assets/finui.css`).
 Then import what you need:
@@ -61,7 +64,8 @@ Fonts are Inter and JetBrains Mono, in `fonts/` beside `base.css`.
 
 `registry.json` lists every component with its files, the tokens its CSS reads and the components it is built with.
 `node tools/check.mjs` holds the registry to the files and keeps the rules above, and `node --test test/*.test.mjs` holds
-the presets and the installer; both run on every push.
+the presets, the site and the installer (run with `sh` against the built site); both run before every publish and on
+every pull request.
 
 ## Where it is made
 
