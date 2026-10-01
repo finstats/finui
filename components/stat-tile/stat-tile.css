@@ -10,7 +10,11 @@
 .fui-stat-tile { background: var(--bg-2); border: 1px solid var(--border-soft); border-radius: var(--radius); box-shadow: var(--card-shadow); padding: calc(var(--density) * 14px) calc(var(--density) * 16px) calc(var(--density) * 12px); min-width: 0; display: flex; flex-direction: column; gap: 4px; }
 .fui-stat-tile__label { font-size: 12.5px; color: var(--text-muted); }
 .fui-stat-tile__row { display: flex; align-items: flex-end; justify-content: space-between; gap: 10px; }
-.fui-stat-tile__value { font-size: 26px; line-height: 1.15; font-weight: 650; letter-spacing: -.02em; color: var(--text-strong); white-space: nowrap; }
+.fui-stat-tile__value { font-size: 26px; line-height: 1.15; font-weight: 650; letter-spacing: -.02em; color: var(--text-strong); white-space: nowrap; flex: none; }
+/* The value is what the tile is for and keeps its width; a small chart beside it takes what is left and scales down
+   whole — a wide value ("56d 23h") once pushed it out of the tile, its last point cut off. */
+.fui-stat-tile__spark { flex: 0 1 auto; min-width: 0; display: flex; }
+.fui-stat-tile__spark > svg { max-width: 100%; height: auto; }
 .fui-stat-tile__foot { display: flex; align-items: center; gap: 7px; font-size: 12px; min-height: 18px; flex-wrap: wrap; }
 .fui-stat-tile__vs { color: var(--text-faint); }
 /* A tile that is also a choice (Library health's kinds): pressed is the list below it. */

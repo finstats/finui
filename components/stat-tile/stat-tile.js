@@ -16,7 +16,7 @@ function deltaEl(cur, prev) {
 export function statTile({ label, value, title, current, previous, vsLabel, spark, hint }) {
   return h('div', { class: 'fui-stat-tile' },
     h('div', { class: 'fui-stat-tile__label' }, label),
-    h('div', { class: 'fui-stat-tile__row' }, h('div', { class: 'fui-stat-tile__value', title }, value), spark || null),
+    h('div', { class: 'fui-stat-tile__row' }, h('div', { class: 'fui-stat-tile__value', title }, value), spark ? h('div', { class: 'fui-stat-tile__spark' }, spark) : null),
     h('div', { class: 'fui-stat-tile__foot' }, previous != null ? [deltaEl(current, previous), h('span', { class: 'fui-stat-tile__vs' }, vsLabel)] : hint ? h('span', { class: 'fui-stat-tile__vs' }, hint) : h('span', { class: 'fui-stat-tile__vs' }, ' ')));
 }
 
