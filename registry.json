@@ -227,7 +227,8 @@
         "--knob",
         "--on-accent",
         "--radius-pill",
-        "--shadow"
+        "--shadow",
+        "--text-faint"
       ],
       "requires": [
         "core"
@@ -322,7 +323,9 @@
         "--hover",
         "--mono",
         "--radius",
+        "--radius-sm",
         "--serious",
+        "--spark",
         "--text",
         "--text-faint",
         "--text-muted",
@@ -548,7 +551,8 @@
         "--text-faint"
       ],
       "requires": [
-        "core"
+        "core",
+        "avatar"
       ]
     },
     {

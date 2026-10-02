@@ -57,6 +57,31 @@ function docs(meta) {
     meta.props ? [h('h3', { class: 'demo-h' }, 'Props'), h('dl', { class: 'demo-props' }, Object.entries(meta.props).map(([k, v]) => [h('dt', { class: 'mono' }, k), h('dd', null, v)]))] : null);
 }
 
+/** One example to play with: switches turn its features on (one may turn others off), a choice picks between variants,
+ *  and the example is drawn again in both themes at every change. */
+function playground(name, p) {
+  const state = Object.fromEntries(p.controls.map((c) => [c.key, c.choices ? c.choices[0][0] : !!c.on]));
+  const stage = h('div');
+  const draw = () => mount(stage, frames(() => p.render({ ...state })));
+  const switches = {};
+  const controls = p.controls.map((c) => {
+    const id = `play-${name}-${c.key}`;
+    if (c.choices) {
+      return h('div', { class: 'demo-play__control demo-play__control--choice', dataset: { control: c.key } }, h('span', { class: 'demo-play__label', id }, c.label),
+        segmented({ label: c.label, size: 'sm', value: state[c.key], options: c.choices.map(([value, label]) => ({ value, label })), onChange: (v) => { state[c.key] = v; draw(); } }));
+    }
+    const sw = toggle({ checked: state[c.key], labelledby: id, onChange: (on) => {
+      state[c.key] = on;
+      if (on) for (const other of c.excludes || []) if (state[other]) { state[other] = false; switches[other].setAttribute('aria-checked', 'false'); }
+      draw();
+    } });
+    switches[c.key] = sw;
+    return h('div', { class: 'demo-play__control', dataset: { control: c.key } }, sw, h('span', { class: 'demo-play__label', id }, c.label));
+  });
+  draw();
+  return h('section', { class: 'demo-example demo-play' }, h('div', { class: 'demo-play__controls', role: 'group', 'aria-label': 'What it does' }, controls), stage);
+}
+
 function viewBar(title, repaint) {
   return h('div', { class: 'demo-bar' }, h('h3', { class: 'demo-h' }, title),
     segmented({ label: 'Where the examples are drawn', size: 'sm', value: view, options: VIEWS, onChange: (v) => { view = v; repaint(); } }));
@@ -153,7 +178,8 @@ async function start() {
   // Each component's stylesheet after the foundation, in the registry's order: the order the cascade was written for.
   for (const c of registry.components) for (const f of c.files.filter((x) => x.endsWith('.css'))) document.head.append(h('link', { rel: 'stylesheet', href: f }));
   const metas = await Promise.all(registry.components.map(async (c) => {
-    const js = c.files.find((f) => f.endsWith('.js'));
+    // The module named after the component holds its meta; another beside it (calendar's dates.js) is its own parts.
+    const js = c.files.find((f) => f.endsWith(`/${c.name}.js`)) || c.files.find((f) => f.endsWith('.js'));
     return js ? ((await import('../' + js)).meta || {}) : {};
   }));
   const sections = [{ key: 'showcase', label: 'Showcase', icon: 'sparkle', group: 'FinUI' }, { key: 'foundation', label: 'Foundation', icon: 'layers', group: 'FinUI' },
@@ -181,7 +207,8 @@ async function start() {
     if (section.block) return blockPage(slot, section.block);
     const meta = section.meta || {};
     const paint = () => mount(slot, h('h2', { class: 'fui-page-header__title' }, meta.name || section.key), h('p', { class: 'demo-purpose' }, meta.purpose || ''), docs(meta),
-      viewBar('Examples', paint), (meta.examples || []).map((x) => h('section', { class: 'demo-example' }, h('h4', { class: 'demo-name' }, x.name), frames(x.render))));
+      viewBar('Try it', paint), meta.playground ? playground(meta.name || section.key, meta.playground)
+        : (meta.examples || []).map((x) => h('section', { class: 'demo-example' }, h('h4', { class: 'demo-name' }, x.name), frames(x.render))));
     paint();
   }
   window.addEventListener('hashchange', () => { route(); window.scrollTo({ top: 0 }); });

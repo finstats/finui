@@ -47,3 +47,8 @@ body { background: var(--page-bg); }
 .demo-code__how { font-size: 12.5px; color: var(--text-muted); }
 .demo-code__pane { margin: 0; max-height: 460px; overflow: auto; padding: 12px; font-size: 12px; line-height: 1.55; white-space: pre; background: var(--bg-2); border: 1px solid var(--border-soft); border-radius: var(--radius-sm); color: var(--text); }
 .demo-code__pane[data-lang="html"] { white-space: pre-wrap; overflow-wrap: anywhere; }
+/* A component to play with: its switches and choices in a row above it. */
+.demo-play { display: grid; gap: 12px; }
+.demo-play__controls { display: flex; flex-wrap: wrap; align-items: center; gap: 10px 22px; padding: 10px 12px; background: var(--bg-2); border: 1px solid var(--border-soft); border-radius: var(--radius); }
+.demo-play__control { display: inline-flex; align-items: center; gap: 8px; font-size: 13px; color: var(--text); }
+.demo-play__control--choice .demo-play__label { color: var(--text-muted); }
