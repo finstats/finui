@@ -55,6 +55,19 @@ between its variants, and it is drawn again in both themes at every change. The 
 days or a range, marked days, limits, a week that starts on Sunday — and its buttons and keys work as they will in an
 app, because a component that only looks right is no component.
 
+## Icons that move
+
+Every icon comes twice: still, as `icon()` draws it, and moving, as `animatedIcon()` draws it. A moving icon is drawn
+in stroke by stroke, does what it is about — refresh turns, download's arrow drops into its tray, a heart beats, a
+slider's knobs slide, the trash lifts its lid — and is drawn out again, in a loop; or only while it is pointed at
+(`play: 'hover'`), or once. At rest it is the still icon, and it stays still with reduced motion and with a preset's
+Motion: Off. What each icon does is one line of `components/animated-icon/motions.js`.
+
+```js
+import { animatedIcon } from './finui/components/animated-icon/animated-icon.js';
+refreshButton.prepend(animatedIcon('refresh', { play: 'hover' }));
+```
+
 ## Blocks
 
 The gallery's **blocks** are compositions of the components, a card's worth of an app each: seven of them, one of each
