@@ -57,13 +57,22 @@ app, because a component that only looks right is no component.
 
 ## Blocks
 
-The gallery's **blocks** are compositions of the components, a card's worth of an app each, every one an entry of its own in its list, grouped by kind (charts, dates, forms, lists, feedback, look, pages): a calendar, bar, area and donut
-charts and a heatmap, a sign-in form, a settings page with its menu, notifications, a table, a dialog, loading, error and empty states. They
-are the cards FinUI create draws a preset on (`blocks/blocks.js`, laid out by `blocks/blocks.css`), shown in both themes,
-a block that is one thing used several ways is one block with switches (the calendar: several days, a range, what comes out,
-times, the week's plans, the pick in words), each with its code to copy, the same code with only what is switched on: a module that imports FinUI from `./finui/` (where the installer puts it) and
-exports one function that builds the block, the CSS of the classes it draws, and its HTML. `blocks/source.js` works the
-code out of `blocks.js` and `blocks.css`, and the QA stage pastes it into a page with nothing but FinUI and runs it.
+The gallery's **blocks** are compositions of the components, a card's worth of an app each: seven of them, one of each
+kind, each an entry of its own in its list. Each is one block with switches, not a row of fixed variants:
+
+- **Calendar**: one day, several or a range, and beside it what comes out, times, the week's plans, the pick in words.
+- **Chart**: bars, a line, an area, a donut, rings, a radar, a heatmap, a bar list or storage, with a legend, numbers over it, a sentence, an export.
+- **Form**: a server address, a user name, names, an e-mail, a password, a two-step code, a service, people to invite, a file, notifications, a new key — and the button they call for.
+- **List**: one set of rows, numbered or not, with pictures, a line under, values, progress, states, unread marks, roles, a timeline or filters.
+- **State**: loading, empty, an error, done or a question, as it is, as a banner or in a dialog, with a way on and a way to dismiss it.
+- **Look**: a preset part by part — colours, type, buttons, badges, focus and icons, keys, facts.
+- **Page**: a table, settings or not found, with the app's menu, a page header and numbers over it.
+
+They are the cards FinUI create draws a preset on, each in several of its ways (`blocks/blocks.js`, laid out by
+`blocks/blocks.css`), shown in both themes. Each comes with its code to copy, the same code with only what is switched on:
+a module that imports FinUI from `./finui/` (where the installer puts it) and exports one function that builds the block,
+the CSS of the classes it draws, and its HTML. `blocks/source.js` works the code out of `blocks.js` and `blocks.css`, and
+the QA stage pastes it into a page with nothing but FinUI and runs it.
 
 ## Using it
 
