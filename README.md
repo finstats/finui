@@ -48,6 +48,13 @@ builder use; a style is a name and its picks there. Tests hold what every choice
 apart by day and by night, every base's text reads on its grounds, every accent reads as a link and on its buttons, every
 button and menu style keeps its words readable, and every token a choice sets is one something reads.
 
+## Blocks
+
+The gallery's **Blocks** are compositions of the components, a card's worth of an app each: a sign-in form, a settings
+page with its menu, notifications, charts with their legends, a table, a dialog, loading, error and empty states. They
+are the cards FinUI create draws a preset on (`blocks/blocks.js`, laid out by `blocks/blocks.css`), shown in both themes,
+each with its HTML to copy.
+
 ## Using it
 
 Copy the folder, or let the installer above copy it.
