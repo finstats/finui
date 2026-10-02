@@ -247,3 +247,66 @@ test('a font is its family first in its token, and its faces come with it; nothi
   const css = faces(presets, two);
   assert.ok(css.includes('Manrope') && css.includes('Lora') && !css.includes('Fraunces'), 'the faces of what was chosen and nothing else');
 });
+
+// ---------------------------------------------------------------- the rest of the look, axis by axis
+test('FinUI create offers these axes, in this order (a code is read by position, so a new one goes at the end)', () => {
+  assert.deepEqual(presets.axes.map((a) => a.key), ['base', 'accent', 'charts', 'radius', 'density', 'borders', 'cards', 'highlight', 'motion', 'icons',
+    'font', 'heading', 'mono', 'headings', 'buttons', 'fields', 'tables', 'menu', 'icon-ends', 'page', 'focus', 'contrast']);
+});
+
+// A token nothing reads is a choice that changes nothing on the page. (The colours of a base, an accent and a palette are
+// every colour finstats has, and its own pages read many of them; the shape and feel of a page are FinUI's.)
+test('every token a shape or feel option sets is read by FinUI', () => {
+  const css = ['base.css', ...registry.components.flatMap((c) => c.files).filter((f) => f.endsWith('.css'))].map((f) => uncomment(read(f))).join('\n')
+    + [...defaults.values()].join('\n');
+  const unread = new Set();
+  for (const c of everyChoice().filter((c) => c.every((o, i) => !o || presets.axes[i].kind === 'tokens'))) for (const [t] of tokens(presets, c)) if (!css.includes(`var(${t})`) && !css.includes(`var(${t},`)) unread.add(t);
+  assert.deepEqual([...unread], []);
+});
+
+test('every axis has a choice worth making', () => {
+  const least = { base: 18, accent: 30, charts: 10, radius: 6, density: 5, borders: 4, cards: 5, highlight: 3, motion: 5, icons: 5, font: 28, mono: 8,
+    headings: 4, buttons: 4, fields: 3, tables: 3, menu: 4, 'icon-ends': 2, page: 4, focus: 3, contrast: 2 };
+  const short = Object.entries(least).map(([k, min]) => [k, presets.axes[at(k)]?.options.length ?? 0, min]).filter(([, len, min]) => len < min);
+  assert.deepEqual(short, []);
+});
+
+test('the heading font is any text font, or the text’s own', () => {
+  assert.deepEqual(presets.axes[at('heading')].options.map((o) => o.key), ['text', ...presets.axes[at('font')].options.map((o) => o.key)]);
+});
+
+/** Over every base and accent, by day and by night: the words on a fill read at 4.5:1. */
+function readsOn(axis, text, fill, skip = () => false) {
+  const bad = [];
+  presets.axes[at(axis)].options.forEach((o, oi) => presets.axes[at('accent')].options.forEach((a, ai) => presets.axes[at('base')].options.forEach((b, bi) => {
+    if (skip(oi, ai)) return;
+    for (const side of ['light', 'dark']) {
+      const c = colourOf(pick({ [axis]: oi, accent: ai, base: bi }), side);
+      const ground = over(c(fill), c('--bg-2'));
+      const k = contrast(over(c(text), ground), ground);
+      if (k < 4.5) bad.push(`${axis} ${o.key}, ${a.key} on ${b.key} ${side}: ${k.toFixed(2)}`);
+    }
+  })));
+  return [...new Set(bad)].slice(0, 20);
+}
+// Solid is the accent with its own words on it, held already, and tokens.css' seal-and-violet is the owner's call.
+test('a primary button’s words read on it, whatever the button style', () => {
+  assert.deepEqual(readsOn('buttons', '--primary-text', '--primary-bg', (oi, ai) => oi === 0 && ai === 0), []);
+});
+test('the selected item of a menu reads, whatever the menu style', () => {
+  assert.deepEqual(readsOn('menu', '--selected-text', '--selected-bg', (oi, ai) => oi === 1 && ai === 0), []);
+});
+
+test('high contrast lifts muted text to 7:1 and faint text to 4.5:1 on every base', () => {
+  const bad = [];
+  presets.axes[at('base')].options.forEach((b, bi) => {
+    for (const side of ['light', 'dark']) {
+      const c = colourOf(pick({ base: bi, contrast: option('contrast', 'high') }), side);
+      for (const [t, floor] of [['--text', 7], ['--text-muted', 7], ['--text-faint', 4.5]]) for (const g of GROUNDS) {
+        const k = contrast(over(c(t), c(g)), c(g));
+        if (k < floor) bad.push(`${b.key} ${side}: ${t} on ${g} is ${k.toFixed(2)}`);
+      }
+    }
+  });
+  assert.deepEqual(bad, []);
+});
