@@ -11,7 +11,7 @@ import { openModal } from '../components/modal/modal.js';
 import { inlineError } from '../components/field/field.js';
 import { emptyState } from '../components/empty/empty.js';
 import { themeSwitch } from '../components/theme-switch/theme-switch.js';
-import { decode, encode, overlay, stylesheet } from './preset.js';
+import { decode, encode, faces, overlay, stylesheet } from './preset.js';
 import { previewPage } from './preview.js';
 
 const ROOT = new URL('../', import.meta.url);
@@ -42,6 +42,12 @@ function mark(axis, o) {
     const corner = h('span', { class: 'create-mark create-mark--corner' });
     corner.style.borderTopLeftRadius = (o.tokens && o.tokens['--radius-control']) || '6px';
     return corner;
+  }
+  // A font says itself: Aa in it. Its face is declared on this page (fontFaces), so only the ones shown are fetched.
+  if (axis.kind === 'font') {
+    const aa = h('span', { class: 'create-mark create-mark--font' }, 'Aa');
+    aa.style.fontFamily = o.stack || (axis.token === '--font-heading' ? 'var(--sans)' : `var(${axis.token})`);
+    return aa;
   }
   if (axis.key === 'icons') {
     const i = icon('sparkle', 16, 'create-mark');
@@ -84,11 +90,23 @@ function picker(axis, { get, set, preview, locked, onLock }) {
     list.setAttribute('aria-activedescendant', `${id}-${active}`);
     list.querySelector('.is-active')?.scrollIntoView({ block: 'nearest' });
   }
-  function move(i) { active = i; options(); preview(i); }
+  // Moving through the list only moves the highlight: the options stay the same nodes, so what is under the pointer is
+  // what it clicks.
+  function move(i) {
+    active = i;
+    list.querySelectorAll('[role=option]').forEach((li, k) => li.classList.toggle('is-active', k === i));
+    list.setAttribute('aria-activedescendant', `${id}-${i}`);
+    list.querySelector('.is-active')?.scrollIntoView({ block: 'nearest' });
+    preview(i);
+  }
   function open() {
     before = get(); active = before;
     list.hidden = false; btn.setAttribute('aria-expanded', 'true'); el.classList.add('is-open');
-    options(); list.focus();
+    options();
+    // Open upwards when the panel has no room below: a menu at the foot of the panel was cut off there.
+    const room = el.closest('.create-panel__body')?.getBoundingClientRect();
+    el.classList.toggle('is-up', !!room && list.getBoundingClientRect().bottom > room.bottom && btn.getBoundingClientRect().top - room.top > list.offsetHeight);
+    list.focus();
     document.addEventListener('pointerdown', outside, true);
   }
   function close(refocus) {
@@ -114,6 +132,16 @@ function picker(axis, { get, set, preview, locked, onLock }) {
   });
   show();
   return { el, show };
+}
+
+/** A preset's faces name their files as `fonts/` beside the stylesheet; on this page and in its frames that is FinUI's own. */
+const located = (css) => css.replaceAll('url("fonts/', `url("${at('fonts/')}`);
+
+/** Every font a preset can choose, declared on this page so a picker can show each in itself; a browser fetches a face
+ *  only when something on the page uses it. */
+function fontFaces(presets) {
+  const css = presets.axes.flatMap((axis, a) => axis.kind !== 'font' ? [] : axis.options.map((_, o) => faces(presets, presets.axes.map((__, i) => (i === a ? o : 0))))).join('');
+  document.head.append(h('style', null, located(css)));
 }
 
 /** A frame the preview is drawn in: a document of its own (srcdoc, so standards mode) with FinUI's stylesheets, the
@@ -201,6 +229,7 @@ async function start() {
   const components = registry.components.flatMap((c) => c.files.filter((f) => f.endsWith('.css'))).map(at);
   for (const href of components) own.before(h('link', { rel: 'stylesheet', href }));
   const sheets = [at('tokens.css'), at('base.css'), ...components];
+  fontFaces(presets);
 
   let choice = decode(presets, new URLSearchParams(location.search).get('preset')) || axes.map(() => 0);
   const locks = new Set();
@@ -210,7 +239,7 @@ async function start() {
   const codeEl = h('code', { class: 'create-code mono' });
   const codeRow = h('div', { class: 'create-code-row' });
 
-  const live = (c) => { const css = overlay(presets, encode(c), c); for (const f of frames) f.use(css); };
+  const live = (c) => { const css = located(overlay(presets, encode(c), c)); for (const f of frames) f.use(css); };
   function drawFrames() {
     frames = (view === 'both' ? ['light', 'dark'] : [view]).map((t) => frame(t, sheets));
     stage.classList.toggle('is-both', view === 'both');

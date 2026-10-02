@@ -42,6 +42,7 @@ body { background: var(--page-bg); }
   background: var(--bg-2); border: 1px solid var(--border); border-radius: var(--radius); box-shadow: 0 12px 32px color-mix(in srgb, var(--shadow) 50%, transparent);
 }
 .create-picker__list:focus { outline: none; }
+.create-picker.is-up .create-picker__list { top: auto; bottom: calc(100% + 4px); }
 .create-picker__option { display: flex; align-items: center; gap: 8px; padding: 6px 8px; border-radius: var(--radius-sm); font-size: 13px; cursor: pointer; }
 .create-picker__option.is-active { background: var(--hover); }
 .create-picker__option[aria-selected="true"] { color: var(--accent-hi); }
@@ -50,6 +51,7 @@ body { background: var(--page-bg); }
 .create-mark--halves > span { flex: 1; }
 .create-mark--dots { display: inline-grid; grid-template-columns: repeat(2, 7px); gap: 2px; }
 .create-mark--dots > span { width: 7px; height: 7px; border-radius: 50%; }
+.create-mark--font { font-size: 15px; font-weight: 500; line-height: 1; color: var(--text); }
 .create-mark--corner { width: 13px; height: 13px; border-top: 2px solid currentColor; border-left: 2px solid currentColor; margin: 3px 0 0 3px; }
 .create-panel__foot { display: grid; gap: 8px; padding: 12px; border-top: 1px solid var(--border-soft); background: var(--bg-sunken); border-radius: 0 0 var(--radius) var(--radius); }
 .create-panel__label { font-size: 11.5px; }
