@@ -57,3 +57,70 @@ button.blk-cal__day:hover { background: var(--hover); }
 .blk-cal__day[aria-pressed="true"] { background: var(--primary-bg); color: var(--primary-text); box-shadow: none; }
 .blk-cal__dot { position: absolute; bottom: 12%; left: 50%; width: 4px; height: 4px; margin-left: -2px; border-radius: var(--radius-pill); background: var(--accent); }
 .blk-cal__day[aria-pressed="true"] .blk-cal__dot { background: var(--primary-text); }
+.blk-row--between { justify-content: space-between; }
+.blk-center { justify-items: center; text-align: center; }
+.blk-big { font-family: var(--font-heading); font-size: 18px; font-weight: var(--heading-weight); color: var(--text-strong); }
+.blk-two { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 10px; }
+/* The radar: a web of six and one shape over it. */
+.blk-radar { display: block; width: 100%; max-width: 280px; height: auto; margin: 0 auto; overflow: visible; }
+.blk-radar__label { fill: var(--text-faint); font-size: 7.5px; }
+/* A bar list: each row's bar behind its name, the number at the end. */
+.blk-bars { display: grid; gap: 6px; }
+.blk-bars__row { position: relative; display: flex; align-items: center; justify-content: space-between; gap: 10px; padding: 6px 10px; font-size: 13px; }
+.blk-bars__fill { position: absolute; inset: 0 auto 0 0; border-radius: var(--radius-sm); background: var(--accent-wash); }
+.blk-bars__name, .blk-bars__value { position: relative; }
+.blk-spark { width: 72px; height: 22px; }
+.blk-stats { grid-template-columns: minmax(0, 1fr); }
+/* Dates: a range in a month, times to choose from, a week of plans. */
+.blk-cal__day.is-in-range { background: var(--accent-wash); border-radius: 0; }
+.blk-cal__day.is-edge { background: var(--primary-bg); color: var(--primary-text); border-radius: var(--radius-control); }
+.blk-slots { display: flex; flex-wrap: wrap; gap: 6px; }
+.blk-agenda { display: grid; }
+.blk-agenda__day { display: grid; grid-template-columns: 56px minmax(0, 1fr); gap: 10px; padding: 9px 0; }
+.blk-agenda__day + .blk-agenda__day { border-top: 1px solid var(--border-soft); }
+.blk-agenda__date { font-size: 12px; font-weight: 600; color: var(--text-faint); text-transform: uppercase; letter-spacing: .04em; padding-top: 2px; }
+.blk-agenda__items { display: grid; gap: 6px; font-size: 13px; }
+.blk-agenda__item { display: flex; align-items: baseline; gap: 8px; flex-wrap: wrap; }
+/* Forms: six boxes for a code, a field with a button beside it, an address and a role, a place to drop a file. */
+.blk-otp { display: flex; align-items: center; justify-content: center; gap: 6px; }
+.blk-otp__box { width: 40px; text-align: center; font-size: 18px; padding-left: 0; padding-right: 0; }
+.blk-otp__dash { color: var(--text-faint); }
+.blk-key-row .fui-field__input { flex: 1; min-width: 0; }
+.blk-key-row--boxed { padding: 6px 10px; }
+.blk-invite { display: grid; grid-template-columns: minmax(0, 1fr) auto; gap: 8px; }
+.blk-drop { display: grid; justify-items: center; gap: 6px; padding: 22px 16px; text-align: center; color: var(--text-muted); border: 1px dashed var(--border-strong); border-radius: var(--radius); background: var(--bg-sunken); }
+.blk-drop strong { color: var(--text); }
+/* Lists: a feed on a line, unread marks, one bar of parts. */
+.blk-feed { display: grid; gap: 14px; position: relative; }
+.blk-feed__row { position: relative; display: flex; gap: 12px; align-items: flex-start; font-size: 13px; }
+.blk-feed__row:not(:last-child)::after { content: ""; position: absolute; left: 12px; top: 26px; bottom: -14px; width: 1px; background: var(--border); }
+.blk-feed__mark { display: grid; place-items: center; width: 25px; height: 25px; flex: none; border-radius: var(--radius-pill); background: var(--bg-sunken); color: var(--text-muted); box-shadow: inset 0 0 0 1px var(--border); }
+.blk-select-sm { width: auto; min-height: 30px; padding-top: 4px; padding-bottom: 4px; font-size: 12.5px; }
+.blk-inbox__dot { width: 8px; height: 8px; flex: none; border-radius: var(--radius-pill); }
+.blk-inbox.is-unread .blk-inbox__dot { background: var(--accent); }
+.blk-inbox:not(.is-unread) strong { font-weight: 500; color: var(--text-muted); }
+.blk-stackbar { display: flex; height: 12px; gap: 2px; overflow: hidden; border-radius: var(--radius-pill); }
+/* Feedback: a banner in each tone, a finished thing. */
+.blk-callout { display: flex; align-items: flex-start; gap: 10px; padding: 10px 12px; font-size: 13px; border: 1px solid var(--border-soft); border-radius: var(--radius-control); }
+.blk-callout > .icon { margin-top: 2px; }
+.blk-callout .blk-list__text { flex: 1; }
+.blk-callout--info { background: var(--accent-wash); }
+.blk-callout--info > .icon { color: var(--accent-hi); }
+.blk-callout--warning { background: var(--warn-wash); }
+.blk-callout--warning > .icon { color: var(--warning); }
+.blk-callout--critical { background: var(--crit-wash); }
+.blk-callout--critical > .icon { color: var(--critical-text); }
+.blk-done { display: grid; place-items: center; width: 52px; height: 52px; border-radius: var(--radius-pill); background: var(--accent-wash); color: var(--accent-hi); }
+/* Pages: a missing page, and an app's menu. */
+.blk-404 { font-size: 54px; font-weight: 700; line-height: 1; color: var(--text-faint); letter-spacing: -.04em; }
+.blk-center .fui-field__search { width: 100%; max-width: none; }
+.blk-side { display: grid; gap: 2px; }
+.blk-side__brand { display: grid; grid-template-columns: auto minmax(0, 1fr); column-gap: 10px; align-items: center; padding: 2px 4px 12px; }
+.blk-side__brand .muted { grid-column: 2; font-size: 12px; }
+.blk-side__logo { grid-row: span 2; display: grid; place-items: center; width: 32px; height: 32px; border-radius: var(--radius-control); background: var(--accent); color: var(--on-accent); font-weight: 700; }
+.blk-side__group { margin: 10px 0 4px; padding-left: 10px; font-size: 11px; font-weight: 600; letter-spacing: .05em; text-transform: uppercase; color: var(--text-faint); }
+.blk-side__item { display: flex; align-items: center; gap: 9px; padding: 6px 10px; border-radius: var(--radius-control); color: var(--text-muted); font-size: 13.5px; }
+.blk-side__item:hover { background: var(--hover); color: var(--text); text-decoration: none; }
+.blk-side__item.is-active { background: var(--selected-bg); color: var(--selected-text); box-shadow: var(--selected-edge); }
+.blk-side__item.is-active .icon { color: var(--selected-icon); }
+.blk-side__user { display: flex; align-items: center; gap: 10px; margin-top: 12px; padding: 10px 4px 0; border-top: 1px solid var(--border-soft); font-size: 13px; }

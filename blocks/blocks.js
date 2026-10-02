@@ -276,6 +276,209 @@ function calendar() {
     grid, list);
 }
 
+// ---- more charts
+/** Two lines, this month and the one before, day by day. */
+function lineChart() {
+  const r = steady(19);
+  const W = 320, H = 130;
+  const make = (base) => Array.from({ length: 15 }, (_, i) => base + Math.sin(i / 2.2) * 12 + r.next().value * 14);
+  const now = make(40), before = make(30), top = Math.max(...now, ...before);
+  const line = (vals) => vals.map((v, i) => `${i ? 'L' : 'M'}${((i / 14) * W).toFixed(1)},${(H - (v / top) * (H - 8)).toFixed(1)}`).join(' ');
+  const svg = s('svg', { class: 'blk-chart', viewBox: `0 0 ${W} ${H}`, role: 'img', 'aria-label': 'Plays a day, this month and the month before' });
+  for (const f of [0.25, 0.5, 0.75]) svg.append(styled(s('line', { x1: 0, x2: W, y1: H * f, y2: H * f }), { stroke: 'var(--grid)' }));
+  svg.append(styled(s('path', { d: line(before) }), { fill: 'none', stroke: 'var(--series-2)', strokeWidth: '2', strokeDasharray: '4 4' }));
+  svg.append(styled(s('path', { d: line(now) }), { fill: 'none', stroke: 'var(--series-1)', strokeWidth: '2.5' }));
+  return h('div', { class: 'blk-stack' }, svg, legend([['This month', 'var(--series-1)'], ['The month before', 'var(--series-2)']]));
+}
+
+/** Three rings, each how far one thing has come. */
+function radial() {
+  const parts = [['Finished', 0.72, 1], ['Started', 0.48, 2], ['Requested', 0.3, 3]];
+  const svg = s('svg', { class: 'blk-donut', viewBox: '0 0 120 120', role: 'img', 'aria-label': 'Shows finished, started and requested this year' });
+  parts.forEach(([, v, n], i) => {
+    const R = 50 - i * 14, C = 2 * Math.PI * R;
+    svg.append(styled(s('circle', { cx: 60, cy: 60, r: R }), { fill: 'none', stroke: 'var(--track)', strokeWidth: '9' }));
+    svg.append(styled(s('circle', { cx: 60, cy: 60, r: R, 'stroke-dasharray': `${v * C} ${C}`, transform: 'rotate(-90 60 60)', 'stroke-linecap': 'round' }), { fill: 'none', stroke: `var(--series-${n})`, strokeWidth: '9' }));
+  });
+  return h('div', { class: 'blk-donut-wrap' }, svg, legend(parts.map(([name, v, n]) => [`${name} · ${Math.round(v * 100)}%`, `var(--series-${n})`])));
+}
+
+/** What somebody watches, by genre: one shape over a web of six. */
+function radar() {
+  const axes = [['Drama', 0.9], ['Comedy', 0.55], ['Animation', 0.8], ['Sci-fi', 0.65], ['Documentary', 0.3], ['Horror', 0.2]];
+  const C = 80, R = 58, pt = (i, f) => [C + Math.sin((i / 6) * 2 * Math.PI) * R * f, C - Math.cos((i / 6) * 2 * Math.PI) * R * f];
+  const svg = s('svg', { class: 'blk-radar', viewBox: '0 0 160 160', role: 'img', 'aria-label': 'Watch time by genre' });
+  for (const f of [0.33, 0.66, 1]) svg.append(styled(s('polygon', { points: axes.map((_, i) => pt(i, f).join(',')).join(' ') }), { fill: 'none', stroke: 'var(--grid)' }));
+  axes.forEach(([name], i) => {
+    const [x, y] = pt(i, 1), [tx, ty] = pt(i, 1.22);
+    svg.append(styled(s('line', { x1: C, y1: C, x2: x, y2: y }), { stroke: 'var(--grid)' }));
+    svg.append(s('text', { x: tx, y: ty + 2.5, 'text-anchor': 'middle', class: 'blk-radar__label' }, name));
+  });
+  svg.append(styled(s('polygon', { points: axes.map(([, v], i) => pt(i, v).join(',')).join(' ') }), { fill: 'var(--single)', fillOpacity: '.22', stroke: 'var(--single)', strokeWidth: '2' }));
+  return svg;
+}
+
+/** Plays by app, as bars to compare, the number beside each. */
+function barList() {
+  const rows = [['Android TV', 412], ['Web', 298], ['iOS', 171], ['Kodi', 96], ['Roku', 44]];
+  const top = rows[0][1];
+  return h('ul', { class: 'blk-bars' }, rows.map(([name, n]) => h('li', { class: 'blk-bars__row' },
+    styled(h('span', { class: 'blk-bars__fill', 'aria-hidden': 'true' }), { width: `${(n / top) * 100}%` }), h('span', { class: 'blk-bars__name' }, name), h('span', { class: 'blk-bars__value mono' }, String(n)))));
+}
+
+const spark = (seed) => {
+  const r = steady(seed), v = Array.from({ length: 12 }, (_, i) => 8 + i * 0.6 + r.next().value * 8), top = Math.max(...v);
+  const svg = s('svg', { class: 'blk-spark', viewBox: '0 0 80 24', 'aria-hidden': 'true' });
+  svg.append(styled(s('path', { d: v.map((x, i) => `${i ? 'L' : 'M'}${(i / 11) * 80},${24 - (x / top) * 22}`).join(' ') }), { fill: 'none', stroke: 'var(--spark)', strokeWidth: '1.5' }));
+  return svg;
+};
+function statsRow() {
+  return h('div', { class: 'fui-stat-tile__grid blk-stats' },
+    statTile({ label: 'Watch time', value: '42h', current: 42, previous: 36, vsLabel: 'vs last week', spark: spark(2) }),
+    statTile({ label: 'Plays', value: '128', current: 128, previous: 140, vsLabel: 'vs last week', spark: spark(5) }),
+    statTile({ label: 'Transcodes', value: '9', current: 9, previous: 14, vsLabel: 'vs last week', spark: spark(8) }));
+}
+
+// ---- dates
+const WEEKDAYS = ['Mo', 'Tu', 'We', 'Th', 'Fr', 'Sa', 'Su'];
+/** October 2026 as a grid, Monday first: `day(d)` gives a day's own attributes and contents. */
+function month(day) {
+  const first = 3, days = 31, cells = [];
+  for (let i = 0; i < first; i++) cells.push(h('span', { class: 'blk-cal__day is-outside', 'aria-hidden': 'true' }, String(28 + i)));
+  for (let d = 1; d <= days; d++) cells.push(day(d));
+  while (cells.length % 7) cells.push(h('span', { class: 'blk-cal__day is-outside', 'aria-hidden': 'true' }, String(cells.length - first - days + 1)));
+  return h('div', { class: 'blk-cal__grid', role: 'group', 'aria-label': 'October 2026' }, WEEKDAYS.map((w) => h('span', { class: 'blk-cal__wd', 'aria-hidden': 'true' }, w)), cells);
+}
+function dateRange() {
+  const from = 12, to = 18;
+  const grid = month((d) => h('span', { class: ['blk-cal__day', d >= from && d <= to && 'is-in-range', (d === from || d === to) && 'is-edge'], 'aria-current': d === 2 ? 'date' : null }, String(d)));
+  return h('div', { class: 'blk-cal' },
+    h('div', { class: 'blk-cal__head' }, button({ variant: 'icon', 'aria-label': 'September' }, icon('chevronLeft', 16)), h('span', { class: 'blk-cal__month' }, 'October 2026'), button({ variant: 'icon', 'aria-label': 'November' }, icon('chevronRight', 16))),
+    grid,
+    h('div', { class: 'blk-row blk-row--between' }, h('span', { class: 'muted' }, '12 – 18 October · 7 days'), button({ variant: 'primary', size: 'sm' }, 'Show this week')));
+}
+function timeSlots() {
+  const times = ['18:00', '18:30', '19:00', '19:30', '20:00', '20:30', '21:00', '21:30', '22:00'];
+  let chosen = '20:00';
+  const slots = h('div', { class: 'blk-slots', role: 'group', 'aria-label': 'Start at' });
+  const paint = () => slots.replaceChildren(...times.map((t) => chipToggle({ pressed: t === chosen, onChange: () => { chosen = t; paint(); } }, t)));
+  paint();
+  return h('div', { class: 'blk-stack' },
+    h('div', { class: 'blk-row blk-row--between' }, h('strong', null, 'Friday 9 October'), status({ tone: 'good' }, '4 of 5 free')),
+    slots,
+    h('p', { class: 'muted' }, 'alice, bob and carol are free then; dave joins at 21:00.'),
+    button({ variant: 'primary', block: true }, icon('calendar', 14), 'Plan the evening'));
+}
+function weekAgenda() {
+  const days = [['Mon 5', [['21:00', 'Sintel', 'S2 · E3']]], ['Wed 7', [['20:30', 'Tears of Steel', 'Film'], ['22:45', 'Spring', 'Short']]], ['Fri 9', [['21:00', 'Sintel', 'S2 · E4']]], ['Sun 11', []]];
+  return h('ul', { class: 'blk-agenda' }, days.map(([d, items]) => h('li', { class: 'blk-agenda__day' }, h('span', { class: 'blk-agenda__date' }, d),
+    h('div', { class: 'blk-agenda__items' }, items.length ? items.map(([t, title, sub]) => h('div', { class: 'blk-agenda__item' }, h('span', { class: 'mono muted' }, t), h('strong', null, title), h('span', { class: 'muted' }, sub)))
+      : h('span', { class: 'muted' }, 'Nothing planned')))));
+}
+
+// ---- forms
+function signUp() {
+  const f = (id, label, type = 'text', placeholder = '') => formField({ id, label, type, placeholder, autocomplete: 'off' }).el;
+  return h('div', { class: 'blk-stack' },
+    h('div', { class: 'blk-two' }, f('blk-first', 'First name', 'text', 'Alice'), f('blk-last', 'Last name', 'text', 'Liddell')),
+    f('blk-mail', 'E-mail', 'email', 'alice@example.org'), f('blk-new-pass', 'Password', 'password', 'At least 12 characters'),
+    h('label', { class: 'fui-field__check' }, h('input', { type: 'checkbox' }), 'Send me the weekly summary'),
+    button({ variant: 'primary', block: true }, 'Create the account'),
+    h('p', { class: 'muted blk-center' }, 'Already have one? ', h('a', { href: '#' }, 'Sign in')));
+}
+function verifyCode() {
+  const boxes = Array.from({ length: 6 }, (_, i) => h('input', { class: 'fui-field__input blk-otp__box mono', type: 'text', inputMode: 'numeric', maxLength: 1, value: i < 4 ? '3917'[i] : '', 'aria-label': `Digit ${i + 1}` }));
+  return h('div', { class: 'blk-stack blk-center' },
+    h('p', null, 'Enter the six digits your authenticator app shows for finstats.'),
+    h('div', { class: 'blk-otp' }, boxes.slice(0, 3), h('span', { class: 'blk-otp__dash', 'aria-hidden': 'true' }, '–'), boxes.slice(3)),
+    button({ variant: 'primary', block: true }, 'Verify'),
+    h('p', { class: 'muted' }, 'Lost your phone? ', h('a', { href: '#' }, 'Use a recovery code')));
+}
+function connectService() {
+  const url = formField({ id: 'blk-svc-url', label: 'Address', placeholder: 'http://192.168.1.10:8989' }).el;
+  const key = h('div', { class: 'fui-field' }, h('label', { class: 'fui-field__label', htmlFor: 'blk-svc-key' }, 'API key'),
+    h('div', { class: 'blk-key-row' }, h('input', { class: 'fui-field__input mono', id: 'blk-svc-key', type: 'password', value: 'invented-key-123', autocomplete: 'off' }), button({ variant: 'icon', 'aria-label': 'Show the key' }, icon('unlock', 15))),
+    h('p', { class: 'fui-field__help' }, 'Settings → General in Sonarr.'));
+  return h('div', { class: 'blk-stack' }, segmented({ label: 'Service', size: 'sm', value: 'sonarr', options: [{ value: 'sonarr', label: 'Sonarr' }, { value: 'radarr', label: 'Radarr' }, { value: 'seerr', label: 'Seerr' }], onChange: noop }),
+    url, key, status({ tone: 'good' }, 'Answered in 42 ms · version 4.0'),
+    h('div', { class: 'blk-row blk-row--end' }, button({}, icon('refresh', 14), 'Test'), button({ variant: 'primary' }, 'Connect')));
+}
+function invite() {
+  const row = (who, role) => h('div', { class: 'blk-invite' }, h('input', { class: 'fui-field__input', type: 'email', value: who, 'aria-label': 'E-mail' }),
+    h('select', { class: 'fui-field__input', 'aria-label': 'Role' }, ['Viewer', 'Manager'].map((r) => h('option', { selected: r === role }, r))));
+  const link = 'https://stats.example.org/invite/7f3a';
+  return h('div', { class: 'blk-stack' }, row('carol@example.org', 'Viewer'), row('dave@example.org', 'Manager'),
+    button({ variant: 'ghost', size: 'sm' }, icon('plus', 14), 'Another'),
+    h('div', { class: 'blk-key-row blk-key-row--boxed' }, h('code', { class: 'mono trunc' }, link), copyButton(link, 'Copy the invite link')),
+    button({ variant: 'primary', block: true }, 'Send 2 invites'));
+}
+function upload() {
+  return h('div', { class: 'blk-stack' },
+    h('div', { class: 'blk-drop' }, icon('upload', 22), h('strong', null, 'Drop a backup here'), h('span', { class: 'muted' }, 'Jellystat, Streamystats or Tautulli · up to 2 GB'), button({ size: 'sm' }, 'Choose a file')),
+    h('div', { class: 'blk-dl' }, h('div', { class: 'blk-dl__top' }, h('span', { class: 'trunc mono' }, 'jellystat-backup.json'), h('span', { class: 'muted nowrap' }, '61%')), meter({ value: 0.61, block: true, label: 'Uploading' })));
+}
+
+// ---- lists
+function activityFeed() {
+  const rows = [['alice', 'started', 'Sintel', '2 min ago', 'play'], ['bob', 'finished', 'Tears of Steel', '18 min ago', 'check'], ['carol', 'requested', 'Cosmos Laundromat', '1 h ago', 'plus'],
+    ['dave', 'signed in from', 'a new place', '3 h ago', 'shield']];
+  return h('ol', { class: 'blk-feed' }, rows.map(([who, did, what, when, ic]) => h('li', { class: 'blk-feed__row' },
+    h('span', { class: 'blk-feed__mark', 'aria-hidden': 'true' }, icon(ic, 13)),
+    h('div', { class: 'blk-list__text' }, h('span', null, h('strong', null, who), ` ${did} `, h('strong', null, what)), h('span', { class: 'muted' }, when)))));
+}
+function members() {
+  const rows = [['alice', 'Administrator'], ['bob', 'Manager'], ['carol', 'Viewer'], ['dave', 'Viewer']];
+  return h('ul', { class: 'blk-list' }, rows.map(([who, role]) => h('li', { class: 'blk-list__row' }, avatar(null, who, { size: 32 }),
+    h('div', { class: 'blk-list__text' }, h('strong', null, who), h('span', { class: 'muted' }, `${who}@example.org`)),
+    role === 'Administrator' ? badge({}, 'Jellyfin admin') : h('select', { class: 'fui-field__input blk-select-sm', 'aria-label': `${who}'s role` }, ['Viewer', 'Manager'].map((r) => h('option', { selected: r === role }, r))))));
+}
+function inbox() {
+  const rows = [['Sintel S2 · E4 is on the server', 'Requested by you', '5 min', true], ['Three failed sign-ins', 'From 203.0.113.7', '1 h', true], ['Backup written', '14.2 MB', 'yesterday', false]];
+  return h('div', { class: 'blk-stack' },
+    h('ul', { class: 'blk-list' }, rows.map(([title, sub, when, unread]) => h('li', { class: ['blk-list__row', 'blk-inbox', unread && 'is-unread'] },
+      h('span', { class: 'blk-inbox__dot', 'aria-label': unread ? 'Unread' : null }), h('div', { class: 'blk-list__text' }, h('strong', null, title), h('span', { class: 'muted' }, sub)), h('span', { class: 'muted nowrap' }, when)))),
+    button({ variant: 'ghost', size: 'sm' }, icon('check', 14), 'Mark all as read'));
+}
+function storage() {
+  const parts = [['Films', 6.1, 1], ['Shows', 7.8, 2], ['Music', 0.3, 3], ['Free', 5.8, 0]];
+  const total = parts.reduce((a, [, v]) => a + v, 0);
+  return h('div', { class: 'blk-stack' },
+    h('div', { class: 'blk-row blk-row--between' }, h('strong', { class: 'blk-big' }, '14.2 TB'), h('span', { class: 'muted' }, 'of 20 TB')),
+    h('div', { class: 'blk-stackbar', role: 'img', 'aria-label': 'Disk use by library' }, parts.map(([, v, n]) => styled(h('span'), { width: `${(v / total) * 100}%`, background: n ? `var(--series-${n})` : 'var(--track)' }))),
+    legend(parts.map(([name, v, n]) => [`${name} · ${v} TB`, n ? `var(--series-${n})` : 'var(--track)'])));
+}
+
+// ---- feedback
+function banners() {
+  const one = (tone, ic, title, text, action) => h('div', { class: ['blk-callout', `blk-callout--${tone}`], role: tone === 'critical' ? 'alert' : 'status' },
+    icon(ic, 16), h('div', { class: 'blk-list__text' }, h('strong', null, title), h('span', null, text)), action);
+  return h('div', { class: 'blk-stack' },
+    one('info', 'info', 'A new version is out', 'finstats 2.3.0 brings the blocks to your look.', button({ size: 'sm' }, 'What changed')),
+    one('warning', 'alert', 'Radarr is slow to answer', 'It took 8 seconds; downloads may lag behind.', null),
+    one('critical', 'alert', 'The library read was refused', 'Jellyfin answered with nothing; nothing was removed.', button({ size: 'sm' }, 'Details')));
+}
+function success() {
+  return h('div', { class: 'blk-stack blk-center' }, h('span', { class: 'blk-done', 'aria-hidden': 'true' }, icon('check', 26)),
+    h('strong', { class: 'blk-big' }, 'Import finished'), h('p', { class: 'muted' }, '3,162 plays from Jellystat, none of them twice.'),
+    facts([['Plays', '3,162'], ['People', '6'], ['Took', '14 s']]), button({ variant: 'primary', block: true }, 'See them'));
+}
+
+// ---- pages
+function notFound() {
+  return h('div', { class: 'blk-stack blk-center' }, h('span', { class: 'blk-404 mono' }, '404'), h('strong', { class: 'blk-big' }, 'Nothing lives here'),
+    h('p', { class: 'muted' }, 'The address may be old, or the title was removed from the library.'),
+    h('label', { class: 'fui-field__search' }, icon('search', 14), h('input', { class: 'fui-field__input fui-field__input--search', type: 'search', placeholder: 'Search instead…', 'aria-label': 'Search' })),
+    button({ variant: 'primary' }, icon('home', 14), 'Back to the dashboard'));
+}
+function appSidebar() {
+  const item = (ic, label, active) => h('a', { href: '#', class: ['blk-side__item', active && 'is-active'], 'aria-current': active ? 'page' : null }, icon(ic, 15), h('span', null, label));
+  return h('nav', { class: 'blk-side', 'aria-label': 'An app’s menu' },
+    h('div', { class: 'blk-side__brand' }, h('span', { class: 'blk-side__logo', 'aria-hidden': 'true' }, 'f'), h('strong', null, 'finstats'), h('span', { class: 'muted' }, 'Living room')),
+    h('p', { class: 'blk-side__group' }, 'Watch'), item('home', 'Dashboard', true), item('activity', 'Activity'), item('library', 'Libraries'), item('together', 'Together'),
+    h('p', { class: 'blk-side__group' }, 'Server'), item('server', 'Server'), item('shield', 'Security'), item('settings', 'Settings'),
+    h('div', { class: 'blk-side__user' }, avatar(null, 'alice', { size: 28 }), h('div', { class: 'blk-list__text' }, h('strong', null, 'alice'), h('span', { class: 'muted' }, 'Administrator'))));
+}
+
 /** Every block: a key, its name and group in the gallery's list and an icon there, a title, a line on what it shows, and
  *  its builder. `wide` blocks take a whole row. A block is a
  *  composition of FinUI's components with invented data; FinUI create draws them all, the gallery shows each with its
@@ -285,12 +488,25 @@ export const BLOCKS = [
   { key: 'area-chart', name: 'Area chart', group: 'Chart blocks', icon: 'activity', title: 'Plays a month', about: 'One quantity over a year, its busiest month marked.', render: () => card({ title: 'Plays a month', sub: 'This year, the busiest month marked', body: area() }) },
   { key: 'donut-chart', name: 'Donut chart', group: 'Chart blocks', icon: 'gauge', title: 'Where people watch', about: 'A ring of four parts and its legend.', render: () => card({ title: 'Where people watch', body: donut() }) },
   { key: 'heatmap', name: 'Heatmap', group: 'Chart blocks', icon: 'flame', title: 'When people watch', about: 'A week of hours, quiet to busy.', render: () => card({ title: 'When people watch', sub: 'Plays by weekday and hour', body: heat() }) },
+  { key: 'line-chart', name: 'Line chart', group: 'Chart blocks', icon: 'activity', title: 'Plays a day', about: 'Two lines to compare, one dashed, with a legend.', render: () => card({ title: 'Plays a day', sub: 'This month and the one before', body: lineChart() }) },
+  { key: 'radial-chart', name: 'Radial chart', group: 'Chart blocks', icon: 'gauge', title: 'Shows this year', about: 'Rings, each how far one thing has come.', render: () => card({ title: 'Shows this year', body: radial() }) },
+  { key: 'radar-chart', name: 'Radar chart', group: 'Chart blocks', icon: 'compass', title: 'Taste', about: 'One shape over a web of six, for a profile at a glance.', render: () => card({ title: 'Taste', sub: 'Watch time by genre', body: radar() }) },
+  { key: 'bar-list', name: 'Bar list', group: 'Chart blocks', icon: 'chart', title: 'Plays by app', about: 'Bars to compare, the number beside each.', render: () => card({ title: 'Plays by app', sub: 'The last 30 days', body: barList() }) },
+  { key: 'stats-row', name: 'Stats with sparklines', group: 'Chart blocks', icon: 'trendUp', title: 'This week', about: 'Numbers that matter, each with how it moved and a sparkline.', render: () => card({ title: 'This week', body: statsRow() }) },
   { key: 'calendar', name: 'Calendar', group: 'Date blocks', icon: 'calendar', title: 'Calendar', about: 'A month to pick a day in, today ringed, a dot where something comes out.', render: () => card({ title: 'Calendar', sub: 'What comes out when', body: calendar() }) },
   { key: 'coming-up', name: 'Coming up', group: 'Date blocks', icon: 'clock', title: 'Coming up', about: 'Dated rows, each with its state.', render: () => card({ title: 'Coming up', sub: 'From Sonarr, Radarr and requests', body: upcoming() }) },
+  { key: 'date-range', name: 'Date range', group: 'Date blocks', icon: 'calendar', title: 'Pick a week', about: 'A month with a range chosen, its two ends filled.', render: () => card({ title: 'Pick a week', body: dateRange() }) },
+  { key: 'time-slots', name: 'Time slots', group: 'Date blocks', icon: 'clock', title: 'Watch together', about: 'Times to choose from, and who is free then.', render: () => card({ title: 'Watch together', body: timeSlots() }) },
+  { key: 'week-agenda', name: 'Week agenda', group: 'Date blocks', icon: 'calendar', title: 'This week', about: 'Days and what is planned on each, an empty day said in words.', render: () => card({ title: 'This week', body: weekAgenda() }) },
   { key: 'sign-in', name: 'Sign in', group: 'Form blocks', icon: 'lock', title: 'Sign in', about: 'A form: fields with labels and help, a checkbox, the primary button.', render: () => card({ title: 'Sign in', sub: 'With your Jellyfin account', body: signIn() }) },
   { key: 'notifications', name: 'Notifications', group: 'Form blocks', icon: 'inbox', title: 'Notifications', about: 'Settings that switch on and off, each with a line of help.', render: () => card({ title: 'Notifications', sub: 'What finstats tells you', body: notifications() }) },
   { key: 'search', name: 'Search and filters', group: 'Form blocks', icon: 'search', title: 'Find something', about: 'A search box, a segmented choice and filter chips.', render: () => card({ title: 'Find something', body: search() }) },
   { key: 'api-key', name: 'API key', group: 'Form blocks', icon: 'link', title: 'API key', about: 'A secret to copy once, and what to do with it.', render: () => card({ title: 'API key', sub: 'For scripts and the calendar feed', body: apiKey() }) },
+  { key: 'sign-up', name: 'Sign up', group: 'Form blocks', icon: 'user', title: 'Create an account', about: 'Two names side by side, an address, a password, a way back to signing in.', render: () => card({ title: 'Create an account', body: signUp() }) },
+  { key: 'verify-code', name: 'Verification code', group: 'Form blocks', icon: 'shield', title: 'Two-step sign-in', about: 'Six digits in boxes of their own, and a way out.', render: () => card({ title: 'Two-step sign-in', body: verifyCode() }) },
+  { key: 'connect-service', name: 'Connect a service', group: 'Form blocks', icon: 'plug', title: 'Connect a service', about: 'An address, a secret to show or hide, a test and its answer.', render: () => card({ title: 'Connect a service', body: connectService() }) },
+  { key: 'invite', name: 'Invite people', group: 'Form blocks', icon: 'users', title: 'Invite people', about: 'Addresses with a role each, another row, and a link to copy.', render: () => card({ title: 'Invite people', body: invite() }) },
+  { key: 'upload', name: 'Upload', group: 'Form blocks', icon: 'upload', title: 'Import a backup', about: 'A place to drop a file, and one on its way.', render: () => card({ title: 'Import a backup', body: upload() }) },
   { key: 'most-watched', name: 'Ranked list', group: 'List blocks', icon: 'trophy', title: 'Most watched', about: 'A ranked list with a value and a note on each row.', render: () => card({ title: 'Most watched', body: rankList([
     { href: '#', name: 'Big Buck Bunny', sub: '2008 · 4 people', value: '12h 4m', note: '31 plays' },
     { href: '#', name: 'Sintel', sub: '2010 · 3 people', value: '6h 50m', note: '18 plays' },
@@ -304,14 +520,22 @@ export const BLOCKS = [
     facts([['Films', '418'], ['Episodes', '6,032'], ['Size', '14.2 TB', { mono: true }], ['Last read', '4 min ago']]),
     meter({ value: 0.81, block: true, label: 'Disk used' })) }) },
   { key: 'keys', name: 'Shortcuts', group: 'List blocks', icon: 'menu', title: 'Keys', about: 'Keyboard shortcuts, each with its keys.', render: () => card({ title: 'Keys', sub: 'Everywhere in finstats', body: shortcuts() }) },
+  { key: 'activity-feed', name: 'Activity feed', group: 'List blocks', icon: 'activity', title: 'What happened', about: 'Who did what, newest first, on a line that joins them.', render: () => card({ title: 'What happened', body: activityFeed() }) },
+  { key: 'members', name: 'Members', group: 'List blocks', icon: 'users', title: 'People', about: 'Who has a say: a role each, the administrator fixed.', render: () => card({ title: 'People', body: members() }) },
+  { key: 'inbox', name: 'Inbox', group: 'List blocks', icon: 'inbox', title: 'Notifications', about: 'Unread first, marked, with a way to read them all.', render: () => card({ title: 'Notifications', body: inbox() }) },
+  { key: 'storage', name: 'Storage', group: 'List blocks', icon: 'database', title: 'Storage', about: 'One bar of parts, how much each takes, and what is free.', render: () => card({ title: 'Storage', body: storage() }) },
   { key: 'dialog', name: 'Dialog', group: 'Feedback blocks', icon: 'trash', title: 'A dialog', about: 'A question that cannot be taken back, and its two answers.', render: () => confirmBox() },
   { key: 'loading', name: 'Loading', group: 'Feedback blocks', icon: 'refresh', title: 'Loading', about: 'Skeleton rows while something comes.', render: () => card({ title: 'Loading', body: sk.rows(3) }) },
   { key: 'error', name: 'Error', group: 'Feedback blocks', icon: 'alert', title: 'Something went wrong', about: 'What failed, in words, and a way to try again.', render: () => card({ title: 'Something went wrong', body: errorState(new Error('Jellyfin did not answer within 10 seconds.'), noop) }) },
   { key: 'empty', name: 'Empty state', group: 'Feedback blocks', icon: 'inbox', title: 'Nothing here yet', about: 'An empty state that says what will come and offers a way on.', render: () => card({ title: 'Nothing here yet', body: emptyState('No plays in this range', 'Plays show up here a minute after they start.', button({}, 'Show all time')) }) },
+  { key: 'banners', name: 'Banners', group: 'Feedback blocks', icon: 'info', title: 'Banners', about: 'Something to know, to watch and to act on, each in its tone.', render: () => card({ title: 'Banners', body: banners() }) },
+  { key: 'success', name: 'Success', group: 'Feedback blocks', icon: 'check', title: 'Done', about: 'A finished thing, what it came to, and where to go next.', render: () => card({ title: 'Done', body: success() }) },
   { key: 'look', name: 'Colours', group: 'Look blocks', icon: 'sparkle', title: 'The look', about: 'The colours of a look by token, and a heading over its text.', render: () => card({ title: 'The look', sub: 'Colours and type, by token', body: palette() }) },
   { key: 'type', name: 'Type', group: 'Look blocks', icon: 'log', title: 'Type', about: 'A heading, body text with mono numbers, and faint words.', render: () => card({ title: 'Type', body: type() }) },
   { key: 'focus', name: 'Focus and icons', group: 'Look blocks', icon: 'compass', title: 'Focus and icons', about: 'A focus ring held still, and a row of icons.', render: () => card({ title: 'Focus and icons', body: focusDemo() }) },
   { key: 'buttons', name: 'Buttons', group: 'Look blocks', icon: 'sliders', title: 'Buttons and the rest', about: 'Every button, chips, badges, a spinner and pagination.', render: () => card({ title: 'Buttons and the rest', body: buttons() }) },
   { key: 'recent-plays', name: 'Table', group: 'Page blocks', icon: 'table', title: 'Recent plays', wide: true, about: 'A sortable table with avatars, badges and progress.', render: () => card({ title: 'Recent plays', cls: 'fui-card--flush', body: recent() }) },
   { key: 'settings', name: 'Settings page', group: 'Page blocks', icon: 'settings', title: 'Settings', wide: true, about: 'A page of settings: the menu, the open section marked, its rows.', render: () => card({ title: 'Settings', sub: 'One section at a time, the open one marked', body: settingsPage() }) },
+  { key: 'not-found', name: 'Not found', group: 'Page blocks', icon: 'compass', title: 'Not found', about: 'A page that is not there, said plainly, with two ways on.', render: () => card({ title: 'Not found', body: notFound() }) },
+  { key: 'app-sidebar', name: 'App sidebar', group: 'Page blocks', icon: 'menu', title: 'App sidebar', about: 'An app’s menu: its name, groups of pages, the open one marked, and who is signed in.', render: () => card({ title: 'App sidebar', body: appSidebar() }) },
 ];
