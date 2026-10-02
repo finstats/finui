@@ -153,11 +153,14 @@ function fontFaces(presets) {
 
 /** A frame the preview is drawn in: a document of its own (srcdoc, so standards mode) with FinUI's stylesheets, the
  *  preview's layout and a <style> that holds the preset's tokens. */
-function frame(theme, sheets, onScroll) {
+function frame(theme, sheets, onScroll, onLead) {
   const el = h('iframe', { class: 'create-frame', title: `Preview, ${theme}`, srcdoc: '<!doctype html><html lang="en"><head><meta charset="utf-8"></head><body></body></html>' });
   let preset = null, pending = '';
   el.addEventListener('load', () => {
-    el.contentWindow.addEventListener('scroll', () => onScroll(el.contentWindow), { passive: true });
+    const win = el.contentWindow;
+    win.addEventListener('scroll', () => onScroll(win), { passive: true });
+    // What says somebody is scrolling this one: the wheel, a press (the scrollbar too), a touch, a key.
+    for (const type of ['wheel', 'pointerdown', 'touchstart', 'keydown']) win.addEventListener(type, () => onLead(win), { passive: true, capture: true });
     const doc = el.contentDocument;
     doc.documentElement.dataset.theme = theme;
     for (const href of [...sheets, at('create/preview.css')]) {
@@ -171,6 +174,7 @@ function frame(theme, sheets, onScroll) {
     doc.head.append(preset);
     doc.body.append(doc.adoptNode(previewPage()));
   }, { once: true });
+  el.addEventListener('pointerenter', () => { if (el.contentWindow) onLead(el.contentWindow); });
   return { el, use(css) { pending = css; if (preset) preset.textContent = css; }, win: () => el.contentWindow };
 }
 
@@ -244,26 +248,34 @@ async function start() {
   const locks = new Set();
   let view = 'light';
   let frames = [];
-  // Both themes side by side scroll as one, unless the switch says otherwise: linked to start with.
+  // Both themes side by side scroll as one, unless the switch says otherwise: linked to start with. The one being scrolled
+  // leads (under the pointer, or last given a wheel, a press, a touch or a key) and only its scrolling moves the other: a
+  // follower's own scroll event arrives a frame late, and letting it lead pulled a smooth scroll back at every step.
   let linked = true;
-  const follow = (from) => {
-    if (!linked || frames.length < 2) return;
+  let leader = null;
+  const align = (from) => {
     for (const f of frames) {
       const w = f.win();
-      // A frame already there does nothing, so the one that follows does not lead back.
-      if (w && w !== from && (Math.round(w.scrollY) !== Math.round(from.scrollY) || Math.round(w.scrollX) !== Math.round(from.scrollX))) w.scrollTo(from.scrollX, from.scrollY);
+      if (w && w !== from && (w.scrollY !== from.scrollY || w.scrollX !== from.scrollX)) w.scrollTo({ left: from.scrollX, top: from.scrollY, behavior: 'instant' });
     }
   };
+  const follow = (from) => {
+    if (!linked || frames.length < 2) return;
+    leader ??= from;
+    if (from === leader) align(from);
+  };
+  const lead = (w) => { leader = w; };
   const linkSlot = h('div', { class: 'create-link', hidden: true },
     h('span', { class: 'create-link__label', id: 'create-link-label' }, 'Link scrolling'),
-    toggle({ checked: linked, labelledby: 'create-link-label', onChange: (on) => { linked = on; if (on && frames[0] && frames[0].win()) follow(frames[0].win()); } }));
+    toggle({ checked: linked, labelledby: 'create-link-label', onChange: (on) => { linked = on; const from = leader || (frames[0] && frames[0].win()); if (on && from) align(from); } }));
   const stage = h('div', { class: 'create-stage' });
   const codeEl = h('code', { class: 'create-code mono' });
   const codeRow = h('div', { class: 'create-code-row' });
 
   const live = (c) => { const css = located(overlay(presets, encode(c), c)); for (const f of frames) f.use(css); };
   function drawFrames() {
-    frames = (view === 'both' ? ['light', 'dark'] : [view]).map((t) => frame(t, sheets, follow));
+    leader = null;
+    frames = (view === 'both' ? ['light', 'dark'] : [view]).map((t) => frame(t, sheets, follow, lead));
     stage.classList.toggle('is-both', view === 'both');
     linkSlot.hidden = view !== 'both';
     mount(stage, frames.map((f) => f.el));
