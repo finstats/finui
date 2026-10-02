@@ -67,8 +67,12 @@ function playground(name, p, onChange = () => {}) {
   const controls = p.controls.map((c) => {
     const id = `play-${name}-${c.key}`;
     if (c.choices) {
-      return h('div', { class: 'demo-play__control demo-play__control--choice', dataset: { control: c.key } }, h('span', { class: 'demo-play__label', id }, c.label),
-        segmented({ label: c.label, size: 'sm', value: state[c.key], options: c.choices.map(([value, label]) => ({ value, label })), onChange: (v) => { state[c.key] = v; draw(); } }));
+      const pick = (v) => { state[c.key] = v; draw(); };
+      // A few choices side by side; more than fit a phone's width, a list to open.
+      const input = c.choices.length > 5
+        ? h('select', { class: 'fui-field__input demo-play__select', 'aria-labelledby': id, onChange: (e) => pick(e.target.value) }, c.choices.map(([value, label]) => h('option', { value, selected: value === state[c.key] }, label)))
+        : segmented({ label: c.label, size: 'sm', value: state[c.key], options: c.choices.map(([value, label]) => ({ value, label })), onChange: pick });
+      return h('div', { class: 'demo-play__control demo-play__control--choice', dataset: { control: c.key } }, h('span', { class: 'demo-play__label', id }, c.label), input);
     }
     const sw = toggle({ checked: state[c.key], labelledby: id, onChange: (on) => {
       state[c.key] = on;

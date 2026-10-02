@@ -52,3 +52,4 @@ body { background: var(--page-bg); }
 .demo-play__controls { display: flex; flex-wrap: wrap; align-items: center; gap: 10px 22px; padding: 10px 12px; background: var(--bg-2); border: 1px solid var(--border-soft); border-radius: var(--radius); }
 .demo-play__control { display: inline-flex; align-items: center; gap: 8px; font-size: 13px; color: var(--text); }
 .demo-play__control--choice .demo-play__label { color: var(--text-muted); }
+.demo-play__select { width: auto; min-height: 30px; padding-top: 4px; padding-bottom: 4px; font-size: 12.5px; }
