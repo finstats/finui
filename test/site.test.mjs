@@ -9,14 +9,15 @@ import path from 'node:path';
 import http from 'node:http';
 import { spawn } from 'node:child_process';
 import { build } from '../tools/build-site.mjs';
-import { decode, encode, tokens, stylesheet } from '../create/preset.js';
+import { decode, encode, tokens, faces, stylesheet } from '../create/preset.js';
 
 const root = path.resolve(path.dirname(new URL(import.meta.url).pathname), '..');
 const read = (f) => fs.readFileSync(path.join(root, f), 'utf8');
 const presets = JSON.parse(read('create/presets.json'));
 const registry = JSON.parse(read('registry.json'));
 const library = [...registry.foundation, ...registry.components.flatMap((c) => c.files)];
-const fonts = fs.readdirSync(path.join(root, 'fonts'));
+// The fonts every install brings: base.css' own. A preset's come only when it names them.
+const fonts = [...new Set([...read('base.css').matchAll(/fonts\/([A-Za-z0-9._-]+)/g)].map((m) => m[1]))];
 const temp = () => fs.mkdtempSync(path.join(os.tmpdir(), 'finui-'));
 const n = presets.axes.length;
 
@@ -142,4 +143,35 @@ test('help says how', async () => {
   const r = await install(temp(), ['--help']);
   assert.equal(r.status, 0);
   assert.match(r.stdout, /curl -fsSL https:\/\/finstats\.github\.io\/finui\/install\.sh \| sh -s -- <code>/);
+});
+
+const fontAt = (key) => presets.axes.findIndex((a) => a.key === key);
+const fontOption = (key, k) => presets.axes[fontAt(key)].options.findIndex((o) => o.key === k);
+
+test('an option file carries what its option needs: a font its faces, nothing else any', () => {
+  presets.axes.forEach((a, i) => a.options.forEach((o, k) => {
+    if (!k) return;
+    const css = fs.readFileSync(path.join(site, `p/${i}/${k}.css`), 'utf8');
+    const want = faces(presets, Object.assign(Array(n).fill(0), { [i]: k }));
+    if (want) assert.ok(css.includes(want), `p/${i}/${k}.css (${a.key} ${o.key}) lacks its faces`);
+    else assert.ok(!css.includes('@font-face'), `p/${i}/${k}.css (${a.key} ${o.key}) has faces it does not need`);
+  }));
+});
+
+test('install.sh brings the fonts a preset names, with their licences, and no other', async () => {
+  const cwd = temp();
+  const c = Object.assign(Array(n).fill(0), { [fontAt('font')]: fontOption('font', 'manrope'), [fontAt('heading')]: fontOption('heading', 'lora'), [fontAt('mono')]: fontOption('mono', 'fira-code') });
+  const r = await install(cwd, [encode(c)]);
+  assert.equal(r.status, 0, r.stderr);
+  const got = new Set(fs.readdirSync(path.join(cwd, 'finui/fonts')));
+  for (const k of ['manrope', 'lora', 'fira-code']) {
+    for (const f of fs.readdirSync(path.join(root, 'fonts')).filter((x) => x.startsWith(`${k}-`))) assert.ok(got.has(f), `fonts/${f}`);
+  }
+  for (const l of ['LICENSE-Manrope.txt', 'LICENSE-Lora.txt', 'LICENSE-FiraCode.txt', 'LICENSE-Inter.txt', 'LICENSE-JetBrainsMono.txt']) assert.ok(got.has(l), l);
+  assert.ok(![...got].some((f) => f.startsWith('fraunces') || f.startsWith('geist')), `fonts nobody chose: ${[...got].join(', ')}`);
+  const mine = fs.readFileSync(path.join(cwd, 'finui/tokens.css'), 'utf8');
+  assert.ok(mine.includes('url("fonts/manrope-latin-wght-normal.woff2")'), 'the faces are in tokens.css, beside the fonts');
+  const one = temp();
+  assert.equal((await install(one, [encode(c), '--css'])).status, 0);
+  assert.ok(fs.readdirSync(path.join(one, 'finui/fonts')).includes('lora-latin-wght-normal.woff2'), 'and with --css');
 });

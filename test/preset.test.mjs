@@ -3,7 +3,8 @@
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
 import fs from 'node:fs';
-import { decode, encode, tokens, overlay, on, stylesheet } from '../create/preset.js';
+import { decode, encode, tokens, faces, overlay, on, stylesheet } from '../create/preset.js';
+import { resolve, contrast, deltaE, tokensOf, over, oklab } from './colour.mjs';
 
 const root = new URL('../', import.meta.url);
 const read = (f) => fs.readFileSync(new URL(f, root), 'utf8');
@@ -56,16 +57,18 @@ test('every token a preset sets is one tokens.css defines', () => {
 
 test('every colour a preset sets is light and dark', () => {
   for (const c of everyChoice()) {
-    if (c.every((o, i) => o === 0 || presets.axes[i].kind === 'tokens')) continue;
+    if (c.every((o, i) => o === 0 || ['tokens', 'font'].includes(presets.axes[i].kind))) continue;   // a font is not a colour
     for (const [t, v] of tokens(presets, c)) assert.match(v, /^light-dark\(.*\)$/, `${t}: ${v}`);
   }
 });
 
-// The file is ours, but a value is pasted into a stylesheet: it may say a value and nothing else.
+// The file is ours, but a value is pasted into a stylesheet: it may say a value and nothing else. A font stack names its
+// family in double quotes, and nothing else may.
 test('a value can say nothing but a value', () => {
   for (const c of everyChoice()) {
     for (const [t, v] of tokens(presets, c)) {
-      assert.doesNotMatch(v, /[;{}<>"'\\@]/, `${t}: ${v}`);
+      assert.doesNotMatch(v, /[;{}<>'\\@]/, `${t}: ${v}`);
+      if (v.includes('"')) assert.match(v, /^("[A-Za-z0-9 ]+"(, )?)+[a-z, "A-Z0-9-]*$/, `${t}: quotes only around a family name: ${v}`);
       for (const m of v.matchAll(/var\(([^)]+)\)/g)) assert.ok(defined.has(m[1]), `${t} reads ${m[1]}, which tokens.css does not define`);
     }
   }
@@ -129,4 +132,118 @@ test('the stylesheet is every CSS file in registry order, a preset’s block rig
   const css = await stylesheet(registry, async (f) => read(f), block);
   assert.ok(css.indexOf(read('tokens.css').trim()) < css.indexOf(block) && css.indexOf(block) < css.indexOf(read('base.css').trim()), 'the block sits between tokens.css and base.css');
   assert.equal(css.replace(block + '\n', ''), plain, 'apart from its block, a preset is the plain stylesheet');
+});
+
+// ---------------------------------------------------------------- what a base and an accent must hold to
+const defaults = tokensOf(read('tokens.css'));
+/** Every token's value under a choice: tokens.css, then the preset's. */
+const under = (choice) => { const set = new Map([...defaults, ...tokens(presets, choice)]); return (n) => set.get(n); };
+const colourOf = (choice, side) => { const get = under(choice); return (t) => resolve(`var(${t})`, side, get); };
+const GROUNDS = ['--bg', '--bg-2', '--bg-sunken'];
+const option = (key, k) => presets.axes[at(key)].options.findIndex((o) => o.key === k);
+
+// The floors are what washi, the base people read every day, already gives: body text 7:1 and more, muted text WCAG's
+// 4.5:1, faint text (hints, axis labels) 3.5:1 — washi's faint is 4.2 by day and 3.7 by night.
+test('every base reads: text, muted and faint on every ground, by day and by night', () => {
+  const bad = [];
+  presets.axes[at('base')].options.forEach((o, i) => {
+    for (const side of ['light', 'dark']) {
+      const c = colourOf(pick({ base: i }), side);
+      for (const [t, floor] of [['--text', 7], ['--text-muted', 4.5], ['--text-faint', 3.5]]) {
+        for (const g of GROUNDS) {
+          const k = contrast(over(c(t), c(g)), c(g));
+          if (k < floor) bad.push(`${o.key} ${side}: ${t} on ${g} is ${k.toFixed(2)}, under ${floor}`);
+        }
+      }
+    }
+  });
+  assert.deepEqual(bad, []);
+});
+
+// By day every grey looked the same: Tailwind's neutral, stone, zinc, slate and gray are 0.1–0.8 apart in OKLab at the
+// step the page ground was taken from, under what anybody can tell. Washi stood 4 from each. Every base's paper is its own.
+test('by day every base has a paper of its own: no two pages closer than ΔE 3', () => {
+  const opts = presets.axes[at('base')].options;
+  const grounds = opts.map((_, i) => colourOf(pick({ base: i }), 'light')('--bg'));
+  const close = [];
+  for (let i = 0; i < opts.length; i++) for (let j = i + 1; j < opts.length; j++) {
+    const d = deltaE(grounds[i], grounds[j]);
+    if (d < 3) close.push(`${opts[i].key} and ${opts[j].key}: ΔE ${d.toFixed(1)}`);
+  }
+  assert.deepEqual(close, []);
+});
+
+test('every accent reads as a link on every base, and its own buttons read too, by day and by night', () => {
+  const bad = [];
+  presets.axes[at('accent')].options.forEach((a, ai) => {
+    presets.axes[at('base')].options.forEach((b, bi) => {
+      for (const side of ['light', 'dark']) {
+        const c = colourOf(pick({ base: bi, accent: ai }), side);
+        for (const g of ['--bg', '--bg-2']) {
+          const k = contrast(c('--accent-hi'), c(g));
+          if (k < 4.5) bad.push(`${a.key} on ${b.key} ${side}: a link on ${g} is ${k.toFixed(2)}`);
+        }
+        // The default is tokens.css' own look, not a preset's: white on Obsidian's violet is 4.26, which is finstats'
+        // owner's call to change. Every accent a preset adds is held to 4.5.
+        const button = contrast(c('--on-accent'), c('--accent'));
+        if (button < 4.5 && ai > 0) bad.push(`${a.key} ${side}: a button's words are ${button.toFixed(2)}`);
+      }
+    });
+  });
+  assert.deepEqual([...new Set(bad)].slice(0, 30), []);
+});
+
+// Two-colour accents, like the seal by day and violet by night: two different hues, not one hue in two shades.
+test('a two-colour accent is two hues, at least 60 degrees apart', () => {
+  const hueOf = (h) => { const [, A, B] = oklab(resolve(h, 'light', () => null)); return (Math.atan2(B, A) * 180 / Math.PI + 360) % 360; };
+  const duals = presets.axes[at('accent')].options.filter((o) => / & /.test(o.label) && o.light);
+  assert.ok(duals.length >= 8, `${duals.length} two-colour accents`);
+  for (const o of duals) {
+    const d = Math.abs(hueOf(o.light) - hueOf(o.dark));
+    const apart = Math.min(d, 360 - d);
+    assert.ok(apart >= 60, `${o.key}: ${o.light} and ${o.dark} are ${apart.toFixed(0)}° apart`);
+  }
+});
+
+test('there is a choice of bases and accents', () => {
+  assert.ok(presets.axes[at('base')].options.length >= 14, 'bases');
+  assert.ok(presets.axes[at('accent')].options.length >= 20, 'accents');
+});
+
+// ---------------------------------------------------------------- fonts
+const fontAxes = presets.axes.filter((a) => a.kind === 'font');
+test('fonts: one axis each for the text, the headings and the numbers, each setting its own token', () => {
+  assert.deepEqual(fontAxes.map((a) => [a.key, a.token]), [['font', '--sans'], ['heading', '--font-heading'], ['mono', '--mono']]);
+  for (const a of fontAxes) assert.ok(defaults.has(a.token), `${a.token} is not a token`);
+  assert.match(uncomment(read('base.css')), /var\(--font-heading\)/, 'something reads the heading font');
+});
+const uncomment = (t) => t.replace(/\/\*[\s\S]*?\*\//g, '');
+
+test('every font a preset can choose is bundled with its licence beside it, and free to use (OFL)', () => {
+  const files = new Set(fs.readdirSync(new URL('fonts/', root)));
+  for (const a of fontAxes) for (const o of a.options.filter((x) => x.files)) {
+    for (const f of o.files) assert.ok(files.has(f.file), `${a.key} ${o.key}: fonts/${f.file}`);
+    assert.ok(files.has(o.licence), `${o.key}: fonts/${o.licence}`);
+    assert.match(read(`fonts/${o.licence}`), /SIL Open Font License/, `${o.key}: the licence is the OFL`);
+  }
+});
+
+test('a font is its family first in its token, and its faces come with it; nothing chosen, nothing loaded', () => {
+  assert.equal(faces(presets, Array(n).fill(0)), '');
+  for (const a of fontAxes) {
+    const i = presets.axes.indexOf(a);
+    a.options.forEach((o, k) => {
+      if (!k) return;
+      const c = Object.assign(Array(n).fill(0), { [i]: k });
+      const set = Object.fromEntries(tokens(presets, c));
+      assert.ok(set[a.token].startsWith(`"${o.family}"`), `${a.key} ${o.key}: ${set[a.token]}`);
+      const css = faces(presets, c);
+      for (const f of o.files || []) assert.ok(css.includes(`url("fonts/${f.file}")`), `${a.key} ${o.key}: the face for ${f.file}`);
+      if (o.files) assert.ok(css.includes(`fonts/${o.licence}`), `${a.key} ${o.key}: its faces name the licence`);
+      assert.ok(overlay(presets, encode(c), c).includes(css), `${a.key} ${o.key}: the overlay carries the faces`);
+    });
+  }
+  const two = Object.assign(Array(n).fill(0), { [at('font')]: option('font', 'manrope'), [at('heading')]: option('heading', 'lora') });
+  const css = faces(presets, two);
+  assert.ok(css.includes('Manrope') && css.includes('Lora') && !css.includes('Fraunces'), 'the faces of what was chosen and nothing else');
 });

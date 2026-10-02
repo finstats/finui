@@ -24,9 +24,34 @@ const mix = (a, pct, b) => `color-mix(in srgb, ${a} ${pct}%, ${b})`;
 const ld = (light, dark) => `light-dark(${light}, ${dark})`;
 const sides = (c) => (Array.isArray(c) ? c : [c, c]);
 
+/** What a base may name outright, by day (`day`) and by night (`night`), over what its ramp would give: its grounds and its
+ *  text. A paper of its own is what makes one base look unlike another by day, where every grey ramp is nearly white. */
+const OWN = { bg: ['--bg'], card: ['--bg-2', '--page-glow'], sunken: ['--bg-sunken'], text: ['--text', '--text-strong'], muted: ['--text-muted'], faint: ['--text-faint'] };
+
 /** The neutrals from a ramp of eleven (50 … 950): paper by day from its light end, the night from its dark end, at the
- *  steps tokens.css' own Obsidian sits at. */
-function base(ramp) {
+ *  steps tokens.css' own Obsidian sits at; then what the base names itself. */
+function base(ramp, day = {}, night = {}) {
+  const sides = new Map(ramp_(ramp).map(([t, v]) => [t, sidesOf(v)]));
+  for (const [key, names] of Object.entries(OWN)) {
+    for (const t of names) {
+      const [l, d] = sides.get(t);
+      sides.set(t, [day[key] ?? l, t === '--page-glow' ? d : night[key] ?? d]);
+    }
+  }
+  return [...sides].map(([t, [l, d]]) => [t, ld(l, d)]);
+}
+/** A light-dark() written here, back into its two sides. */
+function sidesOf(v) {
+  const body = v.slice('light-dark('.length, -1);
+  let depth = 0;
+  for (let i = 0; i < body.length; i++) {
+    if (body[i] === '(') depth++; else if (body[i] === ')') depth--;
+    else if (body[i] === ',' && !depth) return [body.slice(0, i).trim(), body.slice(i + 1).trim()];
+  }
+  throw new Error(`not light-dark: ${v}`);
+}
+
+function ramp_(ramp) {
   const r = (i) => ramp[i];
   return [
     ['--bg', ld(r(1), mix(r(9), 75, r(8)))],
@@ -68,7 +93,8 @@ function base(ramp) {
 function accent(l, d) {
   return [
     ['--accent', ld(l, d)],
-    ['--accent-hi', ld(mix(l, 85, '#000000'), mix(d, 70, '#ffffff'))],
+    // Read as text on every base's ground and card: deep enough by day, light enough by night (a test holds 4.5:1).
+    ['--accent-hi', ld(mix(l, 78, '#000000'), mix(d, 60, '#ffffff'))],
     ['--accent-hover', ld(mix(l, 85, '#000000'), mix(d, 85, '#000000'))],
     ['--accent-wash', ld(mix(l, 10, 'transparent'), mix(d, 14, 'transparent'))],
     ['--selection', ld(mix(l, 22, 'transparent'), mix(d, 40, 'transparent'))],
@@ -94,8 +120,10 @@ function charts(series, single, peak) {
   ];
 }
 
-function optionTokens(kind, o) {
-  if (kind === 'base') return o.ramp && o.ramp.length === 11 ? base(o.ramp) : [];
+function optionTokens(axis, o) {
+  const kind = axis.kind;
+  if (kind === 'base') return o.ramp && o.ramp.length === 11 ? base(o.ramp, o.day, o.night) : [];
+  if (kind === 'font') return o.stack ? [[axis.token, o.stack]] : [];
   if (kind === 'accent') return o.light && o.dark ? accent(o.light, o.dark) : [];
   if (kind === 'charts') return o.series && o.series.length === 4 && o.single && o.peak ? charts(o.series, o.single, o.peak) : [];
   return Object.entries(o.tokens || {});
@@ -104,16 +132,33 @@ function optionTokens(kind, o) {
 /** The tokens a choice sets, in the order they are written; a token set twice keeps the later axis' value. */
 export function tokens(presets, choice) {
   const out = new Map();
-  presets.axes.forEach((axis, i) => { for (const [t, v] of optionTokens(axis.kind, axis.options[choice[i]])) out.set(t, v); });
+  presets.axes.forEach((axis, i) => { for (const [t, v] of optionTokens(axis, axis.options[choice[i]])) out.set(t, v); });
   return [...out];
 }
 
-/** `:root { … }` with a choice's tokens, or '' when it changes nothing. */
+/** The @font-face rules the fonts a choice names need, each family once, its licence named beside it; '' for none. The
+ *  files are `fonts/` beside the stylesheet, as base.css' own are. Only a face that is used is ever downloaded. */
+export function faces(presets, choice) {
+  const seen = new Set();
+  let css = '';
+  presets.axes.forEach((axis, i) => {
+    const o = axis.options[choice[i]];
+    if (axis.kind !== 'font' || !o.files || seen.has(o.family)) return;
+    seen.add(o.family);
+    css += `/* ${o.label}: SIL Open Font License 1.1, fonts/${o.licence} */\n`;
+    for (const f of o.files) {
+      css += `@font-face { font-family: "${o.family}"; font-style: normal; font-weight: ${o.weight}; font-display: swap; src: url("fonts/${f.file}") format("woff2-variations"); unicode-range: ${f.range}; }\n`;
+    }
+  });
+  return css;
+}
+
+/** The faces and the `:root { … }` a choice needs, after a comment naming it, or '' when it changes nothing. */
 export function overlay(presets, code, choice) {
   const set = tokens(presets, choice);
   if (!set.length) return '';
   const named = presets.axes.map((a, i) => (choice[i] ? `${a.label.toLowerCase()} ${a.options[choice[i]].label}` : null)).filter(Boolean);
-  return `/* FinUI preset ${code}, made at FinUI create: ${named.join(', ')}. */\n:root {\n${set.map(([t, v]) => `  ${t}: ${v};\n`).join('')}}\n`;
+  return `/* FinUI preset ${code}, made at FinUI create: ${named.join(', ')}. */\n${faces(presets, choice)}:root {\n${set.map(([t, v]) => `  ${t}: ${v};\n`).join('')}}\n`;
 }
 
 const luminance = (hex) => {

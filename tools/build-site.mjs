@@ -4,7 +4,7 @@
 // node tools/build-site.mjs <folder>
 import fs from 'node:fs';
 import path from 'node:path';
-import { tokens, stylesheet } from '../create/preset.js';
+import { tokens, faces, stylesheet } from '../create/preset.js';
 
 const root = path.resolve(path.dirname(new URL(import.meta.url).pathname), '..');
 const read = (f) => fs.readFileSync(path.join(root, f), 'utf8');
@@ -13,18 +13,20 @@ export async function build(out) {
   const registry = JSON.parse(read('registry.json'));
   const presets = JSON.parse(read('create/presets.json'));
   const library = [...registry.foundation, ...registry.components.flatMap((c) => c.files), 'registry.json', 'LICENSE'];
-  const fonts = fs.readdirSync(path.join(root, 'fonts')).sort();
+  // The fonts every install brings: those base.css names, faces and licences. A preset's own come with its option files.
+  const fonts = [...new Set([...read('base.css').matchAll(/fonts\/([A-Za-z0-9._-]+)/g)].map((m) => m[1]))].sort();
   const write = (f, text) => { fs.mkdirSync(path.dirname(path.join(out, f)), { recursive: true }); fs.writeFileSync(path.join(out, f), text); };
   const copy = (f) => fs.cpSync(path.join(root, f), path.join(out, f), { recursive: true });
 
   fs.mkdirSync(out, { recursive: true });
-  for (const f of ['index.html', 'demo', 'create', ...library, 'fonts']) copy(f);
+  for (const f of ['index.html', 'demo', 'create', ...library, 'fonts']) copy(f);   // every font: a preset may name any
   write('finui.css', await stylesheet(registry, async (f) => read(f)));
   // An option's tokens alone; read in axis order, a later axis sets a token last, as tokens() lets it win.
   presets.axes.forEach((axis, a) => axis.options.forEach((option, o) => {
     if (!o) return;
-    const set = tokens(presets, presets.axes.map((_, i) => (i === a ? o : 0)));
-    write(`p/${a}/${o}.css`, `/* ${axis.label}: ${option.label} */\n:root {\n${set.map(([t, v]) => `  ${t}: ${v};\n`).join('')}}\n`);
+    const choice = presets.axes.map((_, i) => (i === a ? o : 0));
+    const set = tokens(presets, choice);
+    write(`p/${a}/${o}.css`, `/* ${axis.label}: ${option.label} */\n${faces(presets, choice)}:root {\n${set.map(([t, v]) => `  ${t}: ${v};\n`).join('')}}\n`);
   }));
   write('install.sh', read('tools/install.sh')
     .replace('@COUNTS@', presets.axes.map((a) => a.options.length).join(' '))

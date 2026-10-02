@@ -68,6 +68,8 @@ preset() {
   for p in $parts; do curl -fsSL "$SITE/p/$p.css" || fail "could not fetch the preset's tokens ($SITE/p/$p.css)"; done
 }
 block="$(preset)"
+# The fonts the preset's faces name, and their licences, beside the ones every install brings.
+FONTS="$FONTS $(printf '%s\n' "$block" | grep -o 'fonts/[A-Za-z0-9._-]*' | sed 's|^fonts/||' | sort -u | tr '\n' ' ')"
 
 if [ "$css" = 1 ]; then
   get finui.css
