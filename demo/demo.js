@@ -22,6 +22,7 @@ import { chip, chipSet } from '../components/chip/chip.js';
 import { meter } from '../components/meter/meter.js';
 import { pagination } from '../components/pagination/pagination.js';
 import { button } from '../components/button/button.js';
+import { animatedIcon } from '../components/animated-icon/animated-icon.js';
 import { emptyState } from '../components/empty/empty.js';
 import { formField } from '../components/field/field.js';
 import { toggle } from '../components/toggle/toggle.js';
@@ -100,7 +101,9 @@ async function foundation(slot) {
     viewBar(`Colour tokens (${colours.length})`, paint),
     frames(() => h('div', { class: 'demo-swatches' }, colours.map((t) => h('div', { class: 'demo-swatch' }, h('span', { class: 'demo-swatch-chip', style: { background: `var(${t})` } }), h('span', { class: 'mono' }, t))))),
     h('h3', { class: 'demo-h' }, `Icons (${iconNames().length})`),
-    frames(() => h('ul', { class: 'demo-icons' }, iconNames().map((n) => h('li', { class: 'demo-icon', title: n }, icon(n, 20), h('span', { class: 'mono' }, n))))));
+    h('p', { class: 'demo-purpose' }, 'Each icon twice: as it stands still (icon), and as it moves (animatedIcon), drawn in, doing what it is about and drawn out again.'),
+    frames(() => h('ul', { class: 'demo-icons' }, iconNames().map((n) => h('li', { class: 'demo-icon', title: n, dataset: { icon: n } },
+      h('span', { class: 'demo-icon__still' }, icon(n, 20)), h('span', { class: 'demo-icon__moving' }, animatedIcon(n, { size: 20 })), h('span', { class: 'mono' }, n))))));
   paint();
 }
 
