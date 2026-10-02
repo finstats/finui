@@ -48,6 +48,13 @@ builder use; a style is a name and its picks there. Tests hold what every choice
 apart by day and by night, every base's text reads on its grounds, every accent reads as a link and on its buttons, every
 button and menu style keeps its words readable, and every token a choice sets is one something reads.
 
+## Trying a component
+
+Each component's page in the gallery has one example to play with: switches turn its features on, a choice picks
+between its variants, and it is drawn again in both themes at every change. The calendar, for one: a day, several
+days or a range, marked days, limits, a week that starts on Sunday — and its buttons and keys work as they will in an
+app, because a component that only looks right is no component.
+
 ## Blocks
 
 The gallery's **blocks** are compositions of the components, a card's worth of an app each, every one an entry of its own in its list, grouped by kind (charts, dates, forms, lists, feedback, look, pages): a calendar, bar, area and donut
