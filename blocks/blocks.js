@@ -249,7 +249,7 @@ function buttons() {
 /** A month, Monday first, whole weeks: today ringed, the chosen day filled, a dot on a day with something coming out, and
  *  what comes out on the chosen day below. October 2026, so the picture never moves. */
 function calendar() {
-  const first = 3, days = 31, today = 2;   // 1 October 2026 is a Thursday: three days of September before it
+  const today = 2;
   const releases = { 2: ['Sintel', 'Season 2, episode 3'], 9: ['Sintel', 'Season 2, episode 4'], 14: ['Tears of Steel', 'Film'], 22: ['Cosmos Laundromat', 'Season 1, episode 1'], 30: ['Spring', 'Film'] };
   let chosen = 9;
   const list = h('ul', { class: 'blk-list' });
@@ -258,17 +258,12 @@ function calendar() {
     list.replaceChildren(h('li', { class: 'blk-list__row' }, h('div', { class: 'blk-list__text' },
       h('strong', null, r ? r[0] : 'Nothing comes out'), h('span', { class: 'muted' }, r ? `${r[1]} · ${chosen} October` : `on ${chosen} October`)), r ? status({ tone: 'info' }, 'Coming up') : null));
   };
-  const cells = [];
-  for (let i = 0; i < first; i++) cells.push(h('span', { class: 'blk-cal__day is-outside', 'aria-hidden': 'true' }, String(28 + i)));
-  for (let d = 1; d <= days; d++) {
+  const grid = month((d) => {
     const b = h('button', { type: 'button', class: 'blk-cal__day', 'aria-pressed': String(d === chosen), 'aria-current': d === today ? 'date' : null,
       'aria-label': `${d} October${releases[d] ? `, ${releases[d][0]}` : ''}` }, String(d), releases[d] ? h('span', { class: 'blk-cal__dot', 'aria-hidden': 'true' }) : null);
     b.addEventListener('click', () => { chosen = d; grid.querySelectorAll('button.blk-cal__day').forEach((x, k) => x.setAttribute('aria-pressed', String(k + 1 === d))); show(); });
-    cells.push(b);
-  }
-  while (cells.length % 7) cells.push(h('span', { class: 'blk-cal__day is-outside', 'aria-hidden': 'true' }, String(cells.length - first - days + 1)));
-  const grid = h('div', { class: 'blk-cal__grid', role: 'group', 'aria-label': 'October 2026' },
-    ['Mo', 'Tu', 'We', 'Th', 'Fr', 'Sa', 'Su'].map((w) => h('span', { class: 'blk-cal__wd', 'aria-hidden': 'true' }, w)), cells);
+    return b;
+  });
   show();
   return h('div', { class: 'blk-cal' },
     h('div', { class: 'blk-cal__head' }, button({ variant: 'icon', 'aria-label': 'September' }, icon('chevronLeft', 16)), h('span', { class: 'blk-cal__month' }, 'October 2026'),

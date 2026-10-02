@@ -27,6 +27,7 @@ import { formField } from '../components/field/field.js';
 import { toggle } from '../components/toggle/toggle.js';
 import { copyButton } from '../components/copy/copy.js';
 import { BLOCKS } from '../blocks/blocks.js';
+import { blockSource, blockCss } from '../blocks/source.js';
 
 const root = document.getElementById('demo');
 const CATEGORY = { primitive: 'Primitives', pattern: 'Patterns', chart: 'Charts' };
@@ -110,6 +111,26 @@ function showcase(slot) {
   paint();
 }
 
+// ---- a block's code, to paste into a project with FinUI in ./finui: its module, its CSS, its HTML
+let texts = null;
+const sourceTexts = () => (texts ??= Promise.all(['blocks/blocks.js', 'blocks/blocks.css'].map(async (f) => (await fetch(f)).text())));
+const TAKE = [{ value: 'js', label: 'JavaScript' }, { value: 'css', label: 'CSS' }, { value: 'html', label: 'HTML' }];
+async function codePanel(b) {
+  const [js, css] = await sourceTexts();
+  const el = b.render();
+  const classes = [...new Set([el, ...el.querySelectorAll('[class]')].flatMap((e) => [...e.classList]).filter((c) => c.startsWith('blk-')))];
+  const code = { js: blockSource(js, b.key), css: blockCss(css, classes) || '/* Nothing to add: FinUI’s own stylesheets draw this block. */\n', html: el.outerHTML };
+  let lang = 'js';
+  const copySlot = h('span');
+  const panes = TAKE.map(({ value }) => h('pre', { class: 'demo-code__pane mono', dataset: { lang: value }, hidden: value !== lang, tabindex: 0 }, code[value]));
+  const show = () => { panes.forEach((p) => { p.hidden = p.dataset.lang !== lang; }); mount(copySlot, copyButton(code[lang], `Copy the ${TAKE.find((t) => t.value === lang).label}`)); };
+  show();
+  return h('section', { class: 'demo-code', 'aria-label': 'Code' },
+    h('div', { class: 'demo-code__bar' }, segmented({ label: 'Code', size: 'sm', value: lang, options: TAKE, onChange: (v) => { lang = v; show(); } }), copySlot),
+    h('p', { class: 'demo-code__how' }, 'With FinUI in ./finui (curl -fsSL https://finstats.github.io/finui/install.sh | sh) and its stylesheets on the page: add the CSS, import the JavaScript, and append ', h('code', { class: 'mono' }, `${b.key.replace(/-([a-z0-9])/g, (_, c) => c.toUpperCase())}Block()`), ' where it belongs. The HTML is the same block, drawn once, without its behaviour.'),
+    panes);
+}
+
 // ---- a block: a card's worth of an app, one of those FinUI create draws a preset on, with its HTML to copy
 function blockPage(slot, b) {
   const paint = () => {
@@ -119,8 +140,11 @@ function blockPage(slot, b) {
       viewBar('Example', paint),
       h('section', { class: ['demo-block', b.wide && 'is-wide'], dataset: { block: b.key, html } },
         h('div', { class: 'demo-block__head' }, h('h4', { class: 'demo-name' }, b.title), copyButton(html, `Copy the HTML of ${b.name}`)),
-        frames(b.render)));
+        frames(b.render)),
+      codeSlot);
   };
+  const codeSlot = h('div');
+  codePanel(b).then((panel) => mount(codeSlot, panel)).catch((e) => mount(codeSlot, h('p', { class: 'demo-purpose' }, `The code could not be read: ${e.message}`)));
   paint();
 }
 

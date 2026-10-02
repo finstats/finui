@@ -41,3 +41,9 @@ body { background: var(--page-bg); }
 /* A wide block (a table, a page of settings) takes the whole width, its themes one above the other. */
 .demo-block.is-wide .demo-frames { grid-template-columns: minmax(0, 1fr); }
 .demo-block.is-wide .demo-frame > * { max-width: none; }
+/* A block's code: which of three to take, a way to copy it, how to use it, the code. */
+.demo-code { display: grid; gap: 10px; margin-top: 16px; padding: 12px; background: var(--bg-sunken); border: 1px solid var(--border-soft); border-radius: var(--radius); min-width: 0; }
+.demo-code__bar { display: flex; align-items: center; justify-content: space-between; gap: 10px; }
+.demo-code__how { font-size: 12.5px; color: var(--text-muted); }
+.demo-code__pane { margin: 0; max-height: 460px; overflow: auto; padding: 12px; font-size: 12px; line-height: 1.55; white-space: pre; background: var(--bg-2); border: 1px solid var(--border-soft); border-radius: var(--radius-sm); color: var(--text); }
+.demo-code__pane[data-lang="html"] { white-space: pre-wrap; overflow-wrap: anywhere; }
