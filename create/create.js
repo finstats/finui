@@ -11,6 +11,7 @@ import { openModal } from '../components/modal/modal.js';
 import { inlineError } from '../components/field/field.js';
 import { emptyState } from '../components/empty/empty.js';
 import { themeSwitch } from '../components/theme-switch/theme-switch.js';
+import { toggle } from '../components/toggle/toggle.js';
 import { decode, encode, faces, overlay, stylesheet } from './preset.js';
 import { previewPage } from './preview.js';
 
@@ -146,10 +147,11 @@ function fontFaces(presets) {
 
 /** A frame the preview is drawn in: a document of its own (srcdoc, so standards mode) with FinUI's stylesheets, the
  *  preview's layout and a <style> that holds the preset's tokens. */
-function frame(theme, sheets) {
+function frame(theme, sheets, onScroll) {
   const el = h('iframe', { class: 'create-frame', title: `Preview, ${theme}`, srcdoc: '<!doctype html><html lang="en"><head><meta charset="utf-8"></head><body></body></html>' });
   let preset = null, pending = '';
   el.addEventListener('load', () => {
+    el.contentWindow.addEventListener('scroll', () => onScroll(el.contentWindow), { passive: true });
     const doc = el.contentDocument;
     doc.documentElement.dataset.theme = theme;
     for (const href of [...sheets, at('create/preview.css')]) {
@@ -163,7 +165,7 @@ function frame(theme, sheets) {
     doc.head.append(preset);
     doc.body.append(doc.adoptNode(previewPage()));
   }, { once: true });
-  return { el, use(css) { pending = css; if (preset) preset.textContent = css; } };
+  return { el, use(css) { pending = css; if (preset) preset.textContent = css; }, win: () => el.contentWindow };
 }
 
 function download(name, text) {
@@ -235,14 +237,28 @@ async function start() {
   const locks = new Set();
   let view = 'light';
   let frames = [];
+  // Both themes side by side scroll as one, unless the switch says otherwise: linked to start with.
+  let linked = true;
+  const follow = (from) => {
+    if (!linked || frames.length < 2) return;
+    for (const f of frames) {
+      const w = f.win();
+      // A frame already there does nothing, so the one that follows does not lead back.
+      if (w && w !== from && (Math.round(w.scrollY) !== Math.round(from.scrollY) || Math.round(w.scrollX) !== Math.round(from.scrollX))) w.scrollTo(from.scrollX, from.scrollY);
+    }
+  };
+  const linkSlot = h('div', { class: 'create-link', hidden: true },
+    h('span', { class: 'create-link__label', id: 'create-link-label' }, 'Link scrolling'),
+    toggle({ checked: linked, labelledby: 'create-link-label', onChange: (on) => { linked = on; if (on && frames[0] && frames[0].win()) follow(frames[0].win()); } }));
   const stage = h('div', { class: 'create-stage' });
   const codeEl = h('code', { class: 'create-code mono' });
   const codeRow = h('div', { class: 'create-code-row' });
 
   const live = (c) => { const css = located(overlay(presets, encode(c), c)); for (const f of frames) f.use(css); };
   function drawFrames() {
-    frames = (view === 'both' ? ['light', 'dark'] : [view]).map((t) => frame(t, sheets));
+    frames = (view === 'both' ? ['light', 'dark'] : [view]).map((t) => frame(t, sheets, follow));
     stage.classList.toggle('is-both', view === 'both');
+    linkSlot.hidden = view !== 'both';
     mount(stage, frames.map((f) => f.el));
     live(choice);
   }
@@ -284,6 +300,7 @@ async function start() {
       h('div', { class: 'create-brand' }, h('h1', null, 'FinUI create'), h('p', null, 'Choose how FinUI looks, watch it change, then take it home with one command.')),
       h('div', { class: 'create-top-right' },
         segmented({ label: 'Preview in', size: 'sm', value: view, options: VIEWS, onChange: (v) => { view = v; drawFrames(); } }),
+        linkSlot,
         h('a', { href: at('') }, 'Gallery'), h('a', { href: 'https://github.com/finstats/finui' }, 'Source'),
         themeSwitch({ value: stored, onChange: applyTheme }))),
     h('div', { class: 'create' }, stage, panel));
