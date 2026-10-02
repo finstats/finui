@@ -246,40 +246,72 @@ function buttons() {
     pagination({ page: 2, perPage: 50, total: 640, onPage: noop }));
 }
 
-/** Every block: a key, a title, a line on what it shows, and its builder. `wide` blocks take a whole row. A block is a
+/** A month, Monday first, whole weeks: today ringed, the chosen day filled, a dot on a day with something coming out, and
+ *  what comes out on the chosen day below. October 2026, so the picture never moves. */
+function calendar() {
+  const first = 3, days = 31, today = 2;   // 1 October 2026 is a Thursday: three days of September before it
+  const releases = { 2: ['Sintel', 'Season 2, episode 3'], 9: ['Sintel', 'Season 2, episode 4'], 14: ['Tears of Steel', 'Film'], 22: ['Cosmos Laundromat', 'Season 1, episode 1'], 30: ['Spring', 'Film'] };
+  let chosen = 9;
+  const list = h('ul', { class: 'blk-list' });
+  const show = () => {
+    const r = releases[chosen];
+    list.replaceChildren(h('li', { class: 'blk-list__row' }, h('div', { class: 'blk-list__text' },
+      h('strong', null, r ? r[0] : 'Nothing comes out'), h('span', { class: 'muted' }, r ? `${r[1]} · ${chosen} October` : `on ${chosen} October`)), r ? status({ tone: 'info' }, 'Coming up') : null));
+  };
+  const cells = [];
+  for (let i = 0; i < first; i++) cells.push(h('span', { class: 'blk-cal__day is-outside', 'aria-hidden': 'true' }, String(28 + i)));
+  for (let d = 1; d <= days; d++) {
+    const b = h('button', { type: 'button', class: 'blk-cal__day', 'aria-pressed': String(d === chosen), 'aria-current': d === today ? 'date' : null,
+      'aria-label': `${d} October${releases[d] ? `, ${releases[d][0]}` : ''}` }, String(d), releases[d] ? h('span', { class: 'blk-cal__dot', 'aria-hidden': 'true' }) : null);
+    b.addEventListener('click', () => { chosen = d; grid.querySelectorAll('button.blk-cal__day').forEach((x, k) => x.setAttribute('aria-pressed', String(k + 1 === d))); show(); });
+    cells.push(b);
+  }
+  while (cells.length % 7) cells.push(h('span', { class: 'blk-cal__day is-outside', 'aria-hidden': 'true' }, String(cells.length - first - days + 1)));
+  const grid = h('div', { class: 'blk-cal__grid', role: 'group', 'aria-label': 'October 2026' },
+    ['Mo', 'Tu', 'We', 'Th', 'Fr', 'Sa', 'Su'].map((w) => h('span', { class: 'blk-cal__wd', 'aria-hidden': 'true' }, w)), cells);
+  show();
+  return h('div', { class: 'blk-cal' },
+    h('div', { class: 'blk-cal__head' }, button({ variant: 'icon', 'aria-label': 'September' }, icon('chevronLeft', 16)), h('span', { class: 'blk-cal__month' }, 'October 2026'),
+      button({ variant: 'icon', 'aria-label': 'November' }, icon('chevronRight', 16))),
+    grid, list);
+}
+
+/** Every block: a key, its name and group in the gallery's list and an icon there, a title, a line on what it shows, and
+ *  its builder. `wide` blocks take a whole row. A block is a
  *  composition of FinUI's components with invented data; FinUI create draws them all, the gallery shows each with its
  *  HTML to copy. */
 export const BLOCKS = [
-  { key: 'look', title: 'The look', about: 'The colours of a look by token, and a heading over its text.', render: () => card({ title: 'The look', sub: 'Colours and type, by token', body: palette() }) },
-  { key: 'watch-time', title: 'Watch time by day', about: 'Stacked bars, one colour per kind, with a legend.', render: () => card({ title: 'Watch time by day', sub: 'Films, episodes, music and the rest', body: bars(), actions: button({ variant: 'ghost', size: 'sm' }, icon('download', 14), 'Export') }) },
-  { key: 'sign-in', title: 'Sign in', about: 'A form: fields with labels and help, a checkbox, the primary button.', render: () => card({ title: 'Sign in', sub: 'With your Jellyfin account', body: signIn() }) },
-  { key: 'most-watched', title: 'Most watched', about: 'A ranked list with a value and a note on each row.', render: () => card({ title: 'Most watched', body: rankList([
+  { key: 'bar-chart', name: 'Bar chart', group: 'Chart blocks', icon: 'chart', title: 'Watch time by day', about: 'Stacked bars, one colour per kind, with a legend.', render: () => card({ title: 'Watch time by day', sub: 'Films, episodes, music and the rest', body: bars(), actions: button({ variant: 'ghost', size: 'sm' }, icon('download', 14), 'Export') }) },
+  { key: 'area-chart', name: 'Area chart', group: 'Chart blocks', icon: 'activity', title: 'Plays a month', about: 'One quantity over a year, its busiest month marked.', render: () => card({ title: 'Plays a month', sub: 'This year, the busiest month marked', body: area() }) },
+  { key: 'donut-chart', name: 'Donut chart', group: 'Chart blocks', icon: 'gauge', title: 'Where people watch', about: 'A ring of four parts and its legend.', render: () => card({ title: 'Where people watch', body: donut() }) },
+  { key: 'heatmap', name: 'Heatmap', group: 'Chart blocks', icon: 'flame', title: 'When people watch', about: 'A week of hours, quiet to busy.', render: () => card({ title: 'When people watch', sub: 'Plays by weekday and hour', body: heat() }) },
+  { key: 'calendar', name: 'Calendar', group: 'Date blocks', icon: 'calendar', title: 'Calendar', about: 'A month to pick a day in, today ringed, a dot where something comes out.', render: () => card({ title: 'Calendar', sub: 'What comes out when', body: calendar() }) },
+  { key: 'coming-up', name: 'Coming up', group: 'Date blocks', icon: 'clock', title: 'Coming up', about: 'Dated rows, each with its state.', render: () => card({ title: 'Coming up', sub: 'From Sonarr, Radarr and requests', body: upcoming() }) },
+  { key: 'sign-in', name: 'Sign in', group: 'Form blocks', icon: 'lock', title: 'Sign in', about: 'A form: fields with labels and help, a checkbox, the primary button.', render: () => card({ title: 'Sign in', sub: 'With your Jellyfin account', body: signIn() }) },
+  { key: 'notifications', name: 'Notifications', group: 'Form blocks', icon: 'inbox', title: 'Notifications', about: 'Settings that switch on and off, each with a line of help.', render: () => card({ title: 'Notifications', sub: 'What finstats tells you', body: notifications() }) },
+  { key: 'search', name: 'Search and filters', group: 'Form blocks', icon: 'search', title: 'Find something', about: 'A search box, a segmented choice and filter chips.', render: () => card({ title: 'Find something', body: search() }) },
+  { key: 'api-key', name: 'API key', group: 'Form blocks', icon: 'link', title: 'API key', about: 'A secret to copy once, and what to do with it.', render: () => card({ title: 'API key', sub: 'For scripts and the calendar feed', body: apiKey() }) },
+  { key: 'most-watched', name: 'Ranked list', group: 'List blocks', icon: 'trophy', title: 'Most watched', about: 'A ranked list with a value and a note on each row.', render: () => card({ title: 'Most watched', body: rankList([
     { href: '#', name: 'Big Buck Bunny', sub: '2008 · 4 people', value: '12h 4m', note: '31 plays' },
     { href: '#', name: 'Sintel', sub: '2010 · 3 people', value: '6h 50m', note: '18 plays' },
     { href: '#', name: 'Tears of Steel', sub: '2012 · 2 people', value: '3h 2m', note: '9 plays' },
     { href: '#', name: 'Elephants Dream', sub: '2006 · 1 person', value: '1h 1m', note: '2 plays' }]) }) },
-  { key: 'plays-a-month', title: 'Plays a month', about: 'One quantity over a year, its busiest month marked.', render: () => card({ title: 'Plays a month', sub: 'This year, the busiest month marked', body: area() }) },
-  { key: 'now-playing', title: 'Now playing', about: 'What is on now: poster, who, where, how far along.', render: () => card({ title: 'Now playing', body: nowPlaying(), actions: badge({ live: true }, 'Live') }) },
-  { key: 'coming-up', title: 'Coming up', about: 'Dated rows, each with its state.', render: () => card({ title: 'Coming up', sub: 'From Sonarr, Radarr and requests', body: upcoming() }) },
-  { key: 'devices', title: 'Where people watch', about: 'A ring of four parts and its legend.', render: () => card({ title: 'Where people watch', body: donut() }) },
-  { key: 'notifications', title: 'Notifications', about: 'Settings that switch on and off, each with a line of help.', render: () => card({ title: 'Notifications', sub: 'What finstats tells you', body: notifications() }) },
-  { key: 'type', title: 'Type', about: 'A heading, body text with mono numbers, and faint words.', render: () => card({ title: 'Type', body: type() }) },
-  { key: 'heat', title: 'When people watch', about: 'A week of hours, quiet to busy.', render: () => card({ title: 'When people watch', sub: 'Plays by weekday and hour', body: heat() }) },
-  { key: 'downloads', title: 'Downloads', about: 'Progress bars with what is left.', render: () => card({ title: 'Downloads', sub: 'Sonarr and Radarr queues', body: downloads() }) },
-  { key: 'together', title: 'Watched together', about: 'Avatars side by side, a sentence and two facts.', render: () => card({ title: 'Watched together', body: together() }) },
-  { key: 'search', title: 'Find something', about: 'A search box, a segmented choice and filter chips.', render: () => card({ title: 'Find something', body: search() }) },
-  { key: 'api-key', title: 'API key', about: 'A secret to copy once, and what to do with it.', render: () => card({ title: 'API key', sub: 'For scripts and the calendar feed', body: apiKey() }) },
-  { key: 'health', title: 'Server health', about: 'Statuses in their tones over a table with a total.', render: () => card({ title: 'Server health', body: health() }) },
-  { key: 'library', title: 'Library', about: 'Facts and a meter.', render: () => card({ title: 'Library', body: h('div', { class: 'blk-stack' },
+  { key: 'now-playing', name: 'Now playing', group: 'List blocks', icon: 'play', title: 'Now playing', about: 'What is on now: poster, who, where, how far along.', render: () => card({ title: 'Now playing', body: nowPlaying(), actions: badge({ live: true }, 'Live') }) },
+  { key: 'downloads', name: 'Downloads', group: 'List blocks', icon: 'download', title: 'Downloads', about: 'Progress bars with what is left.', render: () => card({ title: 'Downloads', sub: 'Sonarr and Radarr queues', body: downloads() }) },
+  { key: 'together', name: 'People together', group: 'List blocks', icon: 'together', title: 'Watched together', about: 'Avatars side by side, a sentence and two facts.', render: () => card({ title: 'Watched together', body: together() }) },
+  { key: 'health', name: 'Status and table', group: 'List blocks', icon: 'server', title: 'Server health', about: 'Statuses in their tones over a table with a total.', render: () => card({ title: 'Server health', body: health() }) },
+  { key: 'library', name: 'Facts and a meter', group: 'List blocks', icon: 'database', title: 'Library', about: 'Facts and a meter.', render: () => card({ title: 'Library', body: h('div', { class: 'blk-stack' },
     facts([['Films', '418'], ['Episodes', '6,032'], ['Size', '14.2 TB', { mono: true }], ['Last read', '4 min ago']]),
     meter({ value: 0.81, block: true, label: 'Disk used' })) }) },
-  { key: 'keys', title: 'Keys', about: 'Keyboard shortcuts, each with its keys.', render: () => card({ title: 'Keys', sub: 'Everywhere in finstats', body: shortcuts() }) },
-  { key: 'focus', title: 'Focus and icons', about: 'A focus ring held still, and a row of icons.', render: () => card({ title: 'Focus and icons', body: focusDemo() }) },
-  { key: 'dialog', title: 'A dialog', about: 'A question that cannot be taken back, and its two answers.', render: () => confirmBox() },
-  { key: 'loading', title: 'Loading', about: 'Skeleton rows while something comes.', render: () => card({ title: 'Loading', body: sk.rows(3) }) },
-  { key: 'error', title: 'Something went wrong', about: 'What failed, in words, and a way to try again.', render: () => card({ title: 'Something went wrong', body: errorState(new Error('Jellyfin did not answer within 10 seconds.'), noop) }) },
-  { key: 'buttons', title: 'Buttons and the rest', about: 'Every button, chips, badges, a spinner and pagination.', render: () => card({ title: 'Buttons and the rest', body: buttons() }) },
-  { key: 'empty', title: 'Nothing here yet', about: 'An empty state that says what will come and offers a way on.', render: () => card({ title: 'Nothing here yet', body: emptyState('No plays in this range', 'Plays show up here a minute after they start.', button({}, 'Show all time')) }) },
-  { key: 'recent-plays', title: 'Recent plays', wide: true, about: 'A sortable table with avatars, badges and progress.', render: () => card({ title: 'Recent plays', cls: 'fui-card--flush', body: recent() }) },
-  { key: 'settings', title: 'Settings', wide: true, about: 'A page of settings: the menu, the open section marked, its rows.', render: () => card({ title: 'Settings', sub: 'One section at a time, the open one marked', body: settingsPage() }) },
+  { key: 'keys', name: 'Shortcuts', group: 'List blocks', icon: 'menu', title: 'Keys', about: 'Keyboard shortcuts, each with its keys.', render: () => card({ title: 'Keys', sub: 'Everywhere in finstats', body: shortcuts() }) },
+  { key: 'dialog', name: 'Dialog', group: 'Feedback blocks', icon: 'trash', title: 'A dialog', about: 'A question that cannot be taken back, and its two answers.', render: () => confirmBox() },
+  { key: 'loading', name: 'Loading', group: 'Feedback blocks', icon: 'refresh', title: 'Loading', about: 'Skeleton rows while something comes.', render: () => card({ title: 'Loading', body: sk.rows(3) }) },
+  { key: 'error', name: 'Error', group: 'Feedback blocks', icon: 'alert', title: 'Something went wrong', about: 'What failed, in words, and a way to try again.', render: () => card({ title: 'Something went wrong', body: errorState(new Error('Jellyfin did not answer within 10 seconds.'), noop) }) },
+  { key: 'empty', name: 'Empty state', group: 'Feedback blocks', icon: 'inbox', title: 'Nothing here yet', about: 'An empty state that says what will come and offers a way on.', render: () => card({ title: 'Nothing here yet', body: emptyState('No plays in this range', 'Plays show up here a minute after they start.', button({}, 'Show all time')) }) },
+  { key: 'look', name: 'Colours', group: 'Look blocks', icon: 'sparkle', title: 'The look', about: 'The colours of a look by token, and a heading over its text.', render: () => card({ title: 'The look', sub: 'Colours and type, by token', body: palette() }) },
+  { key: 'type', name: 'Type', group: 'Look blocks', icon: 'log', title: 'Type', about: 'A heading, body text with mono numbers, and faint words.', render: () => card({ title: 'Type', body: type() }) },
+  { key: 'focus', name: 'Focus and icons', group: 'Look blocks', icon: 'compass', title: 'Focus and icons', about: 'A focus ring held still, and a row of icons.', render: () => card({ title: 'Focus and icons', body: focusDemo() }) },
+  { key: 'buttons', name: 'Buttons', group: 'Look blocks', icon: 'sliders', title: 'Buttons and the rest', about: 'Every button, chips, badges, a spinner and pagination.', render: () => card({ title: 'Buttons and the rest', body: buttons() }) },
+  { key: 'recent-plays', name: 'Table', group: 'Page blocks', icon: 'table', title: 'Recent plays', wide: true, about: 'A sortable table with avatars, badges and progress.', render: () => card({ title: 'Recent plays', cls: 'fui-card--flush', body: recent() }) },
+  { key: 'settings', name: 'Settings page', group: 'Page blocks', icon: 'settings', title: 'Settings', wide: true, about: 'A page of settings: the menu, the open section marked, its rows.', render: () => card({ title: 'Settings', sub: 'One section at a time, the open one marked', body: settingsPage() }) },
 ];

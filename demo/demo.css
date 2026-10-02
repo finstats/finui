@@ -35,10 +35,8 @@ body { background: var(--page-bg); }
 @media (max-width: 560px) { .demo-about, .demo-props { grid-template-columns: minmax(0, 1fr); } .demo { padding: 20px 16px 48px; } }
 /* A block: its name and a way to copy it, a line on what it shows, then the block in both themes. */
 .demo-block { display: grid; gap: 6px; }
-.demo-block + .demo-block { margin-top: 18px; }
 .demo-block__head { display: flex; align-items: center; gap: 10px; }
 .demo-block__head .demo-name { margin: 0; }
-.demo-block__about { color: var(--text-muted); font-size: 13px; }
 .demo-block .demo-frame > * { max-width: 460px; }
 /* A wide block (a table, a page of settings) takes the whole width, its themes one above the other. */
 .demo-block.is-wide .demo-frames { grid-template-columns: minmax(0, 1fr); }

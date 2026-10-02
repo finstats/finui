@@ -43,3 +43,17 @@
 .blk-focused { outline: var(--focus-width) solid var(--focus-color); outline-offset: var(--focus-offset); }
 .blk-icons { gap: 14px; color: var(--text-muted); }
 .blk-modal { width: 100%; }
+/* A month: weekday heads, whole weeks, today ringed, the chosen day filled, a dot where something comes out. */
+.blk-cal { display: grid; gap: 10px; }
+.blk-cal__head { display: flex; align-items: center; justify-content: space-between; }
+.blk-cal__month { font-family: var(--font-heading); font-weight: var(--heading-weight); color: var(--text-strong); }
+.blk-cal__grid { display: grid; grid-template-columns: repeat(7, minmax(0, 1fr)); gap: 2px; text-align: center; }
+.blk-cal__wd { padding: 4px 0; font-size: 11px; color: var(--text-faint); }
+.blk-cal__day { position: relative; display: grid; place-items: center; height: calc(var(--density) * 36px); min-width: 0; padding: 0; background: transparent; border: 0;
+  border-radius: var(--radius-control); color: var(--text); font-size: 13px; font-variant-numeric: tabular-nums; transition: background var(--ease); }
+button.blk-cal__day:hover { background: var(--hover); }
+.blk-cal__day.is-outside { color: var(--text-faint); }
+.blk-cal__day[aria-current="date"] { box-shadow: inset 0 0 0 1px var(--border-strong); font-weight: 600; }
+.blk-cal__day[aria-pressed="true"] { background: var(--primary-bg); color: var(--primary-text); box-shadow: none; }
+.blk-cal__dot { position: absolute; bottom: 12%; left: 50%; width: 4px; height: 4px; margin-left: -2px; border-radius: var(--radius-pill); background: var(--accent); }
+.blk-cal__day[aria-pressed="true"] .blk-cal__dot { background: var(--primary-text); }
