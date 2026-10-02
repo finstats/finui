@@ -1,4 +1,5 @@
-// What FinUI create draws its preview with: every block (blocks/blocks.js) on one page, as a wall of cards, under the
+// What FinUI create draws its preview with: every block (blocks/blocks.js), in each of the ways it shows itself (its
+// `preview`: settings of its switches), on one page as a wall of cards, under the
 // overview a page of finstats opens on. It is drawn into a frame that loads FinUI's stylesheets and a preset's tokens, so
 // every colour, corner, gap, font and line in it is the stylesheet's, as somebody who fetches that stylesheet will see it.
 
@@ -7,6 +8,9 @@ import { segmented } from '../components/segmented/segmented.js';
 import { statTile } from '../components/stat-tile/stat-tile.js';
 import { pageHeader } from '../components/page-header/page-header.js';
 import { BLOCKS } from '../blocks/blocks.js';
+
+/** A block in each of the ways the preview shows it. */
+const ways = (b) => b.preview.map((o) => b.playground.render(o));
 
 /** Everything the preview shows, built in this document; the frame adopts it. */
 export function previewPage() {
@@ -18,8 +22,8 @@ export function previewPage() {
       statTile({ label: 'Plays', value: '1,284', current: 1284, previous: 1330, vsLabel: 'vs the 30 days before' }),
       statTile({ label: 'People', value: '6', current: 6, previous: 6, vsLabel: 'vs the 30 days before' }),
       statTile({ label: 'Last played', value: 'just now', hint: 'Big Buck Bunny' })),
-    h('div', { class: 'pv-masonry' }, BLOCKS.filter((b) => !b.wide).map((b) => b.render())),
-    BLOCKS.filter((b) => b.wide).map((b) => b.render()));
+    h('div', { class: 'pv-masonry' }, BLOCKS.filter((b) => !b.wide).flatMap(ways)),
+    BLOCKS.filter((b) => b.wide).flatMap(ways));
   // A preview: nothing in it goes anywhere.
   page.addEventListener('click', (e) => { if (e.target.closest('a, button[type=submit]')) e.preventDefault(); });
   return page;

@@ -18,16 +18,30 @@ const imported = [...js.matchAll(/^import \{([^}]+)\}/gm)].flatMap((m) => m[1].s
 // Comments and the text of strings say nothing about what code uses: "the busiest month" is not a call of month().
 const plain = (code) => code.replace(/\/\*[\s\S]*?\*\//g, '').replace(/\/\/.*$/gm, '').replace(/'(?:[^'\\\n]|\\.)*'|"(?:[^"\\\n]|\\.)*"/g, "''");
 const uses = (code, name) => new RegExp(`(?<![\\w.$-])${name}(?![\\w$-]|\\s*:)`).test(plain(code));
+// The blocks themselves, for the code their switches write. Building one needs a page; writing its code does not, and
+// core.js only makes a <template> when it loads.
+globalThis.document ??= { createElement: () => ({}) };
+const { BLOCKS } = await import('../blocks/blocks.js');
+// Every block's code as it opens and in each of the ways FinUI create shows it.
+const codes = BLOCKS.flatMap((b) => [[b.key, null], ...b.preview.map((o) => [b.key, b.playground.code(o)])]);
 
-test('every block has code', () => {
-  assert.ok(keys.length >= 40, `${keys.length} blocks`);
-  for (const k of keys) assert.match(blockSource(js, k), new RegExp(`export function ${blockName(k)}\\(\\)`), k);
+test('one block of each kind, and every one has code, whatever its switches say', () => {
+  assert.deepEqual(keys, ['calendar', 'chart', 'form', 'list', 'state', 'look', 'page']);
+  assert.deepEqual(BLOCKS.map((b) => b.key), keys);
+  for (const [k, expr] of codes) assert.match(blockSource(js, k, './finui/', expr), new RegExp(`export function ${blockName(k)}\\(\\)`), k);
   assert.equal(blockName('bar-chart'), 'barChartBlock');
 });
 
+test('a switch changes the code: no two ways of a block write the same', () => {
+  for (const b of BLOCKS) {
+    const written = b.preview.map((o) => b.playground.code(o));
+    assert.equal(new Set(written).size, written.length, `${b.key}: ${written.join(' | ')}`);
+  }
+});
+
 test('a block’s code declares or imports everything it uses, and nothing it does not', () => {
-  for (const k of keys) {
-    const code = blockSource(js, k);
+  for (const [k, expr] of codes) {
+    const code = blockSource(js, k, './finui/', expr);
     const own = [...code.matchAll(/^(?:function\*? |const |let |export function )(\w+)/gm)].map((m) => m[1]);
     const brought = [...code.matchAll(/^import \{([^}]+)\}/gm)].flatMap((m) => m[1].split(',').map(local));
     for (const name of [...declared, ...imported].filter((n) => n !== 'BLOCKS')) {
@@ -40,8 +54,8 @@ test('a block’s code declares or imports everything it uses, and nothing it do
 });
 
 test('its imports are FinUI’s, from where the installer puts it', () => {
-  for (const k of keys) {
-    const code = blockSource(js, k);
+  for (const [k, expr] of codes) {
+    const code = blockSource(js, k, './finui/', expr);
     for (const [, from] of code.matchAll(/^import .* from '([^']+)';$/gm)) assert.match(from, /^\.\/finui\/(core\.js|components\/[a-z-]+\/[a-z-]+\.js)$/, `${k}: ${from}`);
     assert.ok(!code.includes('../'), `${k}: a path of the gallery's`);
   }

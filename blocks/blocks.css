@@ -13,7 +13,7 @@
 .blk-heat__day { font-size: 11px; color: var(--text-faint); padding-right: 6px; }
 .blk-heat__cell { aspect-ratio: 1; border-radius: var(--radius-sm); }
 .blk-who { display: inline-flex; align-items: center; gap: 8px; }
-.blk-done { display: inline-flex; align-items: center; gap: 8px; }
+.blk-watched { display: inline-flex; align-items: center; gap: 8px; }
 .blk-donut-wrap { display: flex; align-items: center; gap: 18px; flex-wrap: wrap; }
 .blk-donut-wrap .blk-legend { flex-direction: column; flex: 1 1 120px; }
 .blk-donut { width: 128px; height: 128px; flex: none; }
@@ -26,13 +26,11 @@
 .blk-list { display: grid; gap: 12px; }
 .blk-list__row { display: flex; align-items: center; gap: 12px; min-width: 0; }
 .blk-list__text { display: grid; gap: 4px; flex: 1; min-width: 0; font-size: 13px; }
-.blk-date { display: grid; place-items: center; width: 42px; padding: 4px 0; flex: none; border: 1px solid var(--border); border-radius: var(--radius-control); line-height: 1.1; }
-.blk-date__day { font-size: 16px; font-weight: 700; color: var(--text-strong); }
-.blk-date__month { font-size: 10.5px; text-transform: uppercase; letter-spacing: .05em; color: var(--text-faint); }
+.blk-rank { width: 1.5em; flex: none; text-align: right; font-size: 13px; color: var(--text-faint); }
+.blk-value { display: grid; justify-items: end; gap: 2px; flex: none; font-size: 12.5px; }
+.blk-value strong { color: var(--text-strong); }
 .blk-dl { display: grid; gap: 6px; }
 .blk-dl__top { display: flex; justify-content: space-between; gap: 10px; font-size: 13px; min-width: 0; }
-.blk-avatars { display: flex; }
-.blk-avatars > * + * { margin-left: -8px; box-shadow: 0 0 0 2px var(--bg-2); }
 .blk-key-row { display: flex; align-items: center; justify-content: space-between; gap: 8px; padding: 8px 10px; background: var(--bg-sunken); border: 1px solid var(--border-soft); border-radius: var(--radius-control); min-width: 0; }
 .blk-shortcuts { display: grid; }
 .blk-shortcuts li { display: flex; align-items: center; justify-content: space-between; gap: 10px; padding: 8px 0; font-size: 13px; }
@@ -69,25 +67,44 @@
 .blk-otp { display: flex; align-items: center; justify-content: center; gap: 6px; }
 .blk-otp__box { width: 40px; text-align: center; font-size: 18px; padding-left: 0; padding-right: 0; }
 .blk-otp__dash { color: var(--text-faint); }
-.blk-key-row .fui-field__input { flex: 1; min-width: 0; }
+.blk-inline { display: flex; align-items: center; gap: 6px; min-width: 0; }
+.blk-inline .fui-field__input { flex: 1; min-width: 0; }
 .blk-key-row--boxed { padding: 6px 10px; }
 .blk-invite { display: grid; grid-template-columns: minmax(0, 1fr) auto auto; align-items: center; gap: 8px; }
 .blk-drop { display: grid; justify-items: center; gap: 6px; padding: 22px 16px; text-align: center; color: var(--text-muted); border: 1px dashed var(--border-strong); border-radius: var(--radius); background: var(--bg-sunken); }
 .blk-drop strong { color: var(--text); }
 .blk-drop.is-over { border-color: var(--accent); background: var(--accent-wash); }
-/* Lists: a feed on a line, unread marks, one bar of parts. */
-.blk-feed { display: grid; gap: 14px; position: relative; }
-.blk-feed__row { position: relative; display: flex; gap: 12px; align-items: flex-start; font-size: 13px; }
-.blk-feed__row:not(:last-child)::after { content: ""; position: absolute; left: 12px; top: 26px; bottom: -14px; width: 1px; background: var(--border); }
+/* Lists: rows on a line, unread marks, one bar of parts. */
+.blk-feed { gap: 14px; }
+.blk-feed > .blk-list__row { position: relative; align-items: flex-start; }
+.blk-feed > .blk-list__row:not(:last-child)::after { content: ""; position: absolute; left: 12px; top: 26px; bottom: -14px; width: 1px; background: var(--border); }
 .blk-feed__mark { display: grid; place-items: center; width: 25px; height: 25px; flex: none; border-radius: var(--radius-pill); background: var(--bg-sunken); color: var(--text-muted); box-shadow: inset 0 0 0 1px var(--border); }
 .blk-select-sm { width: auto; min-height: 30px; padding-top: 4px; padding-bottom: 4px; font-size: 12.5px; }
 .blk-inbox__dot { width: 8px; height: 8px; flex: none; border-radius: var(--radius-pill); }
-.blk-inbox.is-unread .blk-inbox__dot { background: var(--accent); }
-.blk-inbox:not(.is-unread) strong { font-weight: 500; color: var(--text-muted); }
+.blk-list__row.is-unread .blk-inbox__dot { background: var(--accent); }
+.blk-list__row:not(.is-unread):has(.blk-inbox__dot) strong { font-weight: 500; color: var(--text-muted); }
 .blk-stackbar { display: flex; height: 12px; gap: 2px; overflow: hidden; border-radius: var(--radius-pill); }
-/* Feedback: a banner in each tone, a finished thing. */
+/* States: a banner in each tone, a finished thing. */
+.blk-callout { display: flex; align-items: flex-start; gap: 10px; padding: 12px 14px; border: 1px solid var(--border); border-left-width: 3px; border-radius: var(--radius-control); background: var(--bg-sunken); font-size: 13px; }
+.blk-callout > .icon { flex: none; margin-top: 1px; }
+.blk-callout > .fui-button { flex: none; margin: -4px -6px 0 0; }
+.blk-callout--info { border-left-color: var(--accent); }
+.blk-callout--info > .icon { color: var(--accent-hi); }
+.blk-callout--good { border-left-color: var(--good); }
+.blk-callout--good > .icon { color: var(--good); }
+.blk-callout--warning { border-left-color: var(--warning); }
+.blk-callout--warning > .icon { color: var(--warning); }
+.blk-callout--critical { border-left-color: var(--critical); }
+.blk-callout--critical > .icon { color: var(--critical); }
 .blk-done { display: grid; place-items: center; width: 52px; height: 52px; border-radius: var(--radius-pill); background: var(--accent-wash); color: var(--accent-hi); }
-/* Pages: a missing page, and an app's menu. */
+/* Pages: the app's menu beside the page when it has one, a missing page. */
+.blk-page { display: grid; gap: 16px; min-width: 0; }
+.blk-page--side { display: flex; flex-wrap: wrap; align-items: flex-start; }
+.blk-page--side > :first-child { flex: 1 1 200px; }
+.blk-page__main { display: grid; gap: 16px; min-width: 0; }
+/* Beside the menu while the page keeps 60% of the width, under it once it would not: the frame decides, not the screen. */
+.blk-page--side > .blk-page__main { flex: 999 1 0; min-width: 60%; }
+.blk-page__main > .blk-stats { grid-template-columns: repeat(auto-fit, minmax(160px, 1fr)); }
 .blk-404 { font-size: 54px; font-weight: 700; line-height: 1; color: var(--text-faint); letter-spacing: -.04em; }
 .blk-center .fui-field__search { width: 100%; max-width: none; }
 .blk-side { display: grid; gap: 2px; }
