@@ -53,7 +53,9 @@ button and menu style keeps its words readable, and every token a choice sets is
 The gallery's **blocks** are compositions of the components, a card's worth of an app each, every one an entry of its own in its list, grouped by kind (charts, dates, forms, lists, feedback, look, pages): a calendar, bar, area and donut
 charts and a heatmap, a sign-in form, a settings page with its menu, notifications, a table, a dialog, loading, error and empty states. They
 are the cards FinUI create draws a preset on (`blocks/blocks.js`, laid out by `blocks/blocks.css`), shown in both themes,
-each with its HTML to copy.
+each with its code to copy: a module that imports FinUI from `./finui/` (where the installer puts it) and
+exports one function that builds the block, the CSS of the classes it draws, and its HTML. `blocks/source.js` works the
+code out of `blocks.js` and `blocks.css`, and the QA stage pastes it into a page with nothing but FinUI and runs it.
 
 ## Using it
 
