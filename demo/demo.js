@@ -59,10 +59,10 @@ function docs(meta) {
 
 /** One example to play with: switches turn its features on (one may turn others off), a choice picks between variants,
  *  and the example is drawn again in both themes at every change. */
-function playground(name, p) {
+function playground(name, p, onChange = () => {}) {
   const state = Object.fromEntries(p.controls.map((c) => [c.key, c.choices ? c.choices[0][0] : !!c.on]));
   const stage = h('div');
-  const draw = () => mount(stage, frames(() => p.render({ ...state })));
+  const draw = () => { mount(stage, frames(() => p.render({ ...state }))); onChange({ ...state }); };
   const switches = {};
   const controls = p.controls.map((c) => {
     const id = `play-${name}-${c.key}`;
@@ -140,11 +140,11 @@ function showcase(slot) {
 let texts = null;
 const sourceTexts = () => (texts ??= Promise.all(['blocks/blocks.js', 'blocks/blocks.css'].map(async (f) => (await fetch(f)).text())));
 const TAKE = [{ value: 'js', label: 'JavaScript' }, { value: 'css', label: 'CSS' }, { value: 'html', label: 'HTML' }];
-async function codePanel(b) {
+async function codePanel(b, state = null) {
   const [js, css] = await sourceTexts();
-  const el = b.render();
+  const el = state ? b.playground.render(state) : b.render();
   const classes = [...new Set([el, ...el.querySelectorAll('[class]')].flatMap((e) => [...e.classList]).filter((c) => c.startsWith('blk-')))];
-  const code = { js: blockSource(js, b.key), css: blockCss(css, classes) || '/* Nothing to add: FinUI’s own stylesheets draw this block. */\n', html: el.outerHTML };
+  const code = { js: blockSource(js, b.key, './finui/', state ? b.playground.code(state) : null), css: blockCss(css, classes) || '/* Nothing to add: FinUI’s own stylesheets draw this block. */\n', html: el.outerHTML };
   let lang = 'js';
   const copySlot = h('span');
   const panes = TAKE.map(({ value }) => h('pre', { class: 'demo-code__pane mono', dataset: { lang: value }, hidden: value !== lang, tabindex: 0 }, code[value]));
@@ -158,6 +158,7 @@ async function codePanel(b) {
 
 // ---- a block: a card's worth of an app, one of those FinUI create draws a preset on, with its HTML to copy
 function blockPage(slot, b) {
+  if (b.playground) return blockPlay(slot, b);
   const paint = () => {
     const html = b.render().outerHTML;
     mount(slot, h('h2', { class: 'fui-page-header__title' }, b.name),
@@ -170,6 +171,31 @@ function blockPage(slot, b) {
   };
   const codeSlot = h('div');
   codePanel(b).then((panel) => mount(codeSlot, panel)).catch((e) => mount(codeSlot, h('p', { class: 'demo-purpose' }, `The code could not be read: ${e.message}`)));
+  paint();
+}
+
+/** A block with switches: one example, its extras switched on, and its code following them — the same code, with only
+ *  what is on in it. */
+function blockPlay(slot, b) {
+  const codeSlot = h('div');
+  const copySlot = h('span');
+  const head = h('div', { class: 'demo-block__head' }, h('h4', { class: 'demo-name' }, b.title), copySlot);
+  let asked = 0;
+  const follow = async (state) => {
+    const mine = ++asked;
+    const html = b.playground.render(state).outerHTML;
+    section.dataset.html = html;
+    mount(copySlot, copyButton(html, `Copy the HTML of ${b.name}`));
+    const panel = await codePanel(b, state);
+    if (mine === asked) mount(codeSlot, panel);
+  };
+  const section = h('section', { class: 'demo-block', dataset: { block: b.key } }, head);
+  const paint = () => {
+    section.replaceChildren(head, playground(b.key, b.playground, follow));
+    mount(slot, h('h2', { class: 'fui-page-header__title' }, b.name),
+      h('p', { class: 'demo-purpose' }, `${b.about} Switch on what it needs; the code below has that and nothing more.`),
+      viewBar('Try it', paint), section, codeSlot);
+  };
   paint();
 }
 

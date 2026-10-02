@@ -178,15 +178,6 @@ function settingsPage() {
   return holder;
 }
 
-function upcoming() {
-  const day = (d, m) => h('span', { class: 'blk-date' }, h('span', { class: 'blk-date__day' }, d), h('span', { class: 'blk-date__month' }, m));
-  return h('ul', { class: 'blk-list' }, [
-    ['9', 'Oct', 'Sintel', 'Season 2, episode 4', status({ tone: 'good' }, 'On the server')],
-    ['14', 'Oct', 'Tears of Steel', 'Film · requested by bob', status({ tone: 'warning' }, 'Downloading')],
-    ['22', 'Oct', 'Cosmos Laundromat', 'Season 1, episode 1', status({ tone: 'info' }, 'Coming up')],
-  ].map(([d, m, title, sub, state]) => h('li', { class: 'blk-list__row' }, day(d, m), h('div', { class: 'blk-list__text' }, h('strong', null, title), h('span', { class: 'muted' }, sub)), state)));
-}
-
 function downloads() {
   return h('div', { class: 'blk-stack' }, [['Big Buck Bunny (2008) 2160p', 0.82, '2 min left'], ['Sintel S02E04 1080p', 0.37, '14 min left'], ['Elephants Dream 720p', 0.06, 'Queued']].map(([name, v, eta]) =>
     h('div', { class: 'blk-dl' }, h('div', { class: 'blk-dl__top' }, h('span', { class: 'trunc' }, name), h('span', { class: 'muted nowrap' }, eta)), meter({ value: v, block: true, label: name }))));
@@ -271,16 +262,106 @@ const RELEASES = { '2026-10-02': 'Sintel, season 2, episode 3', '2026-10-09': 'S
 const dayName = new Intl.DateTimeFormat('en-GB', { day: 'numeric', month: 'long', timeZone: 'UTC' });
 const said = (key) => dayName.format(new Date(`${key}T12:00:00Z`));
 
-/** A month to pick a day in, a dot where something comes out, and what comes out on the picked day below it. */
-function calendar() {
-  const list = h('ul', { class: 'blk-list', 'aria-live': 'polite' });
-  const show = (key) => {
-    const what = RELEASES[key];
-    list.replaceChildren(h('li', { class: 'blk-list__row' }, h('div', { class: 'blk-list__text' },
-      h('strong', null, what || 'Nothing comes out'), h('span', { class: 'muted' }, `on ${said(key)}`)), what ? status({ tone: 'info' }, 'Coming up') : null));
-  };
-  show('2026-10-09');
-  return h('div', { class: 'blk-stack' }, monthPicker({ month: '2026-10-01', value: '2026-10-09', marks: RELEASES, locale: 'en-GB', label: 'Releases', onChange: show }), list);
+/** Every day picked, in order: the day, the days, or each day of the range. */
+function pickedDays(mode, v) {
+  if (mode === 'multiple') return v || [];
+  if (mode === 'range') {
+    if (!v || !v.from) return [];
+    const out = [];
+    for (let d = new Date(`${v.from}T12:00:00Z`), end = new Date(`${v.to || v.from}T12:00:00Z`); d <= end; d.setUTCDate(d.getUTCDate() + 1)) out.push(d.toISOString().slice(0, 10));
+    return out;
+  }
+  return v ? [v] : [];
+}
+
+/** A calendar and the extras switched on beside it. An extra is { marks, render({ mode, value, onPick }) }: its marks go on
+ *  the calendar's days, and it hears every pick. */
+function dateBlock({ mode = 'single', sunday = false } = {}, ...extras) {
+  const listeners = [];
+  const value = mode === 'single' ? '2026-10-09' : null;
+  const picker = monthPicker({ mode, month: '2026-10-01', value, limit: 5, weekStart: sunday ? 0 : 1, locale: 'en-GB', label: 'Calendar',
+    marks: Object.assign({}, ...extras.map((x) => x.marks || {})), onChange: (v) => listeners.forEach((f) => f(v)) });
+  const parts = extras.map((x) => x.render({ mode, value, onPick: (f) => { listeners.push(f); f(value); } }));
+  return h('div', { class: 'blk-stack' }, picker, ...parts);
+}
+
+/** What is picked, said back in words. */
+const inWords = {
+  render({ mode, onPick }) {
+    const p = h('p', { class: 'muted', 'aria-live': 'polite' });
+    onPick((v) => {
+      if (mode === 'range') {
+        if (!v || !v.from) { p.textContent = 'Pick where it starts, then where it ends.'; return; }
+        if (!v.to) { p.textContent = `From ${said(v.from)}: now pick where it ends.`; return; }
+        const n = pickedDays(mode, v).length, [a, b] = [said(v.from), said(v.to)];
+        p.textContent = `${a.split(' ')[1] === b.split(' ')[1] ? a.split(' ')[0] : a} – ${b} · ${n} day${n === 1 ? '' : 's'}`;
+      } else if (mode === 'multiple') {
+        p.textContent = v && v.length ? `${v.length} day${v.length === 1 ? '' : 's'}: ${v.map((d) => said(d).split(' ')[0]).join(', ')} October` : 'Pick up to five days.';
+      } else p.textContent = v ? said(v) : 'Pick a day.';
+    });
+    return p;
+  },
+};
+
+/** A dot on every day something comes out, and what comes out on the days picked. */
+const whatComesOut = {
+  marks: RELEASES,
+  render({ mode, onPick }) {
+    const list = h('ul', { class: 'blk-list', 'aria-live': 'polite' });
+    onPick((v) => {
+      const out = pickedDays(mode, v).filter((d) => RELEASES[d]);
+      list.replaceChildren(...(out.length ? out.map((d) => h('li', { class: 'blk-list__row' }, h('div', { class: 'blk-list__text' }, h('strong', null, RELEASES[d]), h('span', { class: 'muted' }, said(d))), status({ tone: 'info' }, 'Coming up')))
+        : [h('li', { class: 'muted' }, 'Nothing comes out then.')]));
+    });
+    return list;
+  },
+};
+
+/** A time to start, on the day picked, and the evening said back. */
+const times = {
+  render({ onPick }) {
+    let day = null, at = '20:00';
+    const line = h('p', { class: 'muted', 'aria-live': 'polite' });
+    const slots = h('div', { class: 'blk-slots', role: 'group', 'aria-label': 'Start at' });
+    const say = () => { line.textContent = day ? `Starts at ${at} on ${said(day)}` : `Starts at ${at}: pick a day`; };
+    const paint = () => slots.replaceChildren(...['18:00', '19:00', '20:00', '21:00', '22:00'].map((t) => chipToggle({ pressed: t === at, onChange: () => { at = t; paint(); say(); } }, t)));
+    onPick((v) => { const d = Array.isArray(v) ? v[v.length - 1] : v && typeof v === 'object' ? v.from : v; day = d || null; say(); });
+    paint();
+    return h('div', { class: 'blk-stack blk-stack--tight' }, slots, line);
+  },
+};
+
+/** The week of the day picked, Monday first, and what is planned on each of its days. */
+const PLANS = { '2026-10-05': [['21:00', 'Sintel', 'S2 · E3']], '2026-10-07': [['20:30', 'Tears of Steel', 'Film'], ['22:45', 'Spring', 'Short']], '2026-10-09': [['21:00', 'Sintel', 'S2 · E4']], '2026-10-14': [['20:00', 'Cosmos Laundromat', 'S1 · E1']] };
+const weekPlans = {
+  render({ mode, onPick }) {
+    const list = h('ul', { class: 'blk-agenda' });
+    const short = new Intl.DateTimeFormat('en-GB', { weekday: 'short', day: 'numeric', timeZone: 'UTC' });
+    onPick((v) => {
+      const days = pickedDays(mode, v), last = days[days.length - 1] || '2026-10-09';
+      const d = new Date(`${last}T12:00:00Z`);
+      d.setUTCDate(d.getUTCDate() - ((d.getUTCDay() + 6) % 7));
+      const week = Array.from({ length: 7 }, (_, i) => { const x = new Date(d); x.setUTCDate(d.getUTCDate() + i); return x.toISOString().slice(0, 10); });
+      list.replaceChildren(...week.map((key) => h('li', { class: 'blk-agenda__day' }, h('span', { class: 'blk-agenda__date' }, short.format(new Date(`${key}T12:00:00Z`))),
+        h('div', { class: 'blk-agenda__items' }, (PLANS[key] || []).length ? PLANS[key].map(([t, title, sub]) => h('div', { class: 'blk-agenda__item' }, h('span', { class: 'mono muted' }, t), h('strong', null, title), h('span', { class: 'muted' }, sub)))
+          : h('span', { class: 'muted' }, 'Nothing planned')))));
+    });
+    return list;
+  },
+};
+
+/** The calendar block as its switches have it: its mode, and the extras that are on, in this order. */
+const DATE_EXTRAS = { whatComesOut, times, weekPlans, inWords };
+const dateMode = (o) => ({ mode: o.range ? 'range' : o.several ? 'multiple' : 'single', sunday: !!o.sunday });
+const dateExtras = (o) => [o.marks && 'whatComesOut', o.times && 'times', o.week && 'weekPlans', o.words && 'inWords'].filter(Boolean);
+function calendarCard(o = {}) {
+  return card({ title: 'Calendar', sub: 'Pick a day, and what goes with it', body: dateBlock(dateMode(o), ...dateExtras(o).map((n) => DATE_EXTRAS[n])) });
+}
+/** The same, as the code to copy says it: only what is switched on. */
+function calendarCode(o) {
+  const m = dateMode(o);
+  const opts = [m.mode !== 'single' && `mode: '${m.mode}'`, m.sunday && 'sunday: true'].filter(Boolean);
+  return `card({ title: 'Calendar', sub: 'Pick a day, and what goes with it', body: dateBlock(${opts.length ? `{ ${opts.join(', ')} }` : '{}'}${dateExtras(o).map((n) => `, ${n}`).join('')}) })`;
 }
 
 // ---- more charts
@@ -347,52 +428,6 @@ function statsRow() {
 }
 
 // ---- dates
-
-/** A month to choose a stretch of days in: two clicks, the days between washed, the stretch said in words. */
-function dateRange() {
-  const words = h('span', { class: 'muted', 'aria-live': 'polite' });
-  const button_ = button({ variant: 'primary', size: 'sm' }, 'Show these days');
-  const say = (r) => {
-    if (!r.to) { words.textContent = `From ${said(r.from)}: now pick where it ends`; button_.disabled = true; return; }
-    const n = Math.round((new Date(r.to) - new Date(r.from)) / 86400000) + 1;
-    const [a, b] = [said(r.from), said(r.to)];
-    words.textContent = `${a.split(' ')[1] === b.split(' ')[1] ? a.split(' ')[0] : a} – ${b} · ${n} day${n === 1 ? '' : 's'}`;
-    button_.disabled = false;
-  };
-  const value = { from: '2026-10-12', to: '2026-10-18' };
-  say(value);
-  return h('div', { class: 'blk-stack' }, monthPicker({ mode: 'range', month: '2026-10-01', value, locale: 'en-GB', label: 'A stretch of days', onChange: say }),
-    h('div', { class: 'blk-row blk-row--between' }, words, button_));
-}
-
-/** A month to pick several days in, at most five, and what was picked in words. */
-function pickDates() {
-  const words = h('p', { class: 'muted', 'aria-live': 'polite' });
-  const say = (days) => {
-    words.textContent = days.length ? `${days.length} evening${days.length === 1 ? '' : 's'}: ${days.map((d) => said(d).split(' ')[0]).join(', ')} October` : 'Pick the evenings you are free, up to five.';
-  };
-  say([]);
-  return h('div', { class: 'blk-stack' }, monthPicker({ mode: 'multiple', limit: 5, month: '2026-10-01', locale: 'en-GB', label: 'Evenings', onChange: say }), words,
-    button({ variant: 'primary', block: true }, icon('calendar', 14), 'Share them'));
-}
-function timeSlots() {
-  const times = ['18:00', '18:30', '19:00', '19:30', '20:00', '20:30', '21:00', '21:30', '22:00'];
-  let chosen = '20:00';
-  const slots = h('div', { class: 'blk-slots', role: 'group', 'aria-label': 'Start at' });
-  const paint = () => slots.replaceChildren(...times.map((t) => chipToggle({ pressed: t === chosen, onChange: () => { chosen = t; paint(); } }, t)));
-  paint();
-  return h('div', { class: 'blk-stack' },
-    h('div', { class: 'blk-row blk-row--between' }, h('strong', null, 'Friday 9 October'), status({ tone: 'good' }, '4 of 5 free')),
-    slots,
-    h('p', { class: 'muted' }, 'alice, bob and carol are free then; dave joins at 21:00.'),
-    button({ variant: 'primary', block: true }, icon('calendar', 14), 'Plan the evening'));
-}
-function weekAgenda() {
-  const days = [['Mon 5', [['21:00', 'Sintel', 'S2 · E3']]], ['Wed 7', [['20:30', 'Tears of Steel', 'Film'], ['22:45', 'Spring', 'Short']]], ['Fri 9', [['21:00', 'Sintel', 'S2 · E4']]], ['Sun 11', []]];
-  return h('ul', { class: 'blk-agenda' }, days.map(([d, items]) => h('li', { class: 'blk-agenda__day' }, h('span', { class: 'blk-agenda__date' }, d),
-    h('div', { class: 'blk-agenda__items' }, items.length ? items.map(([t, title, sub]) => h('div', { class: 'blk-agenda__item' }, h('span', { class: 'mono muted' }, t), h('strong', null, title), h('span', { class: 'muted' }, sub)))
-      : h('span', { class: 'muted' }, 'Nothing planned')))));
-}
 
 // ---- forms
 function signUp() {
@@ -577,12 +612,17 @@ export const BLOCKS = [
   { key: 'radar-chart', name: 'Radar chart', group: 'Chart blocks', icon: 'compass', title: 'Taste', about: 'One shape over a web of six, for a profile at a glance.', render: () => card({ title: 'Taste', sub: 'Watch time by genre', body: radar() }) },
   { key: 'bar-list', name: 'Bar list', group: 'Chart blocks', icon: 'chart', title: 'Plays by app', about: 'Bars to compare, the number beside each.', render: () => card({ title: 'Plays by app', sub: 'The last 30 days', body: barList() }) },
   { key: 'stats-row', name: 'Stats with sparklines', group: 'Chart blocks', icon: 'trendUp', title: 'This week', about: 'Numbers that matter, each with how it moved and a sparkline.', render: () => card({ title: 'This week', body: statsRow() }) },
-  { key: 'calendar', name: 'Calendar', group: 'Date blocks', icon: 'calendar', title: 'Calendar', about: 'A month to pick a day in, today ringed, a dot where something comes out.', render: () => card({ title: 'Calendar', sub: 'What comes out when', body: calendar() }) },
-  { key: 'coming-up', name: 'Coming up', group: 'Date blocks', icon: 'clock', title: 'Coming up', about: 'Dated rows, each with its state.', render: () => card({ title: 'Coming up', sub: 'From Sonarr, Radarr and requests', body: upcoming() }) },
-  { key: 'date-range', name: 'Date range', group: 'Date blocks', icon: 'calendar', title: 'Pick a week', about: 'A month with a range chosen, its two ends filled.', render: () => card({ title: 'Pick a week', body: dateRange() }) },
-  { key: 'pick-dates', name: 'Pick dates', group: 'Date blocks', icon: 'calendar', title: 'When are you free', about: 'A month to pick several days in, at most five, said back in words.', render: () => card({ title: 'When are you free', sub: 'Evenings in October', body: pickDates() }) },
-  { key: 'time-slots', name: 'Time slots', group: 'Date blocks', icon: 'clock', title: 'Watch together', about: 'Times to choose from, and who is free then.', render: () => card({ title: 'Watch together', body: timeSlots() }) },
-  { key: 'week-agenda', name: 'Week agenda', group: 'Date blocks', icon: 'calendar', title: 'This week', about: 'Days and what is planned on each, an empty day said in words.', render: () => card({ title: 'This week', body: weekAgenda() }) },
+  { key: 'calendar', name: 'Calendar', group: 'Date blocks', icon: 'calendar', title: 'Calendar', about: 'A month to pick in, and what is switched on beside it: what comes out, times, the week’s plans, the pick in words.',
+    playground: {
+      controls: [
+        { key: 'several', label: 'Several days', excludes: ['range'] }, { key: 'range', label: 'A range', excludes: ['several'] },
+        { key: 'marks', label: 'What comes out' }, { key: 'times', label: 'Times' }, { key: 'week', label: 'The week’s plans' },
+        { key: 'words', label: 'Say it in words', on: true }, { key: 'sunday', label: 'Week starts on Sunday' },
+      ],
+      render: (o) => calendarCard(o),
+      code: (o) => calendarCode(o),
+    },
+    render: () => calendarCard({ marks: true, words: true }) },
   { key: 'sign-in', name: 'Sign in', group: 'Form blocks', icon: 'lock', title: 'Sign in', about: 'A form: fields with labels and help, a checkbox, the primary button.', render: () => card({ title: 'Sign in', sub: 'With your Jellyfin account', body: signIn() }) },
   { key: 'notifications', name: 'Notifications', group: 'Form blocks', icon: 'inbox', title: 'Notifications', about: 'Settings that switch on and off, each with a line of help.', render: () => card({ title: 'Notifications', sub: 'What finstats tells you', body: notifications() }) },
   { key: 'search', name: 'Search and filters', group: 'Form blocks', icon: 'search', title: 'Find something', about: 'A search box, a segmented choice and filter chips.', render: () => card({ title: 'Find something', body: search() }) },

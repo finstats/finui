@@ -61,12 +61,13 @@ function render(text, key) {
   return entry.slice(r + 'render: () => '.length).replace(/\s*\},?\s*$/, '');
 }
 
-/** The module to copy for block `key`: FinUI's imports, the helpers it needs and an exported function that builds it. */
-export function blockSource(text, key, base = './finui/') {
+/** The module to copy for block `key`: FinUI's imports, the helpers it needs and an exported function that builds it.
+ *  `expr` is what it returns when a block's switches say so (its playground's code), else its entry's own render. */
+export function blockSource(text, key, base = './finui/', expr = null) {
   const decls = items(text).filter((d) => d.name !== 'BLOCKS');
   const imports = [...text.matchAll(/^import \{([^}]+)\} from '([^']+)';$/gm)].map(([, names, from]) => ({ names: names.split(',').map((n) => n.trim()), from }));
   const name = blockName(key);
-  const main = `/** ${key}: a block of FinUI's. Put it where it belongs: document.querySelector('main').append(${name}()); */\nexport function ${name}() {\n  return ${render(text, key)};\n}`;
+  const main = `/** ${key}: a block of FinUI's. Put it where it belongs: document.querySelector('main').append(${name}()); */\nexport function ${name}() {\n  return ${expr || render(text, key)};\n}`;
   // Every helper the block reaches, and every helper those reach.
   const wanted = new Set();
   let grew = true;
