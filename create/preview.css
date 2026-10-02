@@ -1,11 +1,12 @@
 /* The layout of FinUI create's preview, and nothing else: it is loaded in the preview's frame beside FinUI's stylesheets
    and a preset's tokens, and every colour, corner and gap of the components comes from those. Tokens only, like the rest. */
-.pv { display: grid; gap: 16px; padding: 24px; max-width: 1180px; margin: 0 auto; }
-.pv-grid { display: grid; gap: 16px; grid-template-columns: minmax(0, 1.6fr) minmax(0, 1fr); align-items: start; }
-.pv-grid--even { grid-template-columns: repeat(2, minmax(0, 1fr)); }
-@media (max-width: 860px) { .pv-grid, .pv-grid--even { grid-template-columns: minmax(0, 1fr); } }
+.pv { display: grid; gap: 16px; padding: 24px; max-width: 1280px; margin: 0 auto; }
+/* Cards of every height, packed into columns the way a wall of examples is: as many columns as there is room for. */
+.pv-masonry { columns: 3 300px; column-gap: 16px; }
+.pv-masonry > * { break-inside: avoid; margin-bottom: 16px; display: block; width: 100%; }
 @media (max-width: 480px) { .pv { padding: 16px; } }
-.pv-stack { display: grid; gap: 14px; }
+.pv-stack { display: grid; gap: 14px; min-width: 0; }
+.pv-stack--tight { gap: 6px; }
 .pv-row { display: flex; flex-wrap: wrap; align-items: center; gap: 8px; }
 .pv-row--end { justify-content: flex-end; }
 .pv-chart { display: block; width: 100%; height: auto; }
@@ -13,8 +14,37 @@
 .pv-legend { display: flex; flex-wrap: wrap; gap: 6px 16px; font-size: 12.5px; color: var(--text-muted); }
 .pv-legend li { display: inline-flex; align-items: center; gap: 6px; }
 .pv-key { width: 10px; height: 10px; border-radius: var(--radius-sm); }
-.pv-heat { display: grid; grid-template-columns: auto repeat(24, minmax(0, 1fr)); gap: 3px; align-items: center; }
+.pv-heat { display: grid; grid-template-columns: auto repeat(24, minmax(0, 1fr)); gap: 2px; align-items: center; }
 .pv-heat__day { font-size: 11px; color: var(--text-faint); padding-right: 6px; }
 .pv-heat__cell { aspect-ratio: 1; border-radius: var(--radius-sm); }
 .pv-who { display: inline-flex; align-items: center; gap: 8px; }
 .pv-done { display: inline-flex; align-items: center; gap: 8px; }
+.pv-donut-wrap { display: flex; align-items: center; gap: 18px; flex-wrap: wrap; }
+.pv-donut-wrap .pv-legend { flex-direction: column; flex: 1 1 120px; }
+.pv-donut { width: 128px; height: 128px; flex: none; }
+.pv-donut__value { fill: var(--text-strong); font-size: 20px; font-weight: 700; }
+.pv-specimen__title { font-family: var(--font-heading); font-size: 19px; line-height: 1.25; font-weight: var(--heading-weight); letter-spacing: var(--heading-tracking); color: var(--text-strong); }
+.pv-swatches { display: grid; grid-template-columns: repeat(auto-fill, minmax(62px, 1fr)); gap: 10px 8px; }
+.pv-swatch { display: grid; gap: 4px; justify-items: center; min-width: 0; }
+.pv-swatch__chip { width: 100%; aspect-ratio: 1; border-radius: var(--radius-sm); box-shadow: inset 0 0 0 1px var(--border); }
+.pv-swatch__name { max-width: 100%; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; font-size: 10px; color: var(--text-faint); }
+.pv-list { display: grid; gap: 12px; }
+.pv-list__row { display: flex; align-items: center; gap: 12px; min-width: 0; }
+.pv-list__text { display: grid; gap: 4px; flex: 1; min-width: 0; font-size: 13px; }
+.pv-date { display: grid; place-items: center; width: 42px; padding: 4px 0; flex: none; border: 1px solid var(--border); border-radius: var(--radius-control); line-height: 1.1; }
+.pv-date__day { font-size: 16px; font-weight: 700; color: var(--text-strong); }
+.pv-date__month { font-size: 10.5px; text-transform: uppercase; letter-spacing: .05em; color: var(--text-faint); }
+.pv-dl { display: grid; gap: 6px; }
+.pv-dl__top { display: flex; justify-content: space-between; gap: 10px; font-size: 13px; min-width: 0; }
+.pv-avatars { display: flex; }
+.pv-avatars > * + * { margin-left: -8px; box-shadow: 0 0 0 2px var(--bg-2); }
+.pv-key-row { display: flex; align-items: center; justify-content: space-between; gap: 8px; padding: 8px 10px; background: var(--bg-sunken); border: 1px solid var(--border-soft); border-radius: var(--radius-control); min-width: 0; }
+.pv-shortcuts { display: grid; }
+.pv-shortcuts li { display: flex; align-items: center; justify-content: space-between; gap: 10px; padding: 8px 0; font-size: 13px; }
+.pv-shortcuts li + li { border-top: 1px solid var(--border-soft); }
+.pv-keys { display: inline-flex; gap: 4px; }
+.pv-kbd { display: inline-grid; place-items: center; min-width: 22px; height: 22px; padding: 0 6px; font-size: 11.5px; color: var(--text); background: var(--bg-sunken); border: 1px solid var(--border); border-bottom-width: 2px; border-radius: var(--radius-sm); }
+/* Focus held still, so a preset's ring shows without a keyboard. */
+.pv-focused { outline: var(--focus-width) solid var(--focus-color); outline-offset: var(--focus-offset); }
+.pv-icons { gap: 14px; color: var(--text-muted); }
+.pv-modal { width: 100%; }
