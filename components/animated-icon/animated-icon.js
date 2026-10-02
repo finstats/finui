@@ -67,7 +67,18 @@ export function setBusy(svg, on) {
   if (!svg) return;
   if (on) { svg.dataset.busy = '1'; svg.classList.add('is-busy'); return; }
   delete svg.dataset.busy;
-  const stop = () => { if (!svg.dataset.busy) svg.classList.remove('is-busy'); };
+  const stop = () => {
+    if (svg.dataset.busy || !svg.classList.contains('is-busy')) return;
+    // Still pointed at (it was pressed): that is not a new hover, so it rests until the pointer or the focus leaves.
+    const holder = (svg.parentElement && svg.parentElement.closest(PRESSABLE)) || svg;
+    if (holder.matches(':hover, :focus-visible')) {
+      svg.classList.add('fui-animated-icon--rested');
+      const wake = () => { svg.classList.remove('fui-animated-icon--rested'); holder.removeEventListener('pointerleave', wake); holder.removeEventListener('focusout', wake); };
+      holder.addEventListener('pointerleave', wake);
+      holder.addEventListener('focusout', wake);
+    }
+    svg.classList.remove('is-busy');
+  };
   const turn = [...svg.querySelectorAll('[data-act="spin"]')].flatMap((p) => p.getAnimations()).find((a) => a.playState === 'running');
   if (!turn) { stop(); return; }
   turn.effect.target.addEventListener('animationiteration', stop, { once: true });

@@ -46,6 +46,8 @@
 /* Busy (setBusy): what turns keeps turning, a whole turn at a time, pointed at or not; the rest stands still. */
 .fui-animated-icon.is-busy > * { animation-name: none; }
 .fui-animated-icon.is-busy > [data-act="spin"] { animation: fui-animated-icon-busy calc(var(--icon-cycle) / 3) linear infinite; }
+/* Done while still pointed at: it stands still until the pointer or the focus leaves, rather than playing again. */
+.fui-animated-icon--rested:not(.is-busy) > * { animation-name: none; }
 
 .fui-animated-icon__demo { display: flex; flex-wrap: wrap; align-items: center; gap: 24px; color: var(--text); }
 
