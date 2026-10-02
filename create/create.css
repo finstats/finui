@@ -79,3 +79,11 @@ body { background: var(--page-bg); }
   .create-frame { height: 75vh; min-height: 480px; }
 }
 @media (max-width: 560px) { .create-page { padding: 16px 16px 40px; } }
+/* The style picker: each option with its line, and three dots of its colours. */
+.create-mark--style { display: inline-flex; gap: 2px; }
+.create-mark--style > span { width: 6px; height: 14px; border-radius: 3px; box-shadow: 0 0 0 1px var(--border); }
+.create-picker__about { display: grid; gap: 1px; min-width: 0; }
+.create-picker__name { font-weight: 550; }
+.create-picker__blurb { font-size: 12px; line-height: 1.35; color: var(--text-faint); }
+.create-picker__option[aria-selected="true"] .create-picker__blurb { color: var(--text-muted); }
+.create-picker__list:has(.create-picker__blurb) { max-height: 380px; }

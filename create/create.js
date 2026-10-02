@@ -12,7 +12,7 @@ import { inlineError } from '../components/field/field.js';
 import { emptyState } from '../components/empty/empty.js';
 import { themeSwitch } from '../components/theme-switch/theme-switch.js';
 import { toggle } from '../components/toggle/toggle.js';
-import { decode, encode, faces, overlay, stylesheet } from './preset.js';
+import { decode, encode, faces, overlay, stylesheet, styleChoice, styleOf } from './preset.js';
 import { previewPage } from './preview.js';
 
 const ROOT = new URL('../', import.meta.url);
@@ -24,6 +24,7 @@ const root = document.getElementById('create');
 const codeIn = (text) => (/sh -s --\s+([0-9a-z]+)/.exec(text) || /--preset\s+([0-9a-z]+)/.exec(text) || /finui-([0-9a-z]+)(?:\.tokens)?\.css/.exec(text) || /^\s*([0-9a-z]+)\s*$/.exec(text) || [])[1] || null;
 const paint = (el, colour) => { el.style.background = colour; return el; };
 const first = (c) => (Array.isArray(c) ? c[0] : c);
+const noop = () => {};
 
 // ---- the theme of the page itself, kept in this browser (the gallery's key: one choice for both pages)
 function applyTheme(choice) {
@@ -35,6 +36,8 @@ const stored = (() => { try { return localStorage.getItem('finui.theme') || 'dev
 
 /** What an option looks like, small: two halves for a colour by day and by night, dots for a palette, a corner. */
 function mark(axis, o) {
+  // A style: its paper, its accent and its first series, as three dots.
+  if (axis.kind === 'style') return h('span', { class: 'create-mark create-mark--style' }, o.colours.map((c) => paint(h('span'), c)));
   const halves = (l, d) => h('span', { class: 'create-mark create-mark--halves' }, paint(h('span'), l), paint(h('span'), d));
   if (axis.kind === 'base') return o.ramp ? halves(o.ramp[1], o.ramp[9]) : halves(...o.swatch);
   if (axis.kind === 'accent') return o.light ? halves(o.light, o.dark) : halves(...o.swatch);
@@ -66,16 +69,18 @@ function picker(axis, { get, set, preview, locked, onLock }) {
   const markSlot = h('span', { class: 'create-picker__mark', 'aria-hidden': 'true' });
   const btn = h('button', { type: 'button', class: 'create-picker__button', 'aria-haspopup': 'listbox', 'aria-expanded': 'false', 'aria-controls': id, dataset: { axis: axis.key } },
     h('span', { class: 'create-picker__text' }, h('span', { class: 'create-picker__label' }, axis.label), value), markSlot);
-  const lock = h('button', { type: 'button', class: 'create-picker__lock', 'aria-pressed': 'false', dataset: { axis: axis.key },
+  const lock = axis.kind === 'style' ? null : h('button', { type: 'button', class: 'create-picker__lock', 'aria-pressed': 'false', dataset: { axis: axis.key },
     'aria-label': `Lock ${axis.label.toLowerCase()}`, title: 'Locked: Shuffle leaves it alone' });
   const list = h('ul', { class: 'create-picker__list', role: 'listbox', id, tabindex: -1, hidden: true, 'aria-label': axis.label });
   const el = h('div', { class: 'create-picker' }, btn, lock, list);
   let active = 0, before = 0;
 
   function show() {
+    // A style is shown as Custom once anything in it was changed.
     const o = axis.options[get()];
-    value.textContent = o.label;
-    mount(markSlot, mark(axis, o));
+    value.textContent = o ? o.label : 'Custom';
+    mount(markSlot, o ? mark(axis, o) : null);
+    if (!lock) return;
     const on = locked();
     lock.setAttribute('aria-pressed', String(on));
     el.classList.toggle('is-locked', on);
@@ -86,7 +91,8 @@ function picker(axis, { get, set, preview, locked, onLock }) {
       class: ['create-picker__option', i === active && 'is-active'], 'aria-selected': String(i === get()),
       onPointerdown: (e) => { e.preventDefault(); choose(i); },
       onPointermove: () => { if (active !== i) move(i); } },
-      h('span', { class: 'create-picker__mark', 'aria-hidden': 'true' }, mark(axis, o)), h('span', { class: 'trunc' }, o.label),
+      h('span', { class: 'create-picker__mark', 'aria-hidden': 'true' }, mark(axis, o)),
+      o.blurb ? h('span', { class: 'create-picker__about' }, h('span', { class: 'create-picker__name' }, o.label), h('span', { class: 'create-picker__blurb' }, o.blurb)) : h('span', { class: 'trunc' }, o.label),
       i === get() ? icon('check', 14, 'create-picker__check') : null)));
     list.setAttribute('aria-activedescendant', `${id}-${active}`);
     list.querySelector('.is-active')?.scrollIntoView({ block: 'nearest' });
@@ -101,7 +107,7 @@ function picker(axis, { get, set, preview, locked, onLock }) {
     preview(i);
   }
   function open() {
-    before = get(); active = before;
+    before = get(); active = Math.max(0, before);
     list.hidden = false; btn.setAttribute('aria-expanded', 'true'); el.classList.add('is-open');
     options();
     // Open upwards when the panel has no room below: a menu at the foot of the panel was cut off there.
@@ -120,7 +126,7 @@ function picker(axis, { get, set, preview, locked, onLock }) {
   function cancel(refocus) { close(refocus); preview(before); }
   const outside = (e) => { if (!el.contains(e.target)) cancel(false); };
   btn.addEventListener('click', () => (list.hidden ? open() : cancel(true)));
-  lock.addEventListener('click', () => { onLock(); show(); });
+  lock?.addEventListener('click', () => { onLock(); show(); });
   list.addEventListener('keydown', (e) => {
     const last = axis.options.length - 1;
     if (e.key === 'ArrowDown') { e.preventDefault(); move(Math.min(last, active + 1)); }
@@ -178,7 +184,7 @@ function snippet(text, label) {
   return h('div', { class: 'create-snippet-wrap' }, h('pre', { class: 'create-snippet mono' }, text), copyButton(text, label));
 }
 
-function installDialog({ code, axes, choice, block, registry }) {
+function installDialog({ code, axes, choice, block, registry, style }) {
   const line = `curl -fsSL https://finstats.github.io/finui/install.sh | sh -s -- ${code}`;
   const panes = {
     shell: h('div', { class: 'create-install__pane' },
@@ -193,6 +199,7 @@ function installDialog({ code, axes, choice, block, registry }) {
       block ? snippet(block, 'Copy the tokens') : h('p', { class: 'create-snippet mono' }, 'Nothing to change: every choice is at its default, so tokens.css is the whole of it.')),
   };
   const named = axes.map((a, i) => (choice[i] ? `${a.label}: ${a.options[choice[i]].label}` : null)).filter(Boolean);
+  if (style && style.key !== 'washi') named.unshift(`Style: ${style.label}`);
   openModal({ title: 'Take it home', wide: true, body: h('div', { class: 'create-install' },
     h('p', null, named.length ? named.join(' · ') : 'FinUI as it ships: every choice at its default.'),
     segmented({ label: 'How to take it', size: 'sm', value: 'shell', options: [{ value: 'shell', label: 'Terminal' }, { value: 'file', label: 'Download' }, { value: 'tokens', label: 'Tokens only' }],
@@ -278,6 +285,20 @@ async function start() {
     locked: () => locks.has(a),
     onLock: () => { if (locks.has(a)) locks.delete(a); else locks.add(a); },
   }));
+  // Styles: whole looks to start from. Choosing one sets every axis that is not locked; changing anything after makes it Custom.
+  const swatchOf = (c) => {
+    const b = axes[0].options[c[0]], a = axes[1].options[c[1]], ch = axes[2].options[c[2]];
+    return [(b.day && b.day.bg) || (b.ramp ? b.ramp[1] : b.swatch[0]), a.light || a.swatch[0], ch.series ? first(ch.series[0]) : ch.swatch[0]];
+  };
+  const styleAxis = { key: 'style', label: 'Style', kind: 'style', options: (presets.styles || []).map((st) => ({ ...st, colours: swatchOf(styleChoice(presets, st)) })) };
+  const asStyle = (k, base = choice) => styleChoice(presets, presets.styles[k]).map((v, a) => (locks.has(a) ? base[a] : v));
+  const stylePicker = picker(styleAxis, {
+    get: () => presets.styles.indexOf(styleOf(presets, choice)),
+    set: (k) => commit(asStyle(k)),
+    preview: (k) => live(k < 0 ? choice : asStyle(k)),
+    locked: () => false, onLock: noop,
+  });
+  pickers.push(stylePicker);
   const shuffle = () => commit(choice.map((v, a) => (locks.has(a) ? v : Math.floor(Math.random() * axes[a].options.length))));
   const groups = [];
   axes.forEach((axis, a) => {
@@ -285,14 +306,14 @@ async function start() {
     groups[groups.length - 1].items.push(pickers[a].el);
   });
   const panel = h('aside', { class: 'create-panel', 'aria-label': 'Customize' },
-    h('div', { class: 'create-panel__body' }, groups.map((g) => h('section', { class: 'create-group', 'aria-label': g.name }, h('h2', { class: 'create-group__name' }, g.name), g.items))),
+    h('div', { class: 'create-panel__body' }, h('section', { class: 'create-group', 'aria-label': 'Style' }, h('h2', { class: 'create-group__name' }, 'Start from'), stylePicker.el), groups.map((g) => h('section', { class: 'create-group', 'aria-label': g.name }, h('h2', { class: 'create-group__name' }, g.name), g.items))),
     h('div', { class: 'create-panel__foot' },
       h('div', { class: 'create-panel__label muted' }, 'Preset'), codeRow,
       h('div', { class: 'create-panel__actions' },
         button({ onClick: shuffle }, icon('shuffle', 14), 'Shuffle'),
         button({ onClick: () => openDialog(axes, commit) }, 'Open preset'),
         button({ variant: 'ghost', onClick: () => commit(axes.map(() => 0)) }, 'Reset')),
-      button({ variant: 'primary', block: true, onClick: () => installDialog({ code: encode(choice), axes, choice, block: overlay(presets, encode(choice), choice), registry }) },
+      button({ variant: 'primary', block: true, onClick: () => installDialog({ code: encode(choice), axes, choice, block: overlay(presets, encode(choice), choice), registry, style: styleOf(presets, choice) }) },
         icon('download', 14), 'Take it home')));
 
   mount(root,

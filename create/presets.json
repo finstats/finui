@@ -1,5 +1,5 @@
 {
-  "about": "FinUI presets: every choice FinUI create offers (create/index.html, and bin/finui.mjs init --preset), in the order a preset code spells them (one base-36 digit per axis). The first option of an axis is tokens.css as it stands and sets nothing. Options are only ever appended, never reordered, so a code once handed out keeps its meaning. Colours are #rrggbb or var(--token); the ramps are Tailwind CSS's (MIT), but Sage's, Blush's and Mist's, which are worked out in OKLCH. Every chart palette keeps neighbouring series at least ΔE 15 apart (OKLab) by day and by night. Fonts are Fontsource's variable builds (5.3.0) of families under the SIL Open Font License, Latin and Latin Extended, each with its licence in fonts/; Inter and JetBrains Mono are base.css' own.",
+  "about": "FinUI presets: every choice FinUI create offers (create/index.html, and bin/finui.mjs init --preset), in the order a preset code spells them (one base-36 digit per axis). The first option of an axis is tokens.css as it stands and sets nothing. Options are only ever appended, never reordered, so a code once handed out keeps its meaning. Colours are #rrggbb or var(--token); the ramps are Tailwind CSS's (MIT), but Sage's, Blush's and Mist's, which are worked out in OKLCH. Every chart palette keeps neighbouring series at least ΔE 15 apart (OKLab) by day and by night. Styles are whole looks: a name, a line and the options they pick by key, every other axis at its default. Fonts are Fontsource's variable builds (5.3.0) of families under the SIL Open Font License, Latin and Latin Extended, each with its licence in fonts/; Inter and JetBrains Mono are base.css' own.",
   "axes": [
     {
       "key": "base",
@@ -2673,6 +2673,196 @@
           }
         }
       ]
+    }
+  ],
+  "styles": [
+    {
+      "key": "washi",
+      "label": "Washi",
+      "blurb": "finstats as it ships: paper and a vermilion seal by day, Obsidian by night.",
+      "picks": {}
+    },
+    {
+      "key": "studio",
+      "label": "Studio",
+      "blurb": "Neutral and exact: ink buttons, Geist, small corners, nothing that shouts.",
+      "picks": {
+        "base": "gray",
+        "accent": "ink",
+        "charts": "signal",
+        "radius": "small",
+        "density": "compact",
+        "buttons": "ink",
+        "font": "geist",
+        "mono": "geist-mono",
+        "menu": "bar",
+        "page": "plain",
+        "tables": "striped"
+      }
+    },
+    {
+      "key": "noir",
+      "label": "Noir",
+      "blurb": "Black, white and square: capitals for headings, strong lines, no curves.",
+      "picks": {
+        "base": "neutral",
+        "accent": "ink",
+        "radius": "none",
+        "borders": "strong",
+        "headings": "caps",
+        "buttons": "outline",
+        "icon-ends": "square",
+        "menu": "outline",
+        "font": "space-grotesk",
+        "mono": "victor-mono",
+        "page": "plain",
+        "focus": "bold"
+      }
+    },
+    {
+      "key": "matinee",
+      "label": "Matinee",
+      "blurb": "Warm and generous: a serif for headings, soft buttons, cards that lift.",
+      "picks": {
+        "base": "stone",
+        "accent": "amber",
+        "charts": "ember",
+        "radius": "large",
+        "density": "comfortable",
+        "cards": "raised",
+        "heading": "fraunces",
+        "font": "dm-sans",
+        "buttons": "soft",
+        "fields": "filled",
+        "motion": "slow"
+      }
+    },
+    {
+      "key": "console",
+      "label": "Console",
+      "blurb": "A night shift at the terminal: tight rows, a grid, cyan on deep blue.",
+      "picks": {
+        "base": "tokyo-night",
+        "accent": "cyan",
+        "charts": "neon",
+        "radius": "small",
+        "density": "tight",
+        "borders": "strong",
+        "font": "ibm-plex-sans",
+        "mono": "fira-code",
+        "icons": "light",
+        "page": "grid",
+        "tables": "striped",
+        "motion": "quick",
+        "menu": "bar"
+      }
+    },
+    {
+      "key": "pastille",
+      "label": "Pastille",
+      "blurb": "Round and soft: pill corners, pastel charts, filled fields, a gentle spring.",
+      "picks": {
+        "base": "rose-pine",
+        "accent": "pink",
+        "charts": "pastel",
+        "radius": "pill",
+        "density": "comfortable",
+        "cards": "floating",
+        "font": "nunito",
+        "buttons": "soft",
+        "fields": "filled",
+        "motion": "springy",
+        "highlight": "bold",
+        "menu": "solid"
+      }
+    },
+    {
+      "key": "ledger",
+      "label": "Ledger",
+      "blurb": "Numbers first: high contrast, heavy headings, compact tables with lines.",
+      "picks": {
+        "base": "slate",
+        "accent": "emerald",
+        "charts": "okabe-ito",
+        "radius": "none",
+        "density": "compact",
+        "headings": "heavy",
+        "font": "ibm-plex-sans",
+        "mono": "red-hat-mono",
+        "contrast": "high",
+        "focus": "bold",
+        "page": "plain"
+      }
+    },
+    {
+      "key": "gazette",
+      "label": "Gazette",
+      "blurb": "Set like a newspaper: Playfair headings over Source Serif, ruled and plain.",
+      "picks": {
+        "base": "solarized",
+        "accent": "crimson-sky",
+        "charts": "earth",
+        "radius": "none",
+        "heading": "playfair-display",
+        "font": "source-serif-4",
+        "mono": "source-code-pro",
+        "fields": "underlined",
+        "tables": "open",
+        "borders": "strong",
+        "page": "plain"
+      }
+    },
+    {
+      "key": "arcade",
+      "label": "Arcade",
+      "blurb": "Loud on purpose: block shadows, heavy icons, dots behind, a bouncy step.",
+      "picks": {
+        "base": "dracula",
+        "accent": "fuchsia",
+        "charts": "neon",
+        "radius": "large",
+        "cards": "block",
+        "icons": "heavy",
+        "page": "dots",
+        "motion": "springy",
+        "font": "outfit",
+        "headings": "heavy",
+        "menu": "solid"
+      }
+    },
+    {
+      "key": "canopy",
+      "label": "Canopy",
+      "blurb": "Green and quiet: moss and lilac, Lexend, rounded cards that float.",
+      "picks": {
+        "base": "everforest",
+        "accent": "moss-lilac",
+        "charts": "meadow",
+        "radius": "round",
+        "cards": "floating",
+        "font": "lexend",
+        "density": "comfortable",
+        "icons": "light",
+        "fields": "filled",
+        "highlight": "bold"
+      }
+    },
+    {
+      "key": "harbour",
+      "label": "Harbour",
+      "blurb": "Cool and clear: mist paper, lagoon and rose, Manrope, a soft focus ring.",
+      "picks": {
+        "base": "mist",
+        "accent": "lagoon-rose",
+        "charts": "lagoon",
+        "radius": "large",
+        "font": "manrope",
+        "headings": "tight",
+        "buttons": "soft",
+        "focus": "soft",
+        "cards": "raised",
+        "tables": "striped"
+      }
     }
   ]
 }

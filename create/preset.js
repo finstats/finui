@@ -184,3 +184,13 @@ export async function stylesheet(registry, read, preset = '') {
   });
   return out;
 }
+
+/** A style's choice: its picks (axis key → option key) on top of every default. */
+export function styleChoice(presets, style) {
+  return presets.axes.map((a) => Math.max(0, a.options.findIndex((o) => o.key === (style.picks || {})[a.key])));
+}
+/** The style a choice is exactly, or null once anything in it was changed. */
+export function styleOf(presets, choice) {
+  const code = encode(choice);
+  return (presets.styles || []).find((s) => encode(styleChoice(presets, s)) === code) || null;
+}

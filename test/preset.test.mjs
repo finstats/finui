@@ -3,7 +3,7 @@
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
 import fs from 'node:fs';
-import { decode, encode, tokens, faces, overlay, on, stylesheet } from '../create/preset.js';
+import { decode, encode, tokens, faces, overlay, on, stylesheet, styleChoice, styleOf } from '../create/preset.js';
 import { resolve, contrast, deltaE, tokensOf, over, oklab } from './colour.mjs';
 
 const root = new URL('../', import.meta.url);
@@ -309,4 +309,29 @@ test('high contrast lifts muted text to 7:1 and faint text to 4.5:1 on every bas
     }
   });
   assert.deepEqual(bad, []);
+});
+
+// ---------------------------------------------------------------- styles: whole looks to start from
+test('a style is a whole look: a name, a line, and a choice on the axes it cares about', () => {
+  const { styles } = presets;
+  assert.ok(Array.isArray(styles) && styles.length >= 10, 'ten styles at least');
+  assert.equal(new Set(styles.map((s) => s.key)).size, styles.length, 'two styles share a key');
+  assert.deepEqual(styleChoice(presets, styles[0]), Array(n).fill(0), 'the first style is FinUI as it ships');
+  for (const s of styles) {
+    assert.ok(s.label && s.blurb && s.blurb.length <= 90, `${s.key}: a label and a line of at most 90 characters`);
+    for (const [axis, opt] of Object.entries(s.picks || {})) {
+      assert.ok(at(axis) >= 0, `${s.key} picks on ${axis}, which is no axis`);
+      assert.ok(option(axis, opt) > 0, `${s.key} picks ${axis} ${opt}, which is no option of it but its default`);
+    }
+  }
+  const codes = styles.map((s) => encode(styleChoice(presets, s)));
+  assert.equal(new Set(codes).size, codes.length, 'two styles are one look');
+  for (const s of styles.slice(1)) assert.ok(Object.keys(s.picks).length >= 6, `${s.key} is hardly a look of its own`);
+});
+
+test('a choice knows the style it is, and no style once it is changed', () => {
+  for (const s of presets.styles) assert.equal(styleOf(presets, styleChoice(presets, s))?.key, s.key);
+  const changed = styleChoice(presets, presets.styles[1]);
+  changed[at('motion')] = (changed[at('motion')] + 1) % presets.axes[at('motion')].options.length;
+  assert.equal(styleOf(presets, changed), null);
 });
