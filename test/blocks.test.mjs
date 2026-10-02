@@ -12,7 +12,9 @@ const css = read('blocks/blocks.css');
 const keys = [...js.matchAll(/^ {2}\{ key: '([a-z0-9-]+)'/gm)].map((m) => m[1]);
 // Everything blocks.js declares at its top level, and what it imports: a name a block's code uses must be one of its own.
 const declared = [...js.matchAll(/^(?:function\*? |const |let )(\w+)/gm)].map((m) => m[1]);
-const imported = [...js.matchAll(/^import \{([^}]+)\}/gm)].flatMap((m) => m[1].split(',').map((x) => x.trim()));
+// An import names a thing as the code calls it: `calendar as monthPicker` is monthPicker.
+const local = (x) => x.trim().split(/\s+as\s+/).pop();
+const imported = [...js.matchAll(/^import \{([^}]+)\}/gm)].flatMap((m) => m[1].split(',').map(local));
 // Comments and the text of strings say nothing about what code uses: "the busiest month" is not a call of month().
 const plain = (code) => code.replace(/\/\*[\s\S]*?\*\//g, '').replace(/\/\/.*$/gm, '').replace(/'(?:[^'\\\n]|\\.)*'|"(?:[^"\\\n]|\\.)*"/g, "''");
 const uses = (code, name) => new RegExp(`(?<![\\w.$-])${name}(?![\\w$-]|\\s*:)`).test(plain(code));
@@ -27,7 +29,7 @@ test('a block’s code declares or imports everything it uses, and nothing it do
   for (const k of keys) {
     const code = blockSource(js, k);
     const own = [...code.matchAll(/^(?:function\*? |const |let |export function )(\w+)/gm)].map((m) => m[1]);
-    const brought = [...code.matchAll(/^import \{([^}]+)\}/gm)].flatMap((m) => m[1].split(',').map((x) => x.trim()));
+    const brought = [...code.matchAll(/^import \{([^}]+)\}/gm)].flatMap((m) => m[1].split(',').map(local));
     for (const name of [...declared, ...imported].filter((n) => n !== 'BLOCKS')) {
       const body = code.replace(/^import .*$/gm, '');
       if (uses(body.replace(new RegExp(`^(?:function\\*? |const |let )${name}\\b`, 'm'), ''), name)) assert.ok(own.includes(name) || brought.includes(name), `${k}: uses ${name} without it`);
@@ -47,9 +49,9 @@ test('its imports are FinUI’s, from where the installer puts it', () => {
 });
 
 test('a block’s CSS is the rules of the classes it draws, and every one of them', () => {
-  const sheet = blockCss(css, ['blk-cal', 'blk-cal__grid', 'blk-cal__day', 'blk-list']);
-  assert.match(sheet, /\.blk-cal__grid \{/);
-  assert.match(sheet, /button\.blk-cal__day:hover/);
+  const sheet = blockCss(css, ['blk-agenda', 'blk-agenda__day', 'blk-list']);
+  assert.match(sheet, /\.blk-agenda__day \{/);
+  assert.match(sheet, /\.blk-agenda__day \+ \.blk-agenda__day/, 'a rule naming two of its classes');
   assert.doesNotMatch(sheet, /\.blk-radar|\.blk-side/, 'rules of other blocks');
   assert.equal(blockCss(css, []), '', 'no classes, no rules');
   for (const rule of sheet.split('}').filter((r) => r.trim())) assert.match(rule, /\.blk-/, `a rule of no block: ${rule}`);

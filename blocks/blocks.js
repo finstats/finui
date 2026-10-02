@@ -26,6 +26,7 @@ import { poster } from '../components/poster/poster.js';
 import { copyButton } from '../components/copy/copy.js';
 import { formField } from '../components/field/field.js';
 import { sectionNav, sectionLayout } from '../components/sections/sections.js';
+import { calendar as monthPicker } from '../components/calendar/calendar.js';
 
 const SERIES = [['Films', 1], ['Episodes', 2], ['Music', 3], ['Other', 4]];
 const noop = () => {};
@@ -156,17 +157,25 @@ function settingsPage() {
   const visible = [{ key: 'account', label: 'Account', icon: 'user', group: 'You' }, { key: 'appearance', label: 'Appearance', icon: 'sliders', group: 'You' },
     { key: 'notifications', label: 'Notifications', icon: 'inbox', group: 'You' }, { key: 'collection', label: 'Collection', icon: 'database', group: 'Server' },
     { key: 'security', label: 'Security', icon: 'shield', group: 'Server' }, { key: 'tasks', label: 'Tasks', icon: 'clock', group: 'Server' }];
-  const rows = h('div', { class: 'fui-setting-row__rows' },
-    settingRow({ id: 'blk-groups', label: 'Watched together', help: 'Plays of one title by two people within a minute count as one evening.',
-      control: toggle({ checked: true, onChange: noop, labelledby: 'blk-groups-label', describedby: 'blk-groups-help' }) }),
-    settingRow({ id: 'blk-min', label: 'Shortest play counted', help: 'Shorter plays are left out of every statistic.', labelFor: 'blk-min-in',
-      control: h('input', { class: 'fui-field__input fui-field__input--num', id: 'blk-min-in', type: 'number', value: 120 }) }),
-    settingRow({ id: 'blk-name', label: 'Server name', labelFor: 'blk-name-in',
-      control: h('input', { class: 'fui-field__input', id: 'blk-name-in', type: 'text', value: 'Living room', autocomplete: 'off' }) }),
-    settingRow({ id: 'blk-week', label: 'Week starts on', labelFor: 'blk-week-in',
-      control: h('select', { class: 'fui-field__input', id: 'blk-week-in' }, h('option', null, 'Monday'), h('option', null, 'Sunday')) }));
-  return sectionLayout(sectionNav('#', visible, 'appearance', 'Settings'),
-    h('div', { class: 'blk-stack' }, rows, h('div', { class: 'blk-row blk-row--end' }, button({ variant: 'ghost' }, 'Cancel'), button({ variant: 'primary' }, 'Save'))));
+  const sw = (id, label, help, on) => settingRow({ id, label, help, control: toggle({ checked: on, onChange: noop, labelledby: `${id}-label`, describedby: `${id}-help` }) });
+  const pages = {
+    appearance: () => [sw('blk-groups', 'Watched together', 'Plays of one title by two people within a minute count as one evening.', true),
+      settingRow({ id: 'blk-min', label: 'Shortest play counted', help: 'Shorter plays are left out of every statistic.', labelFor: 'blk-min-in',
+        control: h('input', { class: 'fui-field__input fui-field__input--num', id: 'blk-min-in', type: 'number', value: 120 }) }),
+      settingRow({ id: 'blk-name', label: 'Server name', labelFor: 'blk-name-in', control: h('input', { class: 'fui-field__input', id: 'blk-name-in', type: 'text', value: 'Living room', autocomplete: 'off' }) }),
+      settingRow({ id: 'blk-week', label: 'Week starts on', labelFor: 'blk-week-in', control: h('select', { class: 'fui-field__input', id: 'blk-week-in' }, h('option', null, 'Monday'), h('option', null, 'Sunday')) })],
+    notifications: () => [sw('blk-n1', 'A play starts', 'Who, what and on which device.', true), sw('blk-n2', 'Failed sign-ins', 'Three in a row from one address.', false)],
+  };
+  const holder = h('div');
+  const open = (key) => {
+    const rows = (pages[key] || (() => [h('p', { class: 'muted' }, `${visible.find((v) => v.key === key).label}: nothing to set in this example.`)]))();
+    const nav = sectionNav('#', visible, key, 'Settings');
+    nav.addEventListener('click', (e) => { const a = e.target.closest('a'); if (!a) return; e.preventDefault(); open(a.getAttribute('href').split('/').pop()); holder.querySelector('.fui-sections__link.is-active')?.focus(); });
+    holder.replaceChildren(sectionLayout(nav, h('div', { class: 'blk-stack' }, h('div', { class: 'fui-setting-row__rows' }, rows),
+      h('div', { class: 'blk-row blk-row--end' }, button({ variant: 'ghost' }, 'Cancel'), button({ variant: 'primary' }, 'Save')))));
+  };
+  open('appearance');
+  return holder;
 }
 
 function upcoming() {
@@ -205,11 +214,15 @@ function apiKey() {
     h('div', { class: 'blk-row' }, button({ size: 'sm' }, icon('plus', 14), 'New key'), button({ size: 'sm', variant: 'danger' }, icon('trash', 14), 'Revoke')));
 }
 
+/** A search box, a choice of kind, filters that come off when told to and chips that toggle. */
 function search() {
+  const chips = chipSet();
+  for (const label of ['Drama', 'After 2010']) { const c = removableChip({ label, onRemove: () => c.remove(), removeLabel: `Remove the filter ${label}` }); chips.append(c); }
+  chips.append(chipToggle({ pressed: true }, 'Unwatched'), chipToggle({ pressed: false }, '4K'));
   return h('div', { class: 'blk-stack' },
     h('label', { class: 'fui-field__search' }, icon('search', 14), h('input', { class: 'fui-field__input fui-field__input--search', type: 'search', placeholder: 'Search titles, people…', 'aria-label': 'Search' })),
     segmented({ label: 'Kind', size: 'sm', value: 'all', options: [{ value: 'all', label: 'All' }, { value: 'films', label: 'Films' }, { value: 'shows', label: 'Shows' }, { value: 'music', label: 'Music' }], onChange: noop }),
-    chipSet(removableChip({ label: 'Drama', onRemove: noop }), removableChip({ label: 'After 2010', onRemove: noop }), chipToggle({ pressed: true }, 'Unwatched'), chipToggle({ pressed: false }, '4K')));
+    chips);
 }
 
 function shortcuts() {
@@ -232,43 +245,42 @@ function focusDemo() {
 }
 
 function confirmBox() {
+  const body = h('div', { class: 'fui-modal__body blk-stack', 'aria-live': 'polite' });
+  const ask = () => body.replaceChildren(h('p', null, 'Notifications stop going to ntfy.example. What was sent stays sent.'),
+    h('div', { class: 'blk-row blk-row--end' }, button({ variant: 'ghost', onClick: () => answer('Kept: notifications go on as before.') }, 'Keep it'),
+      button({ variant: 'danger', onClick: () => answer('Removed: nothing more goes to ntfy.example.') }, 'Remove')));
+  const answer = (words) => body.replaceChildren(status({ tone: 'good', line: true }, words), h('div', { class: 'blk-row blk-row--end' }, button({ variant: 'ghost', onClick: ask }, 'Undo')));
+  ask();
   return h('div', { class: 'fui-modal blk-modal', role: 'group', 'aria-label': 'A dialog' },
-    h('div', { class: 'fui-modal__head' }, h('h3', { class: 'fui-modal__title' }, 'Remove this destination?'), button({ variant: 'icon', 'aria-label': 'Close' }, icon('x', 16))),
-    h('div', { class: 'fui-modal__body blk-stack' }, h('p', null, 'Notifications stop going to ntfy.example. What was sent stays sent.'),
-      h('div', { class: 'blk-row blk-row--end' }, button({ variant: 'ghost' }, 'Keep it'), button({ variant: 'danger' }, 'Remove'))));
+    h('div', { class: 'fui-modal__head' }, h('h3', { class: 'fui-modal__title' }, 'Remove this destination?'), button({ variant: 'icon', 'aria-label': 'Close', onClick: () => answer('Closed: nothing changed.') }, icon('x', 16))), body);
 }
 
 function buttons() {
+  const pages = h('div');
+  let page = 2;
+  const turn = () => pages.replaceChildren(pagination({ page, perPage: 50, total: 640, onPage: (n) => { page = n; turn(); } }));
+  turn();
   return h('div', { class: 'blk-stack' },
     h('div', { class: 'blk-row' }, button({ variant: 'primary' }, icon('play', 14), 'Primary'), button({}, 'Default'), button({ variant: 'ghost' }, 'Ghost'), button({ variant: 'danger' }, 'Delete')),
     h('div', { class: 'blk-row' }, chipToggle({ pressed: true }, 'Films'), chipToggle({ pressed: false }, 'Shows'), chip('Drama'), chip('Science Fiction'), badge({ live: true }, 'Live'), badge({ count: true }, '12')),
     h('div', { class: 'blk-row' }, spinner(16), h('span', { class: 'muted' }, 'Reading the library…')),
-    pagination({ page: 2, perPage: 50, total: 640, onPage: noop }));
+    pages);
 }
 
-/** A month, Monday first, whole weeks: today ringed, the chosen day filled, a dot on a day with something coming out, and
- *  what comes out on the chosen day below. October 2026, so the picture never moves. */
+const RELEASES = { '2026-10-02': 'Sintel, season 2, episode 3', '2026-10-09': 'Sintel, season 2, episode 4', '2026-10-14': 'Tears of Steel', '2026-10-22': 'Cosmos Laundromat, episode 1', '2026-10-30': 'Spring' };
+const dayName = new Intl.DateTimeFormat('en-GB', { day: 'numeric', month: 'long', timeZone: 'UTC' });
+const said = (key) => dayName.format(new Date(`${key}T12:00:00Z`));
+
+/** A month to pick a day in, a dot where something comes out, and what comes out on the picked day below it. */
 function calendar() {
-  const today = 2;
-  const releases = { 2: ['Sintel', 'Season 2, episode 3'], 9: ['Sintel', 'Season 2, episode 4'], 14: ['Tears of Steel', 'Film'], 22: ['Cosmos Laundromat', 'Season 1, episode 1'], 30: ['Spring', 'Film'] };
-  let chosen = 9;
-  const list = h('ul', { class: 'blk-list' });
-  const show = () => {
-    const r = releases[chosen];
+  const list = h('ul', { class: 'blk-list', 'aria-live': 'polite' });
+  const show = (key) => {
+    const what = RELEASES[key];
     list.replaceChildren(h('li', { class: 'blk-list__row' }, h('div', { class: 'blk-list__text' },
-      h('strong', null, r ? r[0] : 'Nothing comes out'), h('span', { class: 'muted' }, r ? `${r[1]} · ${chosen} October` : `on ${chosen} October`)), r ? status({ tone: 'info' }, 'Coming up') : null));
+      h('strong', null, what || 'Nothing comes out'), h('span', { class: 'muted' }, `on ${said(key)}`)), what ? status({ tone: 'info' }, 'Coming up') : null));
   };
-  const grid = month((d) => {
-    const b = h('button', { type: 'button', class: 'blk-cal__day', 'aria-pressed': String(d === chosen), 'aria-current': d === today ? 'date' : null,
-      'aria-label': `${d} October${releases[d] ? `, ${releases[d][0]}` : ''}` }, String(d), releases[d] ? h('span', { class: 'blk-cal__dot', 'aria-hidden': 'true' }) : null);
-    b.addEventListener('click', () => { chosen = d; grid.querySelectorAll('button.blk-cal__day').forEach((x, k) => x.setAttribute('aria-pressed', String(k + 1 === d))); show(); });
-    return b;
-  });
-  show();
-  return h('div', { class: 'blk-cal' },
-    h('div', { class: 'blk-cal__head' }, button({ variant: 'icon', 'aria-label': 'September' }, icon('chevronLeft', 16)), h('span', { class: 'blk-cal__month' }, 'October 2026'),
-      button({ variant: 'icon', 'aria-label': 'November' }, icon('chevronRight', 16))),
-    grid, list);
+  show('2026-10-09');
+  return h('div', { class: 'blk-stack' }, monthPicker({ month: '2026-10-01', value: '2026-10-09', marks: RELEASES, locale: 'en-GB', label: 'Releases', onChange: show }), list);
 }
 
 // ---- more charts
@@ -335,22 +347,33 @@ function statsRow() {
 }
 
 // ---- dates
-const WEEKDAYS = ['Mo', 'Tu', 'We', 'Th', 'Fr', 'Sa', 'Su'];
-/** October 2026 as a grid, Monday first: `day(d)` gives a day's own attributes and contents. */
-function month(day) {
-  const first = 3, days = 31, cells = [];
-  for (let i = 0; i < first; i++) cells.push(h('span', { class: 'blk-cal__day is-outside', 'aria-hidden': 'true' }, String(28 + i)));
-  for (let d = 1; d <= days; d++) cells.push(day(d));
-  while (cells.length % 7) cells.push(h('span', { class: 'blk-cal__day is-outside', 'aria-hidden': 'true' }, String(cells.length - first - days + 1)));
-  return h('div', { class: 'blk-cal__grid', role: 'group', 'aria-label': 'October 2026' }, WEEKDAYS.map((w) => h('span', { class: 'blk-cal__wd', 'aria-hidden': 'true' }, w)), cells);
-}
+
+/** A month to choose a stretch of days in: two clicks, the days between washed, the stretch said in words. */
 function dateRange() {
-  const from = 12, to = 18;
-  const grid = month((d) => h('span', { class: ['blk-cal__day', d >= from && d <= to && 'is-in-range', (d === from || d === to) && 'is-edge'], 'aria-current': d === 2 ? 'date' : null }, String(d)));
-  return h('div', { class: 'blk-cal' },
-    h('div', { class: 'blk-cal__head' }, button({ variant: 'icon', 'aria-label': 'September' }, icon('chevronLeft', 16)), h('span', { class: 'blk-cal__month' }, 'October 2026'), button({ variant: 'icon', 'aria-label': 'November' }, icon('chevronRight', 16))),
-    grid,
-    h('div', { class: 'blk-row blk-row--between' }, h('span', { class: 'muted' }, '12 – 18 October · 7 days'), button({ variant: 'primary', size: 'sm' }, 'Show this week')));
+  const words = h('span', { class: 'muted', 'aria-live': 'polite' });
+  const button_ = button({ variant: 'primary', size: 'sm' }, 'Show these days');
+  const say = (r) => {
+    if (!r.to) { words.textContent = `From ${said(r.from)}: now pick where it ends`; button_.disabled = true; return; }
+    const n = Math.round((new Date(r.to) - new Date(r.from)) / 86400000) + 1;
+    const [a, b] = [said(r.from), said(r.to)];
+    words.textContent = `${a.split(' ')[1] === b.split(' ')[1] ? a.split(' ')[0] : a} – ${b} · ${n} day${n === 1 ? '' : 's'}`;
+    button_.disabled = false;
+  };
+  const value = { from: '2026-10-12', to: '2026-10-18' };
+  say(value);
+  return h('div', { class: 'blk-stack' }, monthPicker({ mode: 'range', month: '2026-10-01', value, locale: 'en-GB', label: 'A stretch of days', onChange: say }),
+    h('div', { class: 'blk-row blk-row--between' }, words, button_));
+}
+
+/** A month to pick several days in, at most five, and what was picked in words. */
+function pickDates() {
+  const words = h('p', { class: 'muted', 'aria-live': 'polite' });
+  const say = (days) => {
+    words.textContent = days.length ? `${days.length} evening${days.length === 1 ? '' : 's'}: ${days.map((d) => said(d).split(' ')[0]).join(', ')} October` : 'Pick the evenings you are free, up to five.';
+  };
+  say([]);
+  return h('div', { class: 'blk-stack' }, monthPicker({ mode: 'multiple', limit: 5, month: '2026-10-01', locale: 'en-GB', label: 'Evenings', onChange: say }), words,
+    button({ variant: 'primary', block: true }, icon('calendar', 14), 'Share them'));
 }
 function timeSlots() {
   const times = ['18:00', '18:30', '19:00', '19:30', '20:00', '20:30', '21:00', '21:30', '22:00'];
@@ -381,36 +404,84 @@ function signUp() {
     button({ variant: 'primary', block: true }, 'Create the account'),
     h('p', { class: 'muted blk-center' }, 'Already have one? ', h('a', { href: '#' }, 'Sign in')));
 }
+/** Six boxes for a code: a digit typed moves on, Backspace moves back, a pasted code fills them all. */
 function verifyCode() {
-  const boxes = Array.from({ length: 6 }, (_, i) => h('input', { class: 'fui-field__input blk-otp__box mono', type: 'text', inputMode: 'numeric', maxLength: 1, value: i < 4 ? '3917'[i] : '', 'aria-label': `Digit ${i + 1}` }));
+  const boxes = Array.from({ length: 6 }, (_, i) => h('input', { class: 'fui-field__input blk-otp__box mono', type: 'text', inputMode: 'numeric', autocomplete: i ? 'off' : 'one-time-code', maxLength: 6, 'aria-label': `Digit ${i + 1}` }));
+  const fill = (from, digits) => { digits.split('').slice(0, 6 - from).forEach((d, k) => { boxes[from + k].value = d; }); boxes[Math.min(5, from + digits.length)].focus(); };
+  boxes.forEach((b, i) => {
+    b.addEventListener('focus', () => b.select());
+    b.addEventListener('input', () => { const digits = b.value.replace(/\D/g, ''); b.value = digits.slice(0, 1); if (digits.length > 1) fill(i, digits); else if (digits && i < 5) boxes[i + 1].focus(); });
+    b.addEventListener('keydown', (e) => {
+      if (e.key === 'Backspace' && !b.value && i) { e.preventDefault(); boxes[i - 1].value = ''; boxes[i - 1].focus(); }
+      else if (e.key === 'ArrowLeft' && i) { e.preventDefault(); boxes[i - 1].focus(); }
+      else if (e.key === 'ArrowRight' && i < 5) { e.preventDefault(); boxes[i + 1].focus(); }
+    });
+    b.addEventListener('paste', (e) => { e.preventDefault(); fill(i, (e.clipboardData.getData('text') || '').replace(/\D/g, '')); });
+  });
   return h('div', { class: 'blk-stack blk-center' },
     h('p', null, 'Enter the six digits your authenticator app shows for finstats.'),
     h('div', { class: 'blk-otp' }, boxes.slice(0, 3), h('span', { class: 'blk-otp__dash', 'aria-hidden': 'true' }, '–'), boxes.slice(3)),
     button({ variant: 'primary', block: true }, 'Verify'),
     h('p', { class: 'muted' }, 'Lost your phone? ', h('a', { href: '#' }, 'Use a recovery code')));
 }
+/** An address, a secret to show or hide, a test that answers. */
 function connectService() {
-  const url = formField({ id: 'blk-svc-url', label: 'Address', placeholder: 'http://192.168.1.10:8989' }).el;
-  const key = h('div', { class: 'fui-field' }, h('label', { class: 'fui-field__label', htmlFor: 'blk-svc-key' }, 'API key'),
-    h('div', { class: 'blk-key-row' }, h('input', { class: 'fui-field__input mono', id: 'blk-svc-key', type: 'password', value: 'invented-key-123', autocomplete: 'off' }), button({ variant: 'icon', 'aria-label': 'Show the key' }, icon('unlock', 15))),
-    h('p', { class: 'fui-field__help' }, 'Settings → General in Sonarr.'));
+  const url = formField({ id: 'blk-svc-url', label: 'Address', placeholder: 'http://192.168.1.10:8989' });
+  const input = h('input', { class: 'fui-field__input mono', id: 'blk-svc-key', type: 'password', value: 'invented-key-123', autocomplete: 'off' });
+  const eye = button({ variant: 'icon', 'aria-label': 'Show the key' }, icon('unlock', 15));
+  eye.addEventListener('click', () => {
+    const shown = input.type === 'password';
+    input.type = shown ? 'text' : 'password';
+    eye.setAttribute('aria-label', shown ? 'Hide the key' : 'Show the key');
+    eye.replaceChildren(icon(shown ? 'lock' : 'unlock', 15));
+  });
+  const answer = h('div', { 'aria-live': 'polite' });
+  const test = button({}, icon('refresh', 14), 'Test');
+  test.addEventListener('click', () => {
+    answer.replaceChildren(h('span', { class: 'blk-row' }, spinner(14), h('span', { class: 'muted' }, 'Asking…')));
+    setTimeout(() => answer.replaceChildren(url.input.value.startsWith('http') ? status({ tone: 'good' }, 'Answered in 42 ms · version 4.0') : status({ tone: 'critical' }, 'That is not an address: it needs http:// or https://')), 500);
+  });
   return h('div', { class: 'blk-stack' }, segmented({ label: 'Service', size: 'sm', value: 'sonarr', options: [{ value: 'sonarr', label: 'Sonarr' }, { value: 'radarr', label: 'Radarr' }, { value: 'seerr', label: 'Seerr' }], onChange: noop }),
-    url, key, status({ tone: 'good' }, 'Answered in 42 ms · version 4.0'),
-    h('div', { class: 'blk-row blk-row--end' }, button({}, icon('refresh', 14), 'Test'), button({ variant: 'primary' }, 'Connect')));
+    url.el,
+    h('div', { class: 'fui-field' }, h('label', { class: 'fui-field__label', htmlFor: 'blk-svc-key' }, 'API key'), h('div', { class: 'blk-key-row' }, input, eye), h('p', { class: 'fui-field__help' }, 'Settings → General in Sonarr.')),
+    answer, h('div', { class: 'blk-row blk-row--end' }, test, button({ variant: 'primary' }, 'Connect')));
 }
+/** Addresses with a role each, another row when asked, a link to copy, and a button that counts them. */
 function invite() {
-  const row = (who, role) => h('div', { class: 'blk-invite' }, h('input', { class: 'fui-field__input', type: 'email', value: who, 'aria-label': 'E-mail' }),
-    h('select', { class: 'fui-field__input', 'aria-label': 'Role' }, ['Viewer', 'Manager'].map((r) => h('option', { selected: r === role }, r))));
+  const rows = h('div', { class: 'blk-stack blk-stack--tight' });
+  const send = button({ variant: 'primary', block: true });
+  const count = () => { const n = rows.children.length; send.textContent = `Send ${n} invite${n === 1 ? '' : 's'}`; };
+  const row = (who = '', role = 'Viewer') => {
+    const r = h('div', { class: 'blk-invite' }, h('input', { class: 'fui-field__input', type: 'email', value: who, placeholder: 'name@example.org', 'aria-label': 'E-mail' }),
+      h('select', { class: 'fui-field__input', 'aria-label': 'Role' }, ['Viewer', 'Manager'].map((x) => h('option', { selected: x === role }, x))),
+      button({ variant: 'icon', 'aria-label': 'Remove this row', onClick: () => { if (rows.children.length > 1) { r.remove(); count(); } } }, icon('x', 14)));
+    return r;
+  };
+  rows.append(row('carol@example.org'), row('dave@example.org', 'Manager'));
+  count();
   const link = 'https://stats.example.org/invite/7f3a';
-  return h('div', { class: 'blk-stack' }, row('carol@example.org', 'Viewer'), row('dave@example.org', 'Manager'),
-    button({ variant: 'ghost', size: 'sm' }, icon('plus', 14), 'Another'),
+  return h('div', { class: 'blk-stack' }, rows,
+    button({ variant: 'ghost', size: 'sm', onClick: () => { const r = row(); rows.append(r); count(); r.querySelector('input').focus(); } }, icon('plus', 14), 'Another'),
     h('div', { class: 'blk-key-row blk-key-row--boxed' }, h('code', { class: 'mono trunc' }, link), copyButton(link, 'Copy the invite link')),
-    button({ variant: 'primary', block: true }, 'Send 2 invites'));
+    send);
 }
+/** A place to drop a file or choose one: what was chosen is named, with its size, ready to import. */
 function upload() {
-  return h('div', { class: 'blk-stack' },
-    h('div', { class: 'blk-drop' }, icon('upload', 22), h('strong', null, 'Drop a backup here'), h('span', { class: 'muted' }, 'Jellystat, Streamystats or Tautulli · up to 2 GB'), button({ size: 'sm' }, 'Choose a file')),
-    h('div', { class: 'blk-dl' }, h('div', { class: 'blk-dl__top' }, h('span', { class: 'trunc mono' }, 'jellystat-backup.json'), h('span', { class: 'muted nowrap' }, '61%')), meter({ value: 0.61, block: true, label: 'Uploading' })));
+  const input = h('input', { type: 'file', class: 'sr-only', id: 'blk-upload', accept: '.json,.jsonl,.db,.zip' });
+  const chosen = h('div', { 'aria-live': 'polite' });
+  const size = (n) => (n < 1024 ? `${n} B` : n < 1048576 ? `${(n / 1024).toFixed(1)} KB` : `${(n / 1048576).toFixed(1)} MB`);
+  const take = (file) => {
+    if (!file) return;
+    chosen.replaceChildren(h('div', { class: 'blk-dl' }, h('div', { class: 'blk-dl__top' }, h('span', { class: 'trunc mono' }, file.name), h('span', { class: 'muted nowrap' }, size(file.size))),
+      meter({ value: 1, block: true, label: `${file.name}, read` }), status({ tone: 'good' }, 'Ready to import')));
+  };
+  input.addEventListener('change', () => take(input.files[0]));
+  const drop = h('div', { class: 'blk-drop' }, icon('upload', 22), h('strong', null, 'Drop a backup here'), h('span', { class: 'muted' }, 'Jellystat, Streamystats or Tautulli · up to 2 GB'),
+    h('label', { class: 'fui-button fui-button--sm', htmlFor: 'blk-upload' }, 'Choose a file'), input);
+  drop.addEventListener('dragover', (e) => { e.preventDefault(); drop.classList.add('is-over'); });
+  drop.addEventListener('dragleave', () => drop.classList.remove('is-over'));
+  drop.addEventListener('drop', (e) => { e.preventDefault(); drop.classList.remove('is-over'); take(e.dataTransfer.files[0]); });
+  return h('div', { class: 'blk-stack' }, drop, chosen);
 }
 
 // ---- lists
@@ -427,12 +498,17 @@ function members() {
     h('div', { class: 'blk-list__text' }, h('strong', null, who), h('span', { class: 'muted' }, `${who}@example.org`)),
     role === 'Administrator' ? badge({}, 'Jellyfin admin') : h('select', { class: 'fui-field__input blk-select-sm', 'aria-label': `${who}'s role` }, ['Viewer', 'Manager'].map((r) => h('option', { selected: r === role }, r))))));
 }
+/** Unread first, marked, and a way to read them all. */
 function inbox() {
   const rows = [['Sintel S2 · E4 is on the server', 'Requested by you', '5 min', true], ['Three failed sign-ins', 'From 203.0.113.7', '1 h', true], ['Backup written', '14.2 MB', 'yesterday', false]];
-  return h('div', { class: 'blk-stack' },
-    h('ul', { class: 'blk-list' }, rows.map(([title, sub, when, unread]) => h('li', { class: ['blk-list__row', 'blk-inbox', unread && 'is-unread'] },
-      h('span', { class: 'blk-inbox__dot', 'aria-label': unread ? 'Unread' : null }), h('div', { class: 'blk-list__text' }, h('strong', null, title), h('span', { class: 'muted' }, sub)), h('span', { class: 'muted nowrap' }, when)))),
-    button({ variant: 'ghost', size: 'sm' }, icon('check', 14), 'Mark all as read'));
+  const list = h('ul', { class: 'blk-list' }, rows.map(([title, sub, when, unread]) => h('li', { class: ['blk-list__row', 'blk-inbox', unread && 'is-unread'] },
+    h('span', { class: 'blk-inbox__dot', 'aria-label': unread ? 'Unread' : null }), h('div', { class: 'blk-list__text' }, h('strong', null, title), h('span', { class: 'muted' }, sub)), h('span', { class: 'muted nowrap' }, when))));
+  const all = button({ variant: 'ghost', size: 'sm' }, icon('check', 14), 'Mark all as read');
+  all.addEventListener('click', () => {
+    list.querySelectorAll('.is-unread').forEach((r) => { r.classList.remove('is-unread'); r.querySelector('.blk-inbox__dot').removeAttribute('aria-label'); });
+    all.disabled = true; all.replaceChildren(icon('check', 14), 'All read');
+  });
+  return h('div', { class: 'blk-stack' }, list, all);
 }
 function storage() {
   const parts = [['Films', 6.1, 1], ['Shows', 7.8, 2], ['Music', 0.3, 3], ['Free', 5.8, 0]];
@@ -444,9 +520,14 @@ function storage() {
 }
 
 // ---- feedback
+/** Something to know, to watch and to act on, each in its tone, each one dismissed when read. */
 function banners() {
-  const one = (tone, ic, title, text, action) => h('div', { class: ['blk-callout', `blk-callout--${tone}`], role: tone === 'critical' ? 'alert' : 'status' },
-    icon(ic, 16), h('div', { class: 'blk-list__text' }, h('strong', null, title), h('span', null, text)), action);
+  const one = (tone, ic, title, text, action) => {
+    const el = h('div', { class: ['blk-callout', `blk-callout--${tone}`], role: tone === 'critical' ? 'alert' : 'status' },
+      icon(ic, 16), h('div', { class: 'blk-list__text' }, h('strong', null, title), h('span', null, text)), action,
+      button({ variant: 'icon', 'aria-label': `Dismiss: ${title}`, onClick: () => el.remove() }, icon('x', 14)));
+    return el;
+  };
   return h('div', { class: 'blk-stack' },
     one('info', 'info', 'A new version is out', 'finstats 2.3.0 brings the blocks to your look.', button({ size: 'sm' }, 'What changed')),
     one('warning', 'alert', 'Radarr is slow to answer', 'It took 8 seconds; downloads may lag behind.', null),
@@ -466,12 +547,20 @@ function notFound() {
     button({ variant: 'primary' }, icon('home', 14), 'Back to the dashboard'));
 }
 function appSidebar() {
+  const nav = h('nav', { class: 'blk-side', 'aria-label': 'An app’s menu' });
   const item = (ic, label, active) => h('a', { href: '#', class: ['blk-side__item', active && 'is-active'], 'aria-current': active ? 'page' : null }, icon(ic, 15), h('span', null, label));
-  return h('nav', { class: 'blk-side', 'aria-label': 'An app’s menu' },
-    h('div', { class: 'blk-side__brand' }, h('span', { class: 'blk-side__logo', 'aria-hidden': 'true' }, 'f'), h('strong', null, 'finstats'), h('span', { class: 'muted' }, 'Living room')),
+  nav.append(h('div', { class: 'blk-side__brand' }, h('span', { class: 'blk-side__logo', 'aria-hidden': 'true' }, 'f'), h('strong', null, 'finstats'), h('span', { class: 'muted' }, 'Living room')),
     h('p', { class: 'blk-side__group' }, 'Watch'), item('home', 'Dashboard', true), item('activity', 'Activity'), item('library', 'Libraries'), item('together', 'Together'),
     h('p', { class: 'blk-side__group' }, 'Server'), item('server', 'Server'), item('shield', 'Security'), item('settings', 'Settings'),
     h('div', { class: 'blk-side__user' }, avatar(null, 'alice', { size: 28 }), h('div', { class: 'blk-list__text' }, h('strong', null, 'alice'), h('span', { class: 'muted' }, 'Administrator'))));
+  // The page that is open moves to the one chosen.
+  nav.addEventListener('click', (e) => {
+    const a = e.target.closest('.blk-side__item');
+    if (!a) return;
+    e.preventDefault();
+    nav.querySelectorAll('.blk-side__item').forEach((x) => { x.classList.toggle('is-active', x === a); if (x === a) x.setAttribute('aria-current', 'page'); else x.removeAttribute('aria-current'); });
+  });
+  return nav;
 }
 
 /** Every block: a key, its name and group in the gallery's list and an icon there, a title, a line on what it shows, and
@@ -491,6 +580,7 @@ export const BLOCKS = [
   { key: 'calendar', name: 'Calendar', group: 'Date blocks', icon: 'calendar', title: 'Calendar', about: 'A month to pick a day in, today ringed, a dot where something comes out.', render: () => card({ title: 'Calendar', sub: 'What comes out when', body: calendar() }) },
   { key: 'coming-up', name: 'Coming up', group: 'Date blocks', icon: 'clock', title: 'Coming up', about: 'Dated rows, each with its state.', render: () => card({ title: 'Coming up', sub: 'From Sonarr, Radarr and requests', body: upcoming() }) },
   { key: 'date-range', name: 'Date range', group: 'Date blocks', icon: 'calendar', title: 'Pick a week', about: 'A month with a range chosen, its two ends filled.', render: () => card({ title: 'Pick a week', body: dateRange() }) },
+  { key: 'pick-dates', name: 'Pick dates', group: 'Date blocks', icon: 'calendar', title: 'When are you free', about: 'A month to pick several days in, at most five, said back in words.', render: () => card({ title: 'When are you free', sub: 'Evenings in October', body: pickDates() }) },
   { key: 'time-slots', name: 'Time slots', group: 'Date blocks', icon: 'clock', title: 'Watch together', about: 'Times to choose from, and who is free then.', render: () => card({ title: 'Watch together', body: timeSlots() }) },
   { key: 'week-agenda', name: 'Week agenda', group: 'Date blocks', icon: 'calendar', title: 'This week', about: 'Days and what is planned on each, an empty day said in words.', render: () => card({ title: 'This week', body: weekAgenda() }) },
   { key: 'sign-in', name: 'Sign in', group: 'Form blocks', icon: 'lock', title: 'Sign in', about: 'A form: fields with labels and help, a checkbox, the primary button.', render: () => card({ title: 'Sign in', sub: 'With your Jellyfin account', body: signIn() }) },

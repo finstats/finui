@@ -18,7 +18,8 @@ function bare(code) {
       i++; out += '`';
       while (i < code.length && code[i] !== '`') {
         if (code[i] === '\\') { i += 2; continue; }
-        if (code.slice(i, i + 2) === '${') { let depth = 1; i += 2; out += '${'; while (i < code.length && depth) { if (code[i] === '{') depth++; else if (code[i] === '}') depth--; if (depth) out += code[i]; i++; } out += '}'; continue; }
+        // A template's ${…} is code, read the same way: its strings are strings there too.
+        if (code.slice(i, i + 2) === '${') { let depth = 1, inner = ''; i += 2; while (i < code.length && depth) { if (code[i] === '{') depth++; else if (code[i] === '}') depth--; if (depth) inner += code[i]; i++; } out += '${' + bare(inner) + '}'; continue; }
         i++;
       }
       i++; out += '`';
@@ -76,7 +77,8 @@ export function blockSource(text, key, base = './finui/') {
   }
   const body = [...decls.filter((d) => wanted.has(d.name)).map((d) => d.code), main].join('\n\n');
   const lines = imports.map(({ names, from }) => {
-    const used = names.filter((n) => uses(body, n));
+    // `calendar as monthPicker` is used by the name after `as`, and imported as written.
+    const used = names.filter((n) => uses(body, n.split(/\s+as\s+/).pop()));
     return used.length ? `import { ${used.join(', ')} } from '${from.replace(/^\.\.\//, base)}';` : null;
   }).filter(Boolean);
   return `${lines.join('\n')}\n\n${body}\n`;
