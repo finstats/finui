@@ -55,7 +55,13 @@ test('a slider’s knob takes the gap in its line with it: the line on each side
   assert.ok(new Set(s.map((p) => p.k)).size === 1, 'every part of it moves at once');
 });
 
-test('parts that move together take turns: k counts them, so a group can be staggered', () => {
+test('a thing that moves whole moves as one: its parts turn, drop and swing together, never one after another', () => {
+  // A refresh whose arrowheads turned a moment after their arcs came apart as it spun.
+  for (const name of ['refresh', 'download', 'upload', 'trash', 'plug', 'plus', 'x', 'sun', 'recap', 'logout', 'external', 'alert', 'together'])
+    for (const p of of(name).filter((x) => x.act)) assert.equal(p.k, 0, `${name}: a part that moves after the rest`);
+});
+
+test('parts that take turns say so: k counts them, so a group can be staggered', () => {
   assert.deepEqual(of('chart').map((p) => [p.act, p.k]), [['grow', 0], ['grow', 1], ['grow', 2], [null, 0]]);
   assert.throws(() => plan('no-such-icon', 1), /no motion/);
 });
