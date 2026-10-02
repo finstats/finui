@@ -163,7 +163,7 @@ function frame(theme, sheets, onScroll, onLead) {
     for (const type of ['wheel', 'pointerdown', 'touchstart', 'keydown']) win.addEventListener(type, () => onLead(win), { passive: true, capture: true });
     const doc = el.contentDocument;
     doc.documentElement.dataset.theme = theme;
-    for (const href of [...sheets, at('create/preview.css')]) {
+    for (const href of [...sheets, at('blocks/blocks.css'), at('create/preview.css')]) {
       const link = doc.createElement('link');
       link.rel = 'stylesheet'; link.href = href;
       doc.head.append(link);

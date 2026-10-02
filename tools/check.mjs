@@ -37,7 +37,7 @@ for (const f of onDisk.filter((x) => x.endsWith('.js'))) {
 
 // Colours live in tokens.css alone.
 // The pages beside it (the gallery, FinUI create) are held to it too; create/preset.js writes tokens' values, as tokens.css does.
-const pages = ['demo/demo.css', 'demo/demo.js', ...walk('create').map((f) => f.split(path.sep).join('/')).filter((f) => /\.(css|js)$/.test(f))];
+const pages = ['demo/demo.css', 'demo/demo.js', ...walk('blocks').map((f) => f.split(path.sep).join('/')), ...walk('create').map((f) => f.split(path.sep).join('/')).filter((f) => /\.(css|js)$/.test(f))];
 for (const f of [...onDisk, ...pages].filter((x) => /\.(css|js)$/.test(x) && x !== 'tokens.css' && x !== 'create/preset.js')) {
   const t = f.endsWith('.css') ? uncommented(read(f)) : code(read(f));
   t.split('\n').forEach((line, n) => {

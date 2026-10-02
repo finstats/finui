@@ -19,7 +19,7 @@ export async function build(out) {
   const copy = (f) => fs.cpSync(path.join(root, f), path.join(out, f), { recursive: true });
 
   fs.mkdirSync(out, { recursive: true });
-  for (const f of ['index.html', 'demo', 'create', ...library, 'fonts']) copy(f);   // every font: a preset may name any
+  for (const f of ['index.html', 'demo', 'blocks', 'create', ...library, 'fonts']) copy(f);   // every font: a preset may name any
   write('finui.css', await stylesheet(registry, async (f) => read(f)));
   // An option's tokens alone; read in axis order, a later axis sets a token last, as tokens() lets it win.
   presets.axes.forEach((axis, a) => axis.options.forEach((option, o) => {

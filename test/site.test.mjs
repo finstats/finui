@@ -62,7 +62,7 @@ function install(cwd, args, from = url) {
 }
 
 test('the site holds the pages, the library, finui.css and the installer', async () => {
-  for (const f of ['index.html', 'demo/demo.js', 'create/index.html', 'create/create.js', 'create/preset.js', 'create/presets.json', 'registry.json', 'LICENSE', 'install.sh', ...library, ...fonts.map((x) => `fonts/${x}`)]) {
+  for (const f of ['index.html', 'demo/demo.js', 'blocks/blocks.js', 'blocks/blocks.css', 'create/index.html', 'create/create.js', 'create/preset.js', 'create/presets.json', 'registry.json', 'LICENSE', 'install.sh', ...library, ...fonts.map((x) => `fonts/${x}`)]) {
     assert.ok(fs.existsSync(path.join(site, f)), `${f} is not on the site`);
   }
   assert.equal(fs.readFileSync(path.join(site, 'finui.css'), 'utf8'), await stylesheet(registry, async (f) => read(f)));

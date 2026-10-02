@@ -25,6 +25,8 @@ import { button } from '../components/button/button.js';
 import { emptyState } from '../components/empty/empty.js';
 import { formField } from '../components/field/field.js';
 import { toggle } from '../components/toggle/toggle.js';
+import { copyButton } from '../components/copy/copy.js';
+import { BLOCKS } from '../blocks/blocks.js';
 
 const root = document.getElementById('demo');
 const CATEGORY = { primitive: 'Primitives', pattern: 'Patterns', chart: 'Charts' };
@@ -108,6 +110,21 @@ function showcase(slot) {
   paint();
 }
 
+// ---- blocks: a card's worth of an app each, the ones FinUI create draws a preset on, with their HTML to copy
+function blocks(slot) {
+  const paint = () => mount(slot,
+    h('p', { class: 'demo-purpose' }, 'Compositions of the components, each a card’s worth of an app — the ones FinUI create shows a preset on. Copy a block’s HTML and style it with finui.css and blocks/blocks.css; its controls come alive with the components’ own JavaScript, as in blocks/blocks.js.'),
+    viewBar(`Blocks (${BLOCKS.length})`, paint),
+    BLOCKS.map((b) => {
+      const html = b.render().outerHTML;
+      return h('section', { class: ['demo-block', b.wide && 'is-wide'], dataset: { block: b.key, html } },
+        h('div', { class: 'demo-block__head' }, h('h4', { class: 'demo-name' }, b.title), copyButton(html, `Copy the HTML of ${b.title}`)),
+        h('p', { class: 'demo-block__about' }, b.about),
+        frames(b.render));
+    }));
+  paint();
+}
+
 async function start() {
   const registry = await (await fetch('registry.json')).json();
   // Each component's stylesheet after the foundation, in the registry's order: the order the cascade was written for.
@@ -116,7 +133,7 @@ async function start() {
     const js = c.files.find((f) => f.endsWith('.js'));
     return js ? ((await import('../' + js)).meta || {}) : {};
   }));
-  const sections = [{ key: 'showcase', label: 'Showcase', icon: 'sparkle', group: 'FinUI' }, { key: 'foundation', label: 'Foundation', icon: 'layers', group: 'FinUI' },
+  const sections = [{ key: 'showcase', label: 'Showcase', icon: 'sparkle', group: 'FinUI' }, { key: 'blocks', label: 'Blocks', icon: 'table', group: 'FinUI' }, { key: 'foundation', label: 'Foundation', icon: 'layers', group: 'FinUI' },
     ...registry.components.map((c, i) => ({ key: c.name, label: c.name, icon: 'layers', group: CATEGORY[c.category] || 'Components', meta: metas[i] }))];
 
   const slot = h('div', { class: 'demo-stack' });
@@ -136,6 +153,7 @@ async function start() {
     document.title = `${section.label} · FinUI`;
     if (section.key === 'showcase') return showcase(slot);
     if (section.key === 'foundation') return foundation(slot);
+    if (section.key === 'blocks') return blocks(slot);
     const meta = section.meta || {};
     const paint = () => mount(slot, h('h2', { class: 'fui-page-header__title' }, meta.name || section.key), h('p', { class: 'demo-purpose' }, meta.purpose || ''), docs(meta),
       viewBar('Examples', paint), (meta.examples || []).map((x) => h('section', { class: 'demo-example' }, h('h4', { class: 'demo-name' }, x.name), frames(x.render))));
