@@ -1,8 +1,9 @@
 # FinUI
 
-The components [finstats](https://github.com/finstats/finstats) is built from: buttons, cards, tables that sort by
-meaning, dialogs that stack, a theme switch, and two dozen more. Vanilla ES modules and plain CSS, no build step and no
-dependencies, light and dark from one set of tokens.
+The components [finstats](https://github.com/finstats/finstats) is built from — sixty-seven of them: buttons, fields,
+checkboxes, sliders, date pickers and code inputs; cards, tables that sort by meaning, tabs, steps and timelines; dialogs
+that stack, drawers, popovers, menus and toasts; and charts — bars, lines, donuts, heatmaps — that read only tokens.
+Vanilla ES modules and plain CSS, no build step and no dependencies, light and dark from one set of tokens.
 
 **[See FinUI, and try its looks →](https://finstats.github.io/finui/)** · **[Make it yours in FinUI create →](https://finstats.github.io/finui/create/)**
 
@@ -77,7 +78,7 @@ animateWithin(document.body);
 
 ## Blocks
 
-The gallery's **blocks** are compositions of the components, a card's worth of an app each: seven of them, one of each
+The gallery's **blocks** are compositions of the components, a card's worth of an app each: eleven of them, one of each
 kind, each an entry of its own in its list. Each is one block with switches, not a row of fixed variants:
 
 - **Calendar**: one day, several or a range, and beside it what comes out, times, the week's plans, the pick in words.
@@ -87,6 +88,10 @@ kind, each an entry of its own in its list. Each is one block with switches, not
 - **State**: loading, empty, an error, done or a question, as it is, as a banner or in a dialog, with a way on and a way to dismiss it.
 - **Look**: a preset part by part — colours, type, buttons, badges, focus and icons, keys, facts.
 - **Page**: a table, settings or not found, with the app's menu, a page header and numbers over it.
+- **Watching**: now playing, a title's page, its seasons and episodes, and what plays next.
+- **Dashboard**: numbers with sparklines over a week of watch time, a year of plays, the top titles, when people watch, activity and downloads.
+- **Account**: a setup wizard, settings with a slider, a stepper and choices, a notifications centre, a profile and a two-step code.
+- **Library**: filters, a grid of titles, search results, a person's page and an import.
 
 They are the cards FinUI create draws a preset on, each in several of its ways (`blocks/blocks.js`, laid out by
 `blocks/blocks.css`). Each block's page shows it and its code in the same place, the code with only what is switched on:
