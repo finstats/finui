@@ -40,8 +40,7 @@ curl -fsSL https://finstats.github.io/finui/install.sh | sh -s -- 0101 --css   #
 
 Nothing but `curl` and `sh`: no package manager, no Node. The installer writes only into an empty folder (`--dir` names
 another), and fetches everything before it writes anything. Without a shell, the page downloads the stylesheet itself.
-The site, installer included, is built by the pages workflow (`tools/build-site.mjs`) on every push to `main`, once the
-checks and tests pass: FinUI's files, `finui.css`, and one small file of tokens per choice (`p/<axis>/<option>.css`),
+The site, installer included, is built by the pages workflow (`tools/build-site.mjs`) on every push to `main`: FinUI's files, `finui.css`, and one small file of tokens per choice (`p/<axis>/<option>.css`),
 which the installer fetches in axis order, so a later choice sets a token last, as the page does. A preset is nothing but tokens: a `:root` block
 after `tokens.css`, which you can also copy from the page and paste into a FinUI you already have. The choices live in
 `create/presets.json` and are worked into tokens by `create/preset.js`, the one module both the page and the site's
@@ -118,9 +117,7 @@ The theme follows the device (`color-scheme: light dark`); `data-theme="light"` 
 Fonts are Inter and JetBrains Mono, in `fonts/` beside `base.css`.
 
 `registry.json` lists every component with its files, the tokens its CSS reads and the components it is built with.
-`node tools/check.mjs` holds the registry to the files and keeps the rules above, and `node --test test/*.test.mjs` holds
-the presets, the site and the installer (run with `sh` against the built site); both run before every publish and on
-every pull request.
+FinUI's rule checker and tests are kept privately, not in this repository, and run before every change is published.
 
 ## Where it is made
 
