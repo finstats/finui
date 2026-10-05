@@ -4,7 +4,7 @@ The components [finstats](https://github.com/finstats/finstats) is built from: b
 meaning, dialogs that stack, a theme switch, and two dozen more. Vanilla ES modules and plain CSS, no build step and no
 dependencies, light and dark from one set of tokens.
 
-**[See every component in both themes →](https://finstats.github.io/finui/)** · **[Make it yours in FinUI create →](https://finstats.github.io/finui/create/)**
+**[See FinUI, and try its looks →](https://finstats.github.io/finui/)** · **[Make it yours in FinUI create →](https://finstats.github.io/finui/create/)**
 
 ## What it is
 
@@ -50,10 +50,13 @@ button and menu style keeps its words readable, and every token a choice sets is
 
 ## Trying a component
 
-Each component's page in the gallery has one example to play with: switches turn its features on, a choice picks
-between its variants, and it is drawn again in both themes at every change. The calendar, for one: a day, several
-days or a range, marked days, limits, a week that starts on Sunday — and its buttons and keys work as they will in an
-app, because a component that only looks right is no component.
+The site opens on a page of an app built from FinUI, which any of FinUI create's whole looks restyles in place, beside the
+one line that installs the look picked. Every component and block then has a page of its own laid out as a workbench: the
+list of its kind, its example as large as the screen allows and its switches beside it, all on one screen. Switches turn
+its features on and a choice picks between its variants; the example is drawn in the page's theme, or in both themes side
+by side, or at 360 px, without losing what the switches made of it. The calendar, for one: a day, several days or a range,
+marked days, limits, a week that starts on Sunday — and its buttons and keys work as they will in an app, because a
+component that only looks right is no component.
 
 ## Icons that move
 
@@ -86,7 +89,7 @@ kind, each an entry of its own in its list. Each is one block with switches, not
 - **Page**: a table, settings or not found, with the app's menu, a page header and numbers over it.
 
 They are the cards FinUI create draws a preset on, each in several of its ways (`blocks/blocks.js`, laid out by
-`blocks/blocks.css`), shown in both themes. Each comes with its code to copy, the same code with only what is switched on:
+`blocks/blocks.css`). Each block's page shows it and its code in the same place, the code with only what is switched on:
 a module that imports FinUI from `./finui/` (where the installer puts it) and exports one function that builds the block,
 the CSS of the classes it draws, and its HTML. `blocks/source.js` works the code out of `blocks.js` and `blocks.css`, and
 the QA stage pastes it into a page with nothing but FinUI and runs it.

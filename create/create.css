@@ -1,89 +1,30 @@
-/* FinUI create's own layout: the page, the pickers and the dialog. Every colour is a FinUI token, so the page is in the
-   same two themes it shows. The preview's layout is preview.css, inside the frames. */
-body { background: var(--page-bg); }
-.create-page { max-width: 1440px; margin: 0 auto; padding: 24px 24px 48px; }
-.create-loading { padding: 40px; color: var(--text-faint); }
-.create-top { display: flex; align-items: center; justify-content: space-between; gap: 16px; flex-wrap: wrap; margin-bottom: 18px; }
-.create-brand { display: flex; align-items: baseline; gap: 12px; flex-wrap: wrap; }
-.create-brand h1 { font-size: 26px; font-weight: 700; letter-spacing: -.02em; color: var(--text-strong); }
-.create-brand p { color: var(--text-muted); }
-.create-top-right { display: flex; align-items: center; gap: 14px; flex-wrap: wrap; }
-.create-top-right a { font-size: 13px; }
-.create-link { display: inline-flex; align-items: center; gap: 8px; font-size: 13px; color: var(--text-muted); }
+/* FinUI create's layout, and nothing else: the bar, the pickers, the cards and the code line are FinUI's components,
+   which draw themselves — a test holds this file to placing them (pages-lay-out.test.mjs). The preview's layout is
+   preview.css, inside the frames. */
+.create-loading { padding: 40px; }
+.create-main { display: grid; gap: 16px; max-width: 1440px; margin: 0 auto; padding: 18px 24px 48px; }
+.create-tools { display: flex; align-items: center; gap: 14px; flex-wrap: wrap; }
+.create-link { display: inline-flex; align-items: center; gap: 8px; }
 .create-link[hidden] { display: none; }
-.create { display: grid; grid-template-columns: minmax(0, 1fr) 272px; gap: 16px; align-items: start; }
-.create-stage { border: 1px solid var(--border-soft); border-radius: var(--radius); overflow: hidden; background: var(--bg); min-width: 0; }
-.create-stage.is-both { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 1px; background: var(--border-soft); }
-.create-frame { display: block; width: 100%; height: max(560px, calc(100vh - 120px)); border: 0; background: var(--bg); }
-.create-panel { position: sticky; top: 16px; display: flex; flex-direction: column; max-height: max(560px, calc(100vh - 120px)); background: var(--bg-2); border: 1px solid var(--border-soft); border-radius: var(--radius); }
-.create-panel__body { display: grid; gap: 4px; padding: 6px 10px; overflow-y: auto; min-height: 0; }
-.create-group { display: grid; gap: 6px; padding: 8px 0 10px; }
-.create-group + .create-group { border-top: 1px solid var(--border-soft); }
-.create-group__name { font-size: 11px; font-weight: 600; letter-spacing: .04em; text-transform: uppercase; color: var(--text-faint); }
-.create-picker { position: relative; }
-.create-picker__button {
-  display: flex; align-items: center; justify-content: space-between; gap: 10px; width: 100%; padding: 7px 10px; text-align: left;
-  background: transparent; border: 1px solid var(--border-soft); border-radius: var(--radius-sm); transition: background var(--ease), border-color var(--ease);
-}
-.create-picker__button:hover, .create-picker.is-open .create-picker__button { background: var(--hover); border-color: var(--border); }
-.create-picker__text { display: grid; min-width: 0; }
-.create-picker__label { font-size: 11.5px; color: var(--text-faint); }
-.create-picker__value { font-size: 13px; font-weight: 550; color: var(--text); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
-.create-picker__mark { display: inline-grid; place-items: center; width: 18px; height: 18px; flex: none; color: var(--text-muted); }
-/* The lock sits left of the mark: hidden until the picker is pointed at or focused, and always once it is on. */
-.create-picker__lock {
-  position: absolute; top: 50%; right: 36px; transform: translateY(-50%); display: grid; place-items: center; width: 24px; height: 24px; padding: 0;
-  background: transparent; border: 0; border-radius: var(--radius-sm); color: var(--text-faint); opacity: 0; transition: opacity var(--ease), background var(--ease);
-}
-.create-picker__lock:hover { background: var(--btn-hover); color: var(--text); }
-.create-picker:hover .create-picker__lock, .create-picker:focus-within .create-picker__lock, .create-picker.is-locked .create-picker__lock { opacity: 1; }
-.create-picker.is-locked .create-picker__lock { color: var(--accent-hi); }
-@media (hover: none) and (pointer: coarse) { .create-picker__lock { opacity: 1; } }
-.create-picker__list {
-  position: absolute; top: calc(100% + 4px); left: 0; right: 0; z-index: 30; max-height: 300px; overflow-y: auto; padding: 4px;
-  background: var(--bg-2); border: 1px solid var(--border); border-radius: var(--radius); box-shadow: 0 12px 32px color-mix(in srgb, var(--shadow) 50%, transparent);
-}
-.create-picker__list:focus { outline: none; }
-.create-picker.is-up .create-picker__list { top: auto; bottom: calc(100% + 4px); }
-.create-picker__option { display: flex; align-items: center; gap: 8px; padding: 6px 8px; border-radius: var(--radius-sm); font-size: 13px; cursor: pointer; }
-.create-picker__option.is-active { background: var(--hover); }
-.create-picker__option[aria-selected="true"] { color: var(--accent-hi); }
-.create-picker__check { margin-left: auto; }
-.create-mark--halves { display: inline-flex; width: 16px; height: 16px; border-radius: 50%; overflow: hidden; box-shadow: 0 0 0 1px var(--border); }
-.create-mark--halves > span { flex: 1; }
-.create-mark--dots { display: inline-grid; grid-template-columns: repeat(2, 7px); gap: 2px; }
-.create-mark--dots > span { width: 7px; height: 7px; border-radius: 50%; }
-.create-mark--font { font-size: 15px; font-weight: 500; line-height: 1; color: var(--text); }
-.create-mark--corner { width: 13px; height: 13px; border-top: 2px solid currentColor; border-left: 2px solid currentColor; margin: 3px 0 0 3px; }
-.create-panel__foot { display: grid; gap: 8px; padding: 12px; border-top: 1px solid var(--border-soft); background: var(--bg-sunken); border-radius: 0 0 var(--radius) var(--radius); }
-.create-panel__label { font-size: 11.5px; }
-.create-code-row { display: flex; align-items: center; justify-content: space-between; gap: 6px; min-width: 0; }
-.create-code { font-size: 13px; color: var(--text-strong); overflow-wrap: anywhere; }
-.create-panel__actions { display: flex; flex-wrap: wrap; gap: 6px; }
-.create-panel__actions > * { flex: 1 1 auto; }
+.create { display: grid; grid-template-columns: minmax(0, 1fr) 300px; gap: 16px; align-items: start; }
+.create-stage { overflow: hidden; }
+.create-stage > .fui-card__body { padding: 0; }
+.create-frames.is-both { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 1px; }
+.create-frame { display: block; width: 100%; height: max(560px, calc(100vh - 190px)); border: 0; }
+/* The panel keeps to the screen beside the preview and scrolls in itself. */
+.create-panel { position: sticky; top: 72px; display: grid; gap: 10px; align-content: start; max-height: calc(100vh - 88px); overflow-y: auto; overscroll-behavior: contain; scrollbar-width: thin; }
+.create-group > .fui-card__body, .create-preset > .fui-card__body { display: grid; gap: 6px; }
+.create-actions { display: flex; flex-wrap: wrap; gap: 6px; }
+.create-actions > * { flex: 1 1 auto; }
 .create-install { display: grid; gap: 12px; }
 .create-install__pane { display: grid; gap: 8px; justify-items: start; }
-.create-install__foot { font-size: 12.5px; }
-.create-snippet-wrap { display: grid; gap: 8px; justify-items: start; width: 100%; }
-.create-snippet {
-  width: 100%; margin: 0; max-height: 320px; overflow: auto; padding: 10px 12px; font-size: 12px; white-space: pre-wrap; overflow-wrap: anywhere;
-  background: var(--bg-sunken); border: 1px solid var(--border-soft); border-radius: var(--radius-sm); color: var(--text);
-}
+.create-install__pane > .fui-code-block--line, .create-install__pane > .fui-code-block { width: 100%; }
 .create-open { display: grid; gap: 8px; }
 .create-open__actions { display: flex; justify-content: flex-end; margin-top: 4px; }
 @media (max-width: 900px) {
   .create { grid-template-columns: minmax(0, 1fr); }
-  .create-panel { position: static; order: -1; max-height: none; }
-  .create-panel__body { grid-template-columns: repeat(auto-fit, minmax(min(100%, 220px), 1fr)); column-gap: 12px; }
-  .create-stage.is-both { grid-template-columns: minmax(0, 1fr); }
+  .create-panel { position: static; order: -1; max-height: none; overflow: visible; grid-template-columns: repeat(auto-fit, minmax(min(100%, 260px), 1fr)); }
+  .create-frames.is-both { grid-template-columns: minmax(0, 1fr); }
   .create-frame { height: 75vh; min-height: 480px; }
 }
-@media (max-width: 560px) { .create-page { padding: 16px 16px 40px; } }
-/* The style picker: each option with its line, and three dots of its colours. */
-.create-mark--style { display: inline-flex; gap: 2px; }
-.create-mark--style > span { width: 6px; height: 14px; border-radius: 3px; box-shadow: 0 0 0 1px var(--border); }
-.create-picker__about { display: grid; gap: 1px; min-width: 0; }
-.create-picker__name { font-weight: 550; }
-.create-picker__blurb { font-size: 12px; line-height: 1.35; color: var(--text-faint); }
-.create-picker__option[aria-selected="true"] .create-picker__blurb { color: var(--text-muted); }
-.create-picker__list:has(.create-picker__blurb) { max-height: 380px; }
+@media (max-width: 560px) { .create-main { padding: 16px 16px 40px; } }

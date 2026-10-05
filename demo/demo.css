@@ -1,56 +1,96 @@
-/* The demo site's own layout. Every colour is a FinUI token: the page is in the same two themes it shows. */
-body { background: var(--page-bg); }
-.demo { max-width: 1240px; margin: 0 auto; padding: 28px 24px 64px; }
-.demo-loading { padding: 40px; color: var(--text-faint); }
-.demo-top { display: flex; align-items: center; justify-content: space-between; gap: 16px; flex-wrap: wrap; margin-bottom: 22px; }
-.demo-brand { display: flex; align-items: baseline; gap: 12px; flex-wrap: wrap; }
-.demo-brand h1 { font-size: 26px; font-weight: 700; letter-spacing: -.02em; color: var(--text-strong); }
-.demo-brand p { color: var(--text-muted); }
-.demo-top-right { display: flex; align-items: center; gap: 14px; }
-.demo-top-right a { font-size: 13px; }
-.demo-purpose { font-size: 15px; color: var(--text); max-width: 70ch; }
-.demo-h { font-size: 13px; font-weight: 600; color: var(--text-muted); }
-.demo-bar { display: flex; align-items: center; justify-content: space-between; gap: 12px; flex-wrap: wrap; }
-.demo-about, .demo-props { display: grid; grid-template-columns: minmax(90px, 30%) minmax(0, 1fr); gap: 6px 16px; font-size: 13px; }
-.demo-about dt, .demo-props dt { color: var(--text-faint); overflow-wrap: anywhere; }
-.demo-stack { display: grid; gap: 16px; }
-.demo-example { display: grid; gap: 8px; }
-.demo-name { font-size: 12.5px; font-weight: 550; color: var(--text-faint); }
-.demo-frames { display: grid; grid-template-columns: repeat(auto-fit, minmax(min(100%, 320px), 1fr)); gap: 12px; }
-.demo-frames.is-single { grid-template-columns: repeat(auto-fit, minmax(min(100%, 360px), max-content)); }
-/* A frame decides its own theme: light-dark() follows the colour scheme of the element that uses it. */
-.demo-frame { padding: 20px; border: 1px solid var(--border-soft); border-radius: var(--radius); background: var(--bg); color: var(--text); min-width: 0; }
-.demo-frame.is-light { color-scheme: light; }
-.demo-frame.is-dark { color-scheme: dark; }
-.demo-frame.is-phone { width: 360px; max-width: 100%; padding: 16px; }
-.demo-icons { display: grid; grid-template-columns: repeat(auto-fill, minmax(150px, 1fr)); gap: 6px; }
-.demo-icon__still, .demo-icon__moving { display: inline-grid; color: var(--text); }
-.demo-icon { display: flex; align-items: center; gap: 8px; font-size: 11.5px; color: var(--text-muted); min-width: 0; }
+/* The FinUI site's layout, and nothing else: every part on the page is a FinUI component, which draws itself — a test
+   holds this file to placing them (pages-lay-out.test.mjs). The landing's preview frame loads it too, for the page
+   drawn in it. */
+.demo { --site-top: 56px; display: flex; flex-direction: column; min-height: 100vh; }
+.demo-loading { padding: 40px; }
+/* Out of sight until the keyboard comes to it. */
+.site-skip:not(:focus) { position: absolute; top: -100px; left: 12px; }
+.site-skip:focus { position: absolute; top: 10px; left: 12px; z-index: 40; }
+.site-main { flex: 1; width: 100%; max-width: 1480px; margin: 0 auto; padding: 18px 24px 40px; }
+.site-foot { width: 100%; max-width: 1480px; margin: 0 auto; padding: 18px 24px 28px; }
+.site-page { display: grid; gap: 16px; }
+
+/* ---- the landing: the hero fills the first screen, everything in FinUI follows */
+.landing-hero { min-height: calc(100vh - var(--site-top) - 36px); padding-bottom: 12px; }
+.landing-looks { display: grid; gap: 8px; }
+.landing-preview { height: clamp(440px, calc(100vh - var(--site-top) - 72px), 820px); overflow: hidden; }
+.landing-preview > .fui-card__body { height: 100%; padding: 0; }
+.landing-preview iframe { display: block; width: 100%; height: 100%; border: 0; }
+.landing-preview__body { padding: 22px; }
+.demo-living { max-width: 980px; margin: 0 auto; }
+.landing-group { display: grid; gap: 14px; padding-top: 34px; }
+.landing-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(230px, 1fr)); gap: 8px; }
+
+/* ---- a workbench: the list of its kind, then the example as large as the screen allows with its switches beside it */
+.wb { --bench-h: clamp(380px, calc(100vh - var(--site-top) - 156px), 940px); display: grid; grid-template-columns: 236px minmax(0, 1fr); gap: 28px; align-items: start; }
+.wb-side { position: sticky; top: calc(var(--site-top) + 18px); }
+/* The list scrolls in itself, never with the page. */
+.wb-side .fui-sections__nav { position: static; max-height: calc(100vh - var(--site-top) - 36px); overflow-y: auto; overscroll-behavior: contain; padding-right: 4px; scrollbar-width: thin; }
+.wb-find { margin-bottom: 10px; }
+.wb-find .fui-field__input { width: 100%; }
+.wb-side .fui-sections__group[hidden], .wb-side .fui-sections__link[hidden] { display: none; }
+.wb-side.is-long .fui-sections__link .icon { display: none; }
+/* A long list (the components) fits the screen as it is: two columns of names under their groups. */
+@media (min-width: 901px) {
+  .wb-side.is-long .fui-sections__nav { gap: 12px; }
+  .wb-side.is-long .fui-sections__group { display: block; columns: 2; column-gap: 4px; }
+  .wb-side.is-long .fui-sections__group-title { column-span: all; }
+  .wb-side.is-long .fui-sections__link { padding: 4px 8px; break-inside: avoid; }
+  .wb-side.is-long .fui-sections__link span { min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+}
+.wb-main { display: grid; gap: 14px; min-width: 0; }
+.wb-tools { display: flex; align-items: center; gap: 10px; flex-wrap: wrap; }
+
+/* As tall as its example needs, between a stage worth the name and the screen; the switches beside it as tall. */
+.wb-bench { display: grid; grid-template-columns: minmax(0, 1fr) 270px; gap: 12px; max-height: var(--bench-h); }
+.wb-canvas { min-width: 0; min-height: 0; }
+.wb-canvas > .demo-frames { height: 100%; }
+.wb-canvas .demo-frame { display: flex; flex-direction: column; align-items: safe center; justify-content: safe center; height: 100%; min-height: 380px; max-height: var(--bench-h); overflow: auto; }
+.wb-canvas .demo-frame > * { max-width: 100%; }
+.wb-canvas .demo-frames.is-phone { display: flex; justify-content: center; }
+.wb-panel { display: flex; flex-direction: column; min-height: 0; overflow-y: auto; }
+.wb-panel .fui-setting-row__rows > .fui-setting-row { padding-top: 8px; padding-bottom: 8px; }
+/* A choice stands under its name, from the left, in the panel's whole width. */
+.wb-panel .demo-play__control--choice { flex-direction: column; align-items: stretch; gap: 6px; }
+.wb-panel .demo-play__control--choice .fui-setting-row__control { justify-content: flex-start; }
+.demo-play__select { width: 100%; }
+
+/* A block: its preview and its code take turns in one place. */
+.wb-area { max-height: var(--bench-h); }
+.wb-area[data-tab="preview"] > .wb-codebox, .wb-area[data-tab="code"] > .wb-bench { display: none; }
+.wb-codebox { height: var(--bench-h); }
+.wb-area .demo-frame > * { width: min(100%, 520px); }
+
+.wb-docs { display: grid; grid-template-columns: repeat(auto-fit, minmax(min(100%, 380px), 1fr)); gap: 12px; align-items: start; margin-top: 12px; }
+
+/* ---- frames, and what the foundation lists in them */
+.demo-frames { display: grid; gap: 12px; }
+.demo-frames.is-both { grid-template-columns: repeat(auto-fit, minmax(min(100%, 300px), 1fr)); }
+.demo-icons { display: grid; grid-template-columns: repeat(auto-fill, minmax(150px, 1fr)); gap: 6px; width: 100%; }
+.demo-icon__still, .demo-icon__moving { display: inline-grid; }
+.demo-icon { display: flex; align-items: center; gap: 8px; min-width: 0; }
 .demo-icon .mono { overflow: hidden; text-overflow: ellipsis; }
-.demo-swatches { display: grid; grid-template-columns: repeat(auto-fill, minmax(150px, 1fr)); gap: 10px; }
-.demo-swatch { display: grid; gap: 4px; font-size: 11.5px; color: var(--text-muted); min-width: 0; }
-.demo-swatch-chip { height: 34px; border-radius: var(--radius-sm); border: 1px solid var(--border-soft); }
-.demo-grid-2 { display: grid; grid-template-columns: repeat(auto-fit, minmax(min(100%, 360px), 1fr)); gap: 16px; }
+.demo-swatches { display: grid; grid-template-columns: repeat(auto-fill, minmax(190px, 1fr)); gap: 8px; width: 100%; }
+.demo-swatch { display: flex; align-items: center; gap: 8px; min-width: 0; }
+/* The page in the landing's preview. */
+.demo-stack { display: grid; gap: 16px; }
+.demo-grid-2 { display: grid; grid-template-columns: repeat(auto-fit, minmax(min(100%, 340px), 1fr)); gap: 16px; }
 .demo-row { display: flex; flex-wrap: wrap; align-items: center; gap: 10px; }
-.demo-foot { margin-top: 40px; color: var(--text-faint); font-size: 12.5px; }
-@media (max-width: 560px) { .demo-about, .demo-props { grid-template-columns: minmax(0, 1fr); } .demo { padding: 20px 16px 48px; } }
-/* A block: its name and a way to copy it, a line on what it shows, then the block in both themes. */
-.demo-block { display: grid; gap: 6px; }
-.demo-block__head { display: flex; align-items: center; gap: 10px; }
-.demo-block__head .demo-name { margin: 0; }
-.demo-block .demo-frame > * { max-width: 460px; }
-/* A wide block (a table, a page of settings) takes the whole width, its themes one above the other. */
-.demo-block.is-wide .demo-frames { grid-template-columns: minmax(0, 1fr); }
-.demo-block.is-wide .demo-frame > * { max-width: none; }
-/* A block's code: which of three to take, a way to copy it, how to use it, the code. */
-.demo-code { display: grid; gap: 10px; margin-top: 16px; padding: 12px; background: var(--bg-sunken); border: 1px solid var(--border-soft); border-radius: var(--radius); min-width: 0; }
-.demo-code__bar { display: flex; align-items: center; justify-content: space-between; gap: 10px; }
-.demo-code__how { font-size: 12.5px; color: var(--text-muted); }
-.demo-code__pane { margin: 0; max-height: 460px; overflow: auto; padding: 12px; font-size: 12px; line-height: 1.55; white-space: pre; background: var(--bg-2); border: 1px solid var(--border-soft); border-radius: var(--radius-sm); color: var(--text); }
-.demo-code__pane[data-lang="html"] { white-space: pre-wrap; overflow-wrap: anywhere; }
-/* A component to play with: its switches and choices in a row above it. */
-.demo-play { display: grid; gap: 12px; }
-.demo-play__controls { display: flex; flex-wrap: wrap; align-items: center; gap: 10px 22px; padding: 10px 12px; background: var(--bg-2); border: 1px solid var(--border-soft); border-radius: var(--radius); }
-.demo-play__control { display: inline-flex; align-items: center; gap: 8px; font-size: 13px; color: var(--text); }
-.demo-play__control--choice .demo-play__label { color: var(--text-muted); }
-.demo-play__select { width: auto; min-height: 30px; padding-top: 4px; padding-bottom: 4px; font-size: 12.5px; }
+
+@media (max-width: 1080px) {
+  .landing-hero { min-height: 0; padding-top: 14px; }
+  .landing-preview { height: 520px; }
+}
+@media (max-width: 900px) {
+  .wb { grid-template-columns: minmax(0, 1fr); gap: 14px; }
+  .wb-side { position: static; }
+  .wb-side .fui-sections__nav { max-height: none; flex-direction: row; flex-wrap: nowrap; overflow-x: auto; padding-bottom: 4px; }
+  .wb-bench, .wb-area { max-height: none; }
+  .wb-bench { grid-template-columns: minmax(0, 1fr); }
+  .wb-canvas .demo-frame { height: auto; min-height: 240px; max-height: none; }
+  .wb-codebox { height: auto; }
+}
+@media (max-width: 560px) {
+  .site-main, .site-foot { padding-left: 14px; padding-right: 14px; }
+  .landing-preview { height: 440px; }
+}
