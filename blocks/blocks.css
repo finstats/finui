@@ -117,3 +117,21 @@
 .blk-side__item.is-active { background: var(--selected-bg); color: var(--selected-text); box-shadow: var(--selected-edge); }
 .blk-side__item.is-active .icon { color: var(--selected-icon); }
 .blk-side__user { display: flex; align-items: center; gap: 10px; margin-top: 12px; padding: 10px 4px 0; border-top: 1px solid var(--border-soft); font-size: 13px; }
+
+/* ---- the larger families: watching, a dashboard, an account, a library */
+.blk-stack--loose { gap: 22px; }
+/* A title's top: its poster beside what it is and what can be done with it. */
+.blk-title { display: grid; grid-template-columns: 96px minmax(0, 1fr); gap: 16px; align-items: start; }
+.blk-title__name { font-size: 18px; font-weight: 650; color: var(--text-strong); }
+/* A season's episodes: the number, the name and what is seen, a tick when it all is. */
+.blk-episodes { display: grid; gap: 8px; margin: 0; padding: 0; list-style: none; }
+.blk-episodes__row { display: grid; grid-template-columns: 34px minmax(0, 1fr) auto; align-items: center; gap: 10px; }
+.blk-episodes__row.is-seen .icon { color: var(--good); }
+.blk-upnext { display: flex; align-items: center; gap: 12px; padding: 10px 12px; border: 1px solid var(--border-soft); border-radius: var(--radius-control); background: var(--bg-sunken); }
+/* A dashboard: its parts in as many columns as there is room for, numbers and charts across the whole. */
+.blk-dash { display: grid; grid-template-columns: repeat(auto-fit, minmax(min(100%, 320px), 1fr)); gap: 22px 26px; align-items: start; }
+.blk-dash__part:has(> .fui-stat-tile__grid) { grid-column: 1 / -1; }
+.blk-profile { display: flex; align-items: center; gap: 14px; }
+.blk-profile > .blk-stack { flex: 1; min-width: 0; }
+@media (max-width: 480px) { .blk-title { grid-template-columns: 72px minmax(0, 1fr); } }
+.blk-slider { width: 200px; }

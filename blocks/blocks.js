@@ -6,7 +6,7 @@
 import { h, s, icon } from '../core.js';
 import { button } from '../components/button/button.js';
 import { card } from '../components/card/card.js';
-import { chip, chipToggle, chipSet, removableChip } from '../components/chip/chip.js';
+import { chip, chipToggle, chipChoice, chipSet, removableChip } from '../components/chip/chip.js';
 import { badge, status } from '../components/badge/badge.js';
 import { statTile } from '../components/stat-tile/stat-tile.js';
 import { dataTable } from '../components/data-table/data-table.js';
@@ -27,6 +27,28 @@ import { copyButton } from '../components/copy/copy.js';
 import { formField } from '../components/field/field.js';
 import { sectionNav, sectionLayout } from '../components/sections/sections.js';
 import { calendar as monthPicker } from '../components/calendar/calendar.js';
+import { progressBar, progressRing } from '../components/progress/progress.js';
+import { avatarGroup } from '../components/avatar-group/avatar-group.js';
+import { tabs } from '../components/tabs/tabs.js';
+import { dropdownMenu } from '../components/dropdown-menu/dropdown-menu.js';
+import { steps } from '../components/steps/steps.js';
+import { otp } from '../components/otp/otp.js';
+import { slider } from '../components/slider/slider.js';
+import { numberStepper } from '../components/number-stepper/number-stepper.js';
+import { choiceGroup } from '../components/choice/choice.js';
+import { tagInput } from '../components/tag-input/tag-input.js';
+import { fileDrop } from '../components/file-drop/file-drop.js';
+import { callout } from '../components/callout/callout.js';
+import { toast } from '../components/toast/toast.js';
+import { breadcrumb } from '../components/breadcrumb/breadcrumb.js';
+import { shelf } from '../components/shelf/shelf.js';
+import { mediaCard, mediaGrid } from '../components/media-card/media-card.js';
+import { barChart } from '../components/bar-chart/bar-chart.js';
+import { lineChart } from '../components/line-chart/line-chart.js';
+import { heatmap as heatGrid } from '../components/heatmap/heatmap.js';
+import { sparkline } from '../components/sparkline/sparkline.js';
+import { barList as barRanks } from '../components/bar-list/bar-list.js';
+import { timeline as eventLine } from '../components/timeline/timeline.js';
 
 const SERIES = [['Films', 1], ['Episodes', 2], ['Music', 3], ['Other', 4]];
 const noop = () => {};
@@ -626,11 +648,206 @@ function appSidebar() {
 // ---------------------------------------------------------------- the blocks: switches made into calls
 
 /** Every part a switch can put in, by the name the code calls it. */
+// ---------------------------------------------------------------- watching: what is on now, a title, what comes next
+
+const STREAMS = [
+  { title: 'Sintel', who: ['alice'], device: 'Living room TV', how: ['good', 'Direct play'], at: 0.62, left: '5 min left' },
+  { title: 'Low Orbit · S2E5', who: ['bob', 'carol'], device: 'Phone', how: ['warning', 'Transcode'], at: 0.18, left: '38 min left' },
+  { title: 'Tears of Steel', who: ['dave'], device: 'Laptop', how: ['good', 'Direct stream'], at: 0.91, left: '1 min left' },
+];
+/** What is playing now: each stream's title, who is watching it and where, how it plays, and how far along it is. */
+function nowPlaying() {
+  return h('ul', { class: 'blk-list' }, STREAMS.map((st) => h('li', { class: 'blk-list__row' }, poster(null, st.title, { cls: 'fui-poster--sm' }),
+    h('div', { class: 'blk-list__text' }, h('strong', null, st.title), h('span', { class: 'muted' }, `${st.device} · ${st.left}`), meter({ value: st.at, block: true, label: `${st.title}, how far along` })),
+    h('div', { class: 'blk-value' }, avatarGroup({ people: st.who.map((name) => ({ name })), max: 3, size: 24 }), status({ tone: st.how[0] }, st.how[1])))));
+}
+/** A title's own page, at its top: its poster, what it is, what can be done with it, and its parts under tabs. */
+function titlePage() {
+  return h('div', { class: 'blk-stack' },
+    h('div', { class: 'blk-title' }, poster(null, 'Low Orbit', { cls: 'fui-poster--grid' }),
+      h('div', { class: 'blk-stack blk-stack--tight' },
+        breadcrumb({ items: [{ label: 'Shows', href: '#' }, { label: 'Low Orbit' }] }),
+        h('strong', { class: 'blk-title__name' }, 'Low Orbit'), h('span', { class: 'muted' }, '2021 · 2 seasons · Drama, Science fiction'),
+        h('div', { class: 'blk-row' }, button({ variant: 'primary', size: 'sm' }, icon('play', 13), 'Open in Jellyfin'), button({ size: 'sm' }, icon('bookmark', 13), 'Watchlist'),
+          dropdownMenu({ label: 'More', icon: 'menu', iconOnly: true, items: [{ label: 'Copy link', icon: 'link' }, { label: 'Mark as watched', icon: 'check' }] })))),
+    tabs({ label: 'Low Orbit', tabs: [
+      { key: 'about', label: 'Overview', panel: () => facts([['Seen by', '4 people'], ['Plays', '31'], ['Files', '1080p HEVC'], ['Added', '3 weeks ago']]) },
+      { key: 'plays', label: 'Plays', count: 31, panel: () => h('p', { class: 'muted' }, '31 plays by 4 people, the last on Friday.') },
+    ] }));
+}
+const EPISODES = [['Lift-off', 1], ['Burn', 1], ['Drift', 1], ['The Far Side', 0.4], ['Re-entry', 0]];
+/** A show's seasons under tabs, each episode with what is seen of it. */
+function seasonEpisodes() {
+  const season = () => h('ol', { class: 'blk-episodes' }, EPISODES.map(([name, seen], i) => h('li', { class: ['blk-episodes__row', seen === 1 && 'is-seen'] },
+    h('span', { class: 'blk-rank mono' }, `E${i + 1}`),
+    h('div', { class: 'blk-list__text' }, h('strong', null, name), seen > 0 && seen < 1 ? meter({ value: seen, block: true, label: `${name}, how far along` }) : h('span', { class: 'muted' }, seen ? 'Seen' : `${42 + i} min`)),
+    seen === 1 ? icon('check', 15) : null)));
+  return tabs({ label: 'Seasons', value: 's2', tabs: [{ key: 's1', label: 'Season 1', count: 5, panel: season }, { key: 's2', label: 'Season 2', count: 5, panel: season }] });
+}
+/** The next episode, starting by itself unless cancelled, the ring closing as it waits. */
+function upNext() {
+  return h('div', { class: 'blk-upnext' }, progressRing({ label: 'Starts in 6 seconds', value: 0.4, size: 44 }),
+    h('div', { class: 'blk-list__text' }, h('span', { class: 'muted' }, 'Up next, in 6 seconds'), h('strong', null, 'Low Orbit · S2E6 · Re-entry')),
+    button({ size: 'sm' }, 'Cancel'));
+}
+/** What is being watched: the parts switched on, one under another. */
+function watchingOf(...parts) {
+  return h('div', { class: 'blk-stack blk-stack--loose' }, parts.map((part) => part()));
+}
+
+// ---------------------------------------------------------------- dashboard: the numbers, the charts, what happened
+
+/** The numbers over a dashboard, each with how it moved and its last weeks as a sparkline. */
+function numbersRow() {
+  const r = steady(31);
+  const weeks = (base) => Array.from({ length: 12 }, (_, i) => Math.round(base + i * 2 + r.next().value * 8));
+  return h('div', { class: 'fui-stat-tile__grid' },
+    statTile({ label: 'Watch time', value: '42h', current: 42, previous: 36, vsLabel: 'vs last week', spark: sparkline({ values: weeks(20), label: 'Watch time each week, rising' }) }),
+    statTile({ label: 'Plays', value: '128', current: 128, previous: 140, vsLabel: 'vs last week', spark: sparkline({ values: weeks(30).reverse(), label: 'Plays each week, falling' }) }),
+    statTile({ label: 'People', value: '5', current: 5, previous: 5, vsLabel: 'vs last week' }));
+}
+/** A week of watch time, a column a day, stacked by kind. */
+function weekChart() {
+  const r = steady(43);
+  const day = (n) => Array.from({ length: 7 }, () => Math.round(r.next().value * n * 10) / 10);
+  return barChart({ title: 'Watch time', sub: 'Each day this week', categories: ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'], format: (v) => `${v}h`,
+    series: [{ name: 'Films', values: day(4) }, { name: 'Episodes', values: day(5) }, { name: 'Music', values: day(1.5) }] });
+}
+/** A year of plays, month by month. */
+function yearChart() {
+  const r = steady(57);
+  return lineChart({ title: 'Plays', sub: 'Each month of the last year', labels: ['Nov', 'Dec', 'Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct'],
+    series: [{ name: 'Plays', values: Array.from({ length: 12 }, (_, i) => Math.round(80 + i * 6 + r.next().value * 40)) }] });
+}
+/** The most watched titles, longest first. */
+function topTitles() {
+  return h('div', { class: 'blk-stack blk-stack--tight' }, h('strong', null, 'Most watched'),
+    barRanks({ format: (v) => `${v} plays`, max: 5, items: [['Big Buck Bunny', 31], ['Sintel', 26], ['Low Orbit', 22], ['Tears of Steel', 21], ['Cosmos Laundromat', 16], ['Spring', 9]].map(([name, value]) => ({ name, value, href: '#' })) }));
+}
+/** When people watch: the hours of each weekday, quiet to busy. */
+function whenWatched() {
+  const r = steady(71);
+  const days = ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'], hours = Array.from({ length: 24 }, (_, i) => String(i).padStart(2, '0'));
+  return heatGrid({ title: 'When people watch', sub: 'Plays by hour and weekday', rows: days, cols: hours,
+    values: days.map((_, d) => hours.map((__, hh) => Math.round((hh >= 19 && hh <= 23 ? 6 : hh >= 12 ? 2 : 0) * r.next().value + (d >= 5 && hh >= 14 ? 2 : 0)))) });
+}
+const AT = (d, hh, mm) => new Date(2026, 9, d, hh, mm).getTime();
+/** What happened lately, newest first, by day. */
+function activityFeed() {
+  return eventLine({ events: [
+    { at: AT(5, 21, 4), title: 'alice started Sintel', detail: 'Living room TV · Direct play', icon: 'play' },
+    { at: AT(5, 20, 31), title: 'Low Orbit S2E5 arrived', detail: '1080p HEVC · 1.2 GB', icon: 'download', tone: 'good' },
+    { at: AT(4, 23, 12), title: 'Sonarr stopped answering', detail: 'Coming up shows what it knew at 22:58', icon: 'alert', tone: 'warning' },
+    { at: AT(4, 19, 2), title: 'bob finished Big Buck Bunny', detail: 'Phone · Transcode', icon: 'check' },
+  ] });
+}
+/** What is downloading: each with how far along and the time left, and what needs a look. */
+function downloadsQueue() {
+  return h('div', { class: 'blk-stack' },
+    callout({ tone: 'warning', title: 'One download is stalled', body: 'Spring has not moved for 20 minutes.', action: button({ size: 'sm' }, 'Look at it') }),
+    progressBar({ label: 'Low Orbit · S2E6', value: 0.64, elapsed: 300, detail: '780 MB of 1.2 GB' }),
+    progressBar({ label: 'Cosmos Laundromat', value: 0.21, elapsed: 420, detail: '0.9 GB of 4.1 GB' }),
+    progressBar({ label: 'Spring', value: null, detail: 'Waiting for peers', tone: 'critical' }));
+}
+/** A dashboard of the parts switched on. */
+function dashboardOf(...parts) {
+  return h('div', { class: 'blk-dash' }, parts.map((part) => h('div', { class: 'blk-dash__part' }, part())));
+}
+
+// ---------------------------------------------------------------- account: setting up, settings, being told, a person
+
+/** The second step of setting up: where it is in the wizard, the question it asks, and the way on. */
+function setupWizard() {
+  return h('div', { class: 'blk-stack' },
+    steps({ steps: [{ label: 'Jellyfin' }, { label: 'Sign in' }, { label: 'History' }, { label: 'Done' }], current: 1, done: [0], onGo: noop }),
+    formField({ id: 'blk-setup-user', label: 'A Jellyfin administrator', placeholder: 'alice', help: 'Only to create the key finstats reads with.' }).el,
+    h('div', { class: 'blk-row blk-row--end' }, button({ variant: 'ghost' }, 'Back'), button({ variant: 'primary' }, 'Next')));
+}
+/** Settings in tabs: a slider, a number and a switch on one, a choice of several on the other. */
+function settingsPanel() {
+  return tabs({ label: 'Settings', tabs: [
+    { key: 'collect', label: 'Collection', panel: () => h('div', { class: 'fui-setting-row__rows' },
+      settingRow({ id: 'blk-min', label: 'Shortest play counted', help: 'Shorter plays are left out of totals.', control: h('div', { class: 'blk-slider' }, slider({ label: 'Shortest play counted', min: 0, max: 30, value: 2, hideLabel: true, format: (v) => (v ? `${v} min` : 'Every play') })) })[0],
+      settingRow({ id: 'blk-keep', label: 'Backups kept', control: numberStepper({ label: 'Backups kept', value: 5, min: 1, max: 30, unit: 'copies' }) })[0],
+      settingRow({ id: 'blk-home', label: 'Plays from home count as local', control: toggle({ checked: true, labelledby: 'blk-home-label' }) })[0]) },
+    { key: 'kinds', label: 'What counts', panel: () => choiceGroup({ label: 'Count these', kind: 'checkbox', value: ['films', 'shows'],
+      options: [{ value: 'films', label: 'Films' }, { value: 'shows', label: 'Shows' }, { value: 'music', label: 'Music', help: 'Tracks shorter than a minute are never counted.' }] }) },
+  ] });
+}
+const NOTES = [['download', 'Low Orbit S2E5 is on the server', '2 min ago', true], ['users', 'bob and carol watched together', '1 h ago', true], ['check', 'The backup is written', 'Yesterday', false]];
+/** What finstats told you: what needs a look first, then the rest, newest first, and a way to read them all. */
+function notificationsCentre() {
+  return h('div', { class: 'blk-stack' },
+    callout({ tone: 'warning', title: 'Sonarr is not answering', body: 'Coming up shows what it knew an hour ago.', action: button({ size: 'sm' }, 'Look at it') }),
+    h('ul', { class: 'blk-list' }, NOTES.map(([ic, text, when, unread]) => h('li', { class: ['blk-list__row', unread && 'is-unread'] },
+      h('span', { class: 'blk-feed__mark', 'aria-hidden': 'true' }, icon(ic, 13)), h('div', { class: 'blk-list__text' }, h('strong', null, text), h('span', { class: 'muted' }, when))))),
+    h('div', { class: 'blk-row blk-row--end' }, button({ size: 'sm', variant: 'ghost', onClick: () => toast({ text: 'Every notification is read.', tone: 'good', action: 'Undo' }) }, icon('check', 14), 'Mark all as read')));
+}
+/** A person at the top of their page: their face, their year, who they watch with, what can be done. */
+function profileHeader() {
+  return h('div', { class: 'blk-profile' }, avatar(null, 'alice', { size: 56 }),
+    h('div', { class: 'blk-stack blk-stack--tight' }, h('strong', { class: 'blk-title__name' }, 'alice'), h('span', { class: 'muted' }, 'Watching since 2021 · 212 hours this year'),
+      h('div', { class: 'blk-row' }, avatarGroup({ people: ['bob', 'carol', 'dave', 'erin', 'frank'].map((name) => ({ name })), max: 4, size: 24 }), h('span', { class: 'muted' }, 'watches with 5 others'))),
+    dropdownMenu({ label: 'alice', icon: 'menu', iconOnly: true, items: [{ label: 'Timeline', icon: 'activity' }, { label: 'Watchlist', icon: 'bookmark' }, { label: 'Share the profile', icon: 'share' }] }));
+}
+/** A code from an authenticator, in its boxes, and the way on. */
+function codeStep() {
+  return h('div', { class: 'blk-stack' }, h('p', null, 'Type the six digits from your authenticator.'), otp({ label: 'Code', length: 6, grouped: true }),
+    h('div', { class: 'blk-row blk-row--end' }, button({ variant: 'primary' }, 'Verify')));
+}
+/** An account's pages of the parts switched on. */
+function accountOf(...parts) {
+  return h('div', { class: 'blk-stack blk-stack--loose' }, parts.map((part) => part()));
+}
+
+// ---------------------------------------------------------------- library: finding, browsing, a person, bringing in
+
+/** What to show of a library: a kind, genres to keep to, an order. */
+function libraryFilters() {
+  return h('div', { class: 'blk-stack blk-stack--tight' },
+    h('div', { class: 'blk-row' }, chipChoice({ label: 'Kind', value: 'films', options: [{ value: 'films', label: 'Films' }, { value: 'shows', label: 'Shows' }, { value: 'music', label: 'Music' }] }),
+      dropdownMenu({ label: 'Newest first', icon: 'sliders', size: 'sm', items: [{ label: 'Newest first' }, { label: 'Most watched' }, { label: 'A to Z' }] })),
+    tagInput({ label: 'Genres', value: ['Drama'], placeholder: 'Keep to a genre…' }));
+}
+const SHELF = ['Big Buck Bunny', 'Sintel', 'Tears of Steel', 'Cosmos Laundromat', 'Elephants Dream', 'Spring', 'Agent 327', 'Caminandes'];
+/** A page of titles as cards, and the way to the next. */
+function titleGrid() {
+  return h('div', { class: 'blk-stack' }, mediaGrid(SHELF.slice(0, 6).map((name, i) => mediaCard({ href: '#', poster: poster(null, name, { cls: 'fui-poster--grid' }), name, sub: `${2006 + i}` }))),
+    pagination({ page: 1, perPage: 6, total: 48, onPage: noop }));
+}
+/** What a search found, by kind: titles, then people. */
+function searchResults() {
+  const row = (name, sub) => h('li', { class: 'blk-list__row' }, poster(null, name, { cls: 'fui-poster--sm' }), h('div', { class: 'blk-list__text' }, h('strong', null, name), h('span', { class: 'muted' }, sub)));
+  return h('div', { class: 'blk-stack' },
+    h('div', { class: 'fui-field__search' }, icon('search', 14), h('input', { class: 'fui-field__input fui-field__input--search', type: 'search', value: 'steel', 'aria-label': 'Search the library' })),
+    h('p', { class: 'muted' }, 'Titles'), h('ul', { class: 'blk-list' }, row('Tears of Steel', 'Film · 2012 · 12 min'), row('Man of Steel', 'Not on the server')),
+    h('p', { class: 'muted' }, 'People'), h('ul', { class: 'blk-list' }, h('li', { class: 'blk-list__row' }, avatar(null, 'Ian Hubert', { size: 32 }), h('div', { class: 'blk-list__text' }, h('strong', null, 'Ian Hubert'), h('span', { class: 'muted' }, 'Directed Tears of Steel')))));
+}
+/** A person's page: where it sits, who, and what they are in, along a shelf. */
+function personPage() {
+  return h('div', { class: 'blk-stack' }, breadcrumb({ items: [{ label: 'Cast & crew', href: '#' }, { label: 'Ian Hubert' }] }),
+    h('div', { class: 'blk-profile' }, avatar(null, 'Ian Hubert', { size: 48 }), h('div', { class: 'blk-stack blk-stack--tight' }, h('strong', { class: 'blk-title__name' }, 'Ian Hubert'), h('span', { class: 'muted' }, 'Director · in 3 titles here'))),
+    shelf({ label: 'In the library', items: SHELF.slice(0, 5).map((name, i) => mediaCard({ href: '#', poster: poster(null, name, { cls: 'fui-poster--grid' }), name, sub: `${2008 + i}` })) }));
+}
+/** Bringing history in: the steps of an import, the file being read, how far along it is. */
+function importDrop() {
+  const drop = fileDrop({ label: 'Drop a Jellystat backup here', help: 'A .jsonl or .jsonl.gz, up to 2 GB.', accept: '.jsonl,.jsonl.gz' });
+  drop.show([{ name: 'jellystat-backup-2026-09.jsonl.gz', size: 412 * 1024 ** 2, progress: 1 }]);
+  return h('div', { class: 'blk-stack' }, steps({ steps: [{ label: 'Choose' }, { label: 'Check' }, { label: 'Import' }], current: 2, done: [0, 1], onGo: noop }), drop,
+    progressBar({ label: 'Importing plays', value: 0.62, elapsed: 190, detail: '7,940 of 12,804 plays' }));
+}
+/** A library's page of the parts switched on. */
+function libraryOf(...parts) {
+  return h('div', { class: 'blk-stack blk-stack--loose' }, parts.map((part) => part()));
+}
+
 const PARTS = { stackedBars, twoLines, areaOfOne, donut, rings, radar, heatmap, barList, storageBar, numbersAbove, summary, exportButton,
   whatComesOut, times, weekPlans, inWords, serverAddress, userName, names, email, password, twoStepCode, remember, service, people, file, notifySwitches, newKey,
   pictures, lineUnder, values, progress, states, unread, roles, timeline, filters, loading, empty, failed, done, question,
-  colours, typeSample, buttonsRow, badgesRow, focusRow, keysRow, factsRow, playsTable, settingsPage, notFound };
-const BUILD = { dateBlock, chartOf, formOf, listOf, stateOf, lookOf, pageOf };
+  colours, typeSample, buttonsRow, badgesRow, focusRow, keysRow, factsRow, playsTable, settingsPage, notFound,
+  nowPlaying, titlePage, seasonEpisodes, upNext, numbersRow, weekChart, yearChart, topTitles, whenWatched, activityFeed, downloadsQueue,
+  setupWizard, settingsPanel, notificationsCentre, profileHeader, codeStep, libraryFilters, titleGrid, searchResults, personPage, importDrop };
+const BUILD = { dateBlock, chartOf, formOf, listOf, stateOf, lookOf, pageOf, watchingOf, dashboardOf, accountOf, libraryOf };
 /** An option as code says it: strings quoted, the rest as they are. */
 const lit = (opts) => { const set = Object.entries(opts).filter(([, v]) => v !== undefined); return set.length ? `{ ${set.map(([k, v]) => `${k}: ${typeof v === 'string' ? `'${v}'` : v}`).join(', ')} }` : '{}'; };
 /** A block's switches made into a call — its builder, its options, the parts that are on — which draws the block and is
@@ -664,6 +881,14 @@ const STATES = { loading: 'loading', empty: 'empty', error: 'failed', done: 'don
 const STATE_OF = { loading: 'Library', empty: 'Recent plays', error: 'Recent plays', done: 'Import', question: 'Notifications' };
 const LOOK_PARTS = [['colours', 'colours'], ['type', 'typeSample'], ['buttons', 'buttonsRow'], ['badges', 'badgesRow'], ['focus', 'focusRow'], ['keys', 'keysRow'], ['facts', 'factsRow']];
 const PAGES = { table: 'playsTable', settings: 'settingsPage', notFound: 'notFound' };
+/** The four families made of FinUI's larger parts: each switch a part, in the order they are listed. */
+const WATCHING = [['now', 'Now playing', 'nowPlaying', true], ['title', 'The title', 'titlePage'], ['episodes', 'Episodes', 'seasonEpisodes'], ['next', 'Up next', 'upNext']];
+const DASHBOARD = [['numbers', 'Numbers', 'numbersRow', true], ['week', 'A week of watch time', 'weekChart', true], ['year', 'A year of plays', 'yearChart'], ['top', 'Top titles', 'topTitles'],
+  ['when', 'When people watch', 'whenWatched'], ['activity', 'Activity', 'activityFeed'], ['downloads', 'Downloads', 'downloadsQueue']];
+const ACCOUNT = [['setup', 'Setup', 'setupWizard'], ['settings', 'Settings', 'settingsPanel', true], ['notes', 'Notifications', 'notificationsCentre'], ['profile', 'Profile', 'profileHeader'], ['code', 'Two-step code', 'codeStep']];
+const LIBRARY = [['filters', 'Filters', 'libraryFilters', true], ['titles', 'Titles', 'titleGrid', true], ['search', 'Search results', 'searchResults'], ['person', 'A person', 'personPage'], ['import', 'An import', 'importDrop']];
+/** A family's switches and the call they make: its builder with the parts that are on, in a card of `title`. */
+const family = (list, fn, title) => playable(list.map(([key, label, , on]) => ({ key, label, on: !!on })), (o) => ({ title, fn, options: null, parts: list.filter(([key]) => o[key]).map(([, , part]) => part) }));
 
 /** Every block: a key, its name in the gallery's list and an icon there, a line on what it is, its switches (`playground`),
  *  the ways FinUI create shows it (`preview`, options for its switches), and as it opens (`render`). `wide` blocks take a
@@ -729,4 +954,20 @@ export const BLOCKS = [
       parts: [PAGES[o.content || 'table'], o.numbers && 'numbersAbove'].filter(Boolean) })),
     preview: [{ content: 'table', header: false }, { content: 'settings', header: false }, { content: 'table', sidebar: true, header: true, numbers: true }],
     render: () => pageOf({}, playsTable) },
+  { key: 'watching', name: 'Watching', group: 'Blocks', icon: 'play', title: 'Watching', about: 'What is on now, a title’s page, its seasons and episodes, and what plays next — each switched on as a part.',
+    playground: family(WATCHING, 'watchingOf', 'Watching'),
+    preview: [{ now: true }, { title: true }, { episodes: true, next: true }, { now: true, next: true }],
+    render: () => card({ title: 'Watching', body: watchingOf(nowPlaying) }) },
+  { key: 'dashboard', name: 'Dashboard', group: 'Blocks', icon: 'chart', title: 'Dashboard', wide: true, about: 'A dashboard of numbers over charts: a week of watch time, a year of plays, the top titles, when people watch, what happened, what is downloading.',
+    playground: family(DASHBOARD, 'dashboardOf', 'Overview'),
+    preview: [{ numbers: true, week: true }, { year: true, top: true }, { when: true }, { activity: true, downloads: true }],
+    render: () => card({ title: 'Overview', body: dashboardOf(numbersRow, weekChart) }) },
+  { key: 'account', name: 'Account', group: 'Blocks', icon: 'user', title: 'Account', about: 'Setting up, settings with sliders, numbers and choices, what finstats told you, a person’s header, and a two-step code.',
+    playground: family(ACCOUNT, 'accountOf', 'Account'),
+    preview: [{ setup: true }, { settings: true }, { notes: true }, { profile: true, code: true }],
+    render: () => card({ title: 'Account', body: accountOf(settingsPanel) }) },
+  { key: 'library', name: 'Library', group: 'Blocks', icon: 'library', title: 'Library', wide: true, about: 'A library to find things in: filters, a grid of titles, search results, a person’s page, and bringing history in from a backup.',
+    playground: family(LIBRARY, 'libraryOf', 'Library'),
+    preview: [{ filters: true, titles: true }, { search: true }, { person: true }, { import: true }],
+    render: () => card({ title: 'Library', body: libraryOf(libraryFilters, titleGrid) }) },
 ];

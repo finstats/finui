@@ -189,7 +189,7 @@ function blockPage(slot, site, b) {
     } catch (e) { mount(codeSlot, emptyState('The code could not be read', e.message)); }
   };
   const bench = playground(b.key, b.playground, follow);
-  const area = h('div', { class: 'wb-area', dataset: { tab } }, bench.el, codeSlot);
+  const area = h('div', { class: ['wb-area', b.wide && 'is-wide'], dataset: { tab } }, bench.el, codeSlot);
   const tabs = segmented({ label: 'Preview or code', size: 'sm', value: tab, options: [{ value: 'preview', label: 'Preview' }, { value: 'code', label: 'Code' }], onChange: (v) => { tab = v; area.dataset.tab = v; } });
   workbench(slot, {
     list: site.blocks, current: `block-${b.key}`, label: 'Blocks', title: b.name, purpose: `${b.about} Switch on what it needs; its code has that and nothing more.`,

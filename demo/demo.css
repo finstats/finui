@@ -30,13 +30,19 @@
 .wb-find .fui-field__input { width: 100%; }
 .wb-side .fui-sections__group[hidden], .wb-side .fui-sections__link[hidden] { display: none; }
 .wb-side.is-long .fui-sections__link .icon { display: none; }
-/* A long list (the components) fits the screen as it is: two columns of names under their groups. */
+/* A long list (the components) fits the screen as it is: two columns of names under their groups, three where there
+   is room — sixty-odd components in two ran past the foot of a laptop's screen. */
 @media (min-width: 901px) {
   .wb-side.is-long .fui-sections__nav { gap: 12px; }
   .wb-side.is-long .fui-sections__group { display: block; columns: 2; column-gap: 4px; }
   .wb-side.is-long .fui-sections__group-title { column-span: all; }
   .wb-side.is-long .fui-sections__link { padding: 4px 8px; break-inside: avoid; }
   .wb-side.is-long .fui-sections__link span { min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+}
+@media (min-width: 1100px) {
+  .wb:has(> .wb-side.is-long) { grid-template-columns: 330px minmax(0, 1fr); }
+  .wb-side.is-long .fui-sections__group { columns: 3; column-gap: 2px; }
+  .wb-side.is-long .fui-sections__link { padding: 3px 6px; }
 }
 .wb-main { display: grid; gap: 14px; min-width: 0; }
 .wb-tools { display: flex; align-items: center; gap: 10px; flex-wrap: wrap; }
@@ -60,6 +66,8 @@
 .wb-area[data-tab="preview"] > .wb-codebox, .wb-area[data-tab="code"] > .wb-bench { display: none; }
 .wb-codebox { height: var(--bench-h); }
 .wb-area .demo-frame > * { width: min(100%, 520px); }
+/* A wide block (a dashboard, a library, a page) takes the whole stage. */
+.wb-area.is-wide .demo-frame > * { width: 100%; }
 
 .wb-docs { display: grid; grid-template-columns: repeat(auto-fit, minmax(min(100%, 380px), 1fr)); gap: 12px; align-items: start; margin-top: 12px; }
 
