@@ -5,7 +5,7 @@ checkboxes, sliders, date pickers and code inputs; cards, tables that sort by me
 that stack, drawers, popovers, menus and toasts; and charts — bars, lines, donuts, heatmaps — that read only tokens.
 Vanilla ES modules and plain CSS, no build step and no dependencies, light and dark from one set of tokens.
 
-**[See FinUI, and try its looks →](https://finstats.github.io/finui/)** · **[Make it yours in FinUI create →](https://finstats.github.io/finui/create/)**
+**[See FinUI, and try its looks →](https://finstats.github.io/finui/)** · **[Make it yours in FinUI create →](https://finstats.github.io/finui/create/)** · **[Make it move with FinMotion →](https://finstats.github.io/finmotion/)**
 
 ## What it is
 
@@ -118,6 +118,35 @@ Fonts are Inter and JetBrains Mono, in `fonts/` beside `base.css`.
 
 `registry.json` lists every component with its files, the tokens its CSS reads and the components it is built with.
 FinUI's rule checker and tests are kept privately, not in this repository, and run before every change is published.
+
+## With FinMotion
+
+FinUI is still on purpose: every component is plain and complete without movement, and installed as above it stays that
+way. [FinMotion](https://finstats.github.io/finmotion/) is how it moves, a project of its own put on top — toggles thrown,
+tabs whose line inches across, charts that draw themselves, notices held like a hand of cards — on four springs, at the
+pace FinUI's Motion choice sets, and still under reduced motion. FinUI needs no change for it: FinMotion finds each
+component by FinUI's own classes and moves what FinUI draws.
+
+Install it beside FinUI, from the same folder:
+
+```sh
+curl -fsSL https://finstats.github.io/finui/install.sh | sh        # FinUI into ./finui (add your preset's code)
+curl -fsSL https://finstats.github.io/finmotion/install.sh | sh    # FinMotion into ./finmotion, beside it
+```
+
+Then load FinMotion's stylesheet after all of FinUI's, and call `motion()` once:
+
+```html
+<link rel="stylesheet" href="finmotion/finmotion.css">   <!-- after FinUI's stylesheets -->
+<script type="module">
+  import { motion } from './finmotion/core/finmotion.js';
+  motion();
+</script>
+```
+
+Every FinUI component on the page moves from then on, the ones drawn later too. Leave FinMotion out and FinUI is as it
+ships: still, plain and whole. FinMotion can also be used on its own, without FinUI — its springs and its script move
+anything; its [README](https://github.com/finstats/finmotion#install) says how.
 
 ## Where it is made
 
