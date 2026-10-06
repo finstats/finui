@@ -172,8 +172,9 @@ export function desktopNav({ style, side = 'left', pages, current = null, brand 
   function openSearch(panel) {
     if (hosted) return;
     hosted = panel;
-    // What had the focus — the menu's search, or a place in the page Ctrl+Space was pressed in — is where Esc gives it back.
-    opener = document.activeElement !== document.body ? document.activeElement : null;
+    // What had the keyboard's focus — the menu's search, or a place in the page Ctrl+Space was pressed in — is where Esc
+    // gives it back. A click's focus is let go instead: handed back after a key, it is the keyboard's, and opens a rail.
+    opener = document.activeElement !== document.body && document.activeElement.matches(':focus-visible') ? document.activeElement : null;
     closeAll();
     // The dock rises into the card at its own width, so the shape only grows upwards out of it.
     const dockWidth = kind === 'dock' ? frame.getBoundingClientRect().width : 0;
