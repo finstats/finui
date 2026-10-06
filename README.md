@@ -1,6 +1,6 @@
 # FinUI
 
-The components [finstats](https://github.com/finstats/finstats) is built from — sixty-seven of them: buttons, fields,
+The components [finstats](https://github.com/finstats/finstats) is built from — sixty-eight of them: buttons, fields,
 checkboxes, sliders, date pickers and code inputs; cards, tables that sort by meaning, tabs, steps and timelines; dialogs
 that stack, drawers, popovers, menus and toasts; and charts — bars, lines, donuts, heatmaps — that read only tokens.
 Vanilla ES modules and plain CSS, no build step and no dependencies, light and dark from one set of tokens.
