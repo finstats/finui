@@ -3,7 +3,7 @@
 // It is made of FinUI: every part a person sees is one of FinUI's components, and demo.css only lays them out (a test
 // holds it to that). Its styles come from registry.json in its order, as a host page would load them. Invented data only.
 
-import { h, icon, mount, iconNames } from '../core.js';
+import { h, icon, mount, iconNames, iconSvg } from '../core.js';
 import { button } from '../components/button/button.js';
 import { card } from '../components/card/card.js';
 import { facts } from '../components/facts/facts.js';
@@ -17,6 +17,7 @@ import { topBar } from '../components/top-bar/top-bar.js';
 import { codeBlock } from '../components/code-block/code-block.js';
 import { swatch } from '../components/swatch/swatch.js';
 import { animatedIcon } from '../components/animated-icon/animated-icon.js';
+import { animatedSvg } from '../components/animated-icon/svg.js';
 import { emptyState } from '../components/empty/empty.js';
 import { toggle } from '../components/toggle/toggle.js';
 import { copyButton } from '../components/copy/copy.js';
@@ -200,13 +201,24 @@ function blockPage(slot, site, b) {
 // ---- the foundation: tokens and icons
 async function foundation(slot) {
   const text = await (await fetch('tokens.css')).text();
+  const motion = await (await fetch('components/animated-icon/animated-icon.css')).text();
+  // An icon as a file to keep: made as it is pressed, so its href is there before the browser follows it.
+  const file = (n, moving) => h('a', { class: 'mono', href: '#', download: `${n}${moving ? '-animated' : ''}.svg`,
+    title: moving ? `${n} as an SVG that moves` : `${n} as an SVG`,
+    onClick: (e) => {
+      const url = URL.createObjectURL(new Blob([moving ? animatedSvg(n, motion) : iconSvg(n)], { type: 'image/svg+xml' }));
+      e.currentTarget.href = url;
+      setTimeout(() => URL.revokeObjectURL(url), 10000);   // long enough for the download to take it
+    } },
+  moving ? 'animated' : 'svg');
   const colours = [...text.matchAll(/^\s*(--[a-z0-9-]+):\s*light-dark\(/gm)].map((m) => m[1]);
   const paint = () => mount(slot, h('div', { class: 'site-page' },
     pageHeader('Foundation', 'Every colour is a token, and every token names its light and its dark value in one declaration. The element builder (h) and the icons are core.js; numbers and initials are format.js.', viewSwitch(paint)),
     card({ title: `Colour tokens (${colours.length})`, body: frames(() => h('div', { class: 'demo-swatches' }, colours.map((t) => h('div', { class: 'demo-swatch' }, swatch([`var(${t})`]), h('span', { class: 'mono muted' }, t))))) }),
-    card({ title: `Icons (${iconNames().length})`, sub: 'Each icon twice: as it stands still (icon), and as it moves (animatedIcon), drawn in, doing what it is about and drawn out again.',
+    card({ title: `Icons (${iconNames().length})`, sub: 'Each icon twice: as it stands still (icon), and as it moves (animatedIcon), drawn in, doing what it is about and drawn out again. Each is a file of its own too, still or moving: svg and animated save it, and the site serves them all at icons/<name>.svg and icons/animated/<name>.svg.',
       body: frames(() => h('ul', { class: 'demo-icons' }, iconNames().map((n) => h('li', { class: 'demo-icon', title: n, dataset: { icon: n } },
-        h('span', { class: 'demo-icon__still' }, icon(n, 20)), h('span', { class: 'demo-icon__moving' }, animatedIcon(n, { size: 20 })), h('span', { class: 'mono muted' }, n))))) })));
+        h('span', { class: 'demo-icon__still' }, icon(n, 20)), h('span', { class: 'demo-icon__moving' }, animatedIcon(n, { size: 20 })),
+        h('span', { class: 'demo-icon__about' }, h('span', { class: 'mono muted' }, n), h('span', { class: 'demo-icon__files' }, file(n, false), file(n, true))))))) })));
   paint();
 }
 

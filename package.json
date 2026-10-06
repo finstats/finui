@@ -4,6 +4,7 @@
   "license": "GPL-3.0-only",
   "type": "module",
   "scripts": {
-    "site": "node tools/build-site.mjs _site"
+    "site": "node tools/build-site.mjs _site",
+    "icons": "node tools/build-icons.mjs icons"
   }
 }

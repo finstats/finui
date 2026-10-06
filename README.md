@@ -75,6 +75,15 @@ import { animateWithin, setBusy } from './finui/components/animated-icon/animate
 animateWithin(document.body);
 ```
 
+Every icon is a file of its own too, for where there is no FinUI: `icons/<name>.svg` as it stands still, and
+`icons/animated/<name>.svg` moving, its motion and only the rules that motion needs inside it, still with reduced motion.
+Both draw in `currentColor`: the text's colour inline, black in an `<img>`. The site serves them; `npm run icons` writes
+them into `icons/` here (`node tools/build-icons.mjs <folder>` anywhere else), and the gallery saves any one of them.
+
+```html
+<img src="icons/animated/headsetOff.svg" width="24" height="24" alt="Deafened">
+```
+
 ## Blocks
 
 The gallery's **blocks** are compositions of the components, a card's worth of an app each: eleven of them, one of each

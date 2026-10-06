@@ -1,10 +1,12 @@
 // The site the pages workflow publishes at https://finstats.github.io/finui/: the gallery and FinUI create as they are in
 // the repository, FinUI's files for the installer to fetch, finui.css (every stylesheet joined), one small file of
-// tokens for each option a preset can choose (p/<axis>/<option>.css), and install.sh with the lists it needs filled in.
+// tokens for each option a preset can choose (p/<axis>/<option>.css), install.sh with the lists it needs filled in, and
+// every icon as a file of its own, still and animated (icons/<name>.svg, icons/animated/<name>.svg).
 // node tools/build-site.mjs <folder>
 import fs from 'node:fs';
 import path from 'node:path';
 import { tokens, faces, stylesheet } from '../create/preset.js';
+import { buildIcons } from './build-icons.mjs';
 
 const root = path.resolve(path.dirname(new URL(import.meta.url).pathname), '..');
 const read = (f) => fs.readFileSync(path.join(root, f), 'utf8');
@@ -28,6 +30,7 @@ export async function build(out) {
     const set = tokens(presets, choice);
     write(`p/${a}/${o}.css`, `/* ${axis.label}: ${option.label} */\n${faces(presets, choice)}:root {\n${set.map(([t, v]) => `  ${t}: ${v};\n`).join('')}}\n`);
   }));
+  buildIcons(path.join(out, 'icons'));
   write('install.sh', read('tools/install.sh')
     .replace('@COUNTS@', presets.axes.map((a) => a.options.length).join(' '))
     .replace('@FILES@', library.join(' '))

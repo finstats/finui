@@ -74,10 +74,12 @@
 /* ---- frames, and what the foundation lists in them */
 .demo-frames { display: grid; gap: 12px; }
 .demo-frames.is-both { grid-template-columns: repeat(auto-fit, minmax(min(100%, 300px), 1fr)); }
-.demo-icons { display: grid; grid-template-columns: repeat(auto-fill, minmax(150px, 1fr)); gap: 6px; width: 100%; }
+.demo-icons { display: grid; grid-template-columns: repeat(auto-fill, minmax(160px, 1fr)); gap: 10px 6px; width: 100%; }
 .demo-icon__still, .demo-icon__moving { display: inline-grid; }
 .demo-icon { display: flex; align-items: center; gap: 8px; min-width: 0; }
 .demo-icon .mono { overflow: hidden; text-overflow: ellipsis; }
+.demo-icon__about { display: grid; min-width: 0; }
+.demo-icon__files { display: flex; gap: 8px; }
 .demo-swatches { display: grid; grid-template-columns: repeat(auto-fill, minmax(190px, 1fr)); gap: 8px; width: 100%; }
 .demo-swatch { display: flex; align-items: center; gap: 8px; min-width: 0; }
 /* The page in the landing's preview. */
