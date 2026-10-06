@@ -244,7 +244,7 @@ async function start() {
   // The site's own bar: FinUI create is one of its sections.
   const bar = topBar({ brand: { name: 'FinUI', href: at('') }, label: 'FinUI', current: 'create',
     links: [{ href: at('#/components'), label: 'Components', key: 'components' }, { href: at('#/blocks'), label: 'Blocks', key: 'blocks' }, { href: at('#/foundation'), label: 'Foundation', key: 'foundation' },
-      { href: at('create/'), label: 'Create', key: 'create' }, { href: 'https://github.com/finstats/finui', label: 'GitHub' }],
+      { href: at('create/'), label: 'Create', key: 'create' }, { href: 'https://finstats.github.io/finmotion/', label: 'FinMotion' }, { href: 'https://github.com/finstats/finui', label: 'GitHub' }],
     actions: themeSwitch({ value: stored, onChange: applyTheme }) });
   const head = pageHeader('FinUI create', 'Choose how FinUI looks, watch it change, then take it home with one command.',
     h('div', { class: 'create-tools' }, segmented({ label: 'Preview in', size: 'sm', value: view, options: VIEWS, onChange: (v) => { view = v; drawFrames(); } }), linkSlot));

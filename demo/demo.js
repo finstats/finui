@@ -233,7 +233,7 @@ async function start() {
   const slot = h('div', { class: 'site-slot' });
   const bar = topBar({ brand: { name: 'FinUI', href: '#/' }, label: 'FinUI',
     links: [{ href: '#/components', label: 'Components', key: 'components' }, { href: '#/blocks', label: 'Blocks', key: 'blocks' }, { href: '#/foundation', label: 'Foundation', key: 'foundation' },
-      { href: 'create/', label: 'Create', key: 'create' }, { href: 'https://github.com/finstats/finui', label: 'GitHub' }],
+      { href: 'create/', label: 'Create', key: 'create' }, { href: 'https://finstats.github.io/finmotion/', label: 'FinMotion' }, { href: 'https://github.com/finstats/finui', label: 'GitHub' }],
     actions: themeSwitch({ value: kept('finui.theme') || 'device', onChange: applyTheme }) });
   mount(root,
     button({ href: '#main', class: 'site-skip', onClick: (e) => { e.preventDefault(); document.getElementById('main').focus(); } }, 'Skip to the page'),
