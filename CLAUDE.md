@@ -5,6 +5,16 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 FinUI is finstats' component library (`github.com/finstats/finui`). How it is developed (the rule checker, the tests,
 test-first) is in `qa/CLAUDE.md`, beside the suite it describes.
 
+## Documentation lives in the docs repository
+
+**Every page of documentation is written in `github.com/finstats/docs`** (checked out beside FinUI as `../docs`; MkDocs,
+published at <https://finstats.github.io/docs/finui/>), never in this repository (the owner's decision,
+2026-10-07). The README stays a short landing page: what FinUI is, the links to its site and to the docs, the one install
+line and the licence. A component's own `meta` (what it is for, its props, variants, states and examples) is the
+gallery's documentation and stays with the component. A change that a page describes (an install line, an option, a rule a user of FinUI relies on)
+comes with a commit in `../docs` in the same sitting; its `main` publishes, so for FinUI, whose site publishes on every
+push, the page goes to `main` there when the change goes to `main` here. Read `../docs/CLAUDE.md` before writing there.
+
 ## Git conventions
 
 The same as finstats and FinMotion:
