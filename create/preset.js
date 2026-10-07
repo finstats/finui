@@ -172,12 +172,12 @@ export function on(hex) {
   return 1.05 / (l + 0.05) >= (l + 0.05) / (ink + 0.05) ? '#ffffff' : '#0a0a0a';
 }
 
-/** Every CSS file the registry lists, foundation first, each once, in order — with a preset's block right after
+/** Every CSS file the registry lists, foundation first, each once, in order, with a preset's block right after
  *  tokens.css, whose values it replaces. `read(path)` gives a file's text, from disk or over the network. */
 export async function stylesheet(registry, read, preset = '') {
   const paths = [...registry.foundation, ...registry.components.flatMap((c) => c.files)].filter((p) => p.endsWith('.css'));
   const texts = await Promise.all(paths.map((p) => read(p)));
-  let out = '/* FinUI — https://github.com/finstats/finui, every stylesheet in registry.json\'s order. GPL-3.0-only. */\n';
+  let out = '/* FinUI: https://github.com/finstats/finui, every stylesheet in registry.json\'s order. GPL-3.0-only. */\n';
   paths.forEach((p, i) => {
     out += '\n' + texts[i].trim() + '\n';
     if (p === 'tokens.css' && preset) out += '\n' + preset;

@@ -1,6 +1,6 @@
 #!/bin/sh
 # FinUI's installer, published at https://finstats.github.io/finui/install.sh by the pages workflow (tools/build-site.mjs
-# fills in the lists below). FinUI is source you copy and own, so installing it is copying it — with the tokens of a
+# fills in the lists below). FinUI is source you copy and own, so installing it is copying it, with the tokens of a
 # preset made at FinUI create after tokens.css' own. Nothing but sh and curl:
 #   curl -fsSL https://finstats.github.io/finui/install.sh | sh -s -- <code> [--css] [--dir <folder>]
 # A preset is one small file of tokens per choice (p/<axis>/<option>.css), fetched in axis order: the later sets a
@@ -14,7 +14,7 @@ FONTS="@FONTS@"
 
 usage() {
   cat <<'HELP'
-FinUI — the components finstats is built from.
+FinUI: the components finstats is built from.
 
   curl -fsSL https://finstats.github.io/finui/install.sh | sh -s -- <code> [--css] [--dir <folder>]
 

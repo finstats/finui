@@ -229,7 +229,7 @@ async function start() {
     if (!groups.length || groups[groups.length - 1].name !== axis.group) groups.push({ name: axis.group, items: [] });
     groups[groups.length - 1].items.push(pickers[a].el);
   });
-  // The panel: a card per group of choices, and the preset's own card — its code, what to do with it, taking it home.
+  // The panel: a card per group of choices, and the preset's own card: its code, what to do with it, taking it home.
   const panel = h('aside', { class: 'create-panel', 'aria-label': 'Customize' },
     card({ title: 'Preset', cls: 'create-preset', body: [codeEl,
       h('div', { class: 'create-actions' },

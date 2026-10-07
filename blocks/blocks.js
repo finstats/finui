@@ -1,5 +1,5 @@
 // FinUI blocks: compositions of FinUI's components, each a card's worth of an app, with invented data only. A block is
-// one family — a calendar, a chart, a form, a list, a state, the look, a page — built from parts: switches turn its
+// one family (a calendar, a chart, a form, a list, a state, the look, a page) built from parts: switches turn its
 // parts on, and the same call that draws it is written out as its code, with only what is on in it. FinUI create draws
 // each in several ways to show a preset on. Their layout is blocks.css, tokens only like the rest.
 
@@ -850,7 +850,7 @@ const PARTS = { stackedBars, twoLines, areaOfOne, donut, rings, radar, heatmap, 
 const BUILD = { dateBlock, chartOf, formOf, listOf, stateOf, lookOf, pageOf, watchingOf, dashboardOf, accountOf, libraryOf };
 /** An option as code says it: strings quoted, the rest as they are. */
 const lit = (opts) => { const set = Object.entries(opts).filter(([, v]) => v !== undefined); return set.length ? `{ ${set.map(([k, v]) => `${k}: ${typeof v === 'string' ? `'${v}'` : v}`).join(', ')} }` : '{}'; };
-/** A block's switches made into a call — its builder, its options, the parts that are on — which draws the block and is
+/** A block's switches made into a call (its builder, its options, the parts that are on) which draws the block and is
  *  written out as its code, so the two cannot differ. `plan(o)` gives { title, sub, fn, options, parts, bare }. */
 function playable(controls, plan) {
   const args = (p) => [...(p.options === null ? [] : [p.options]), ...p.parts.map((n) => PARTS[n])];
@@ -913,7 +913,7 @@ export const BLOCKS = [
     preview: [{ kind: 'bars', legend: true, export: true }, { kind: 'line', legend: true }, { kind: 'area', legend: false }, { kind: 'donut', legend: true }, { kind: 'rings', legend: true },
       { kind: 'radar', legend: false }, { kind: 'heatmap', legend: true }, { kind: 'barList', legend: false }, { kind: 'storage', legend: true }, { kind: 'line', legend: true, numbers: true, summary: true }],
     render: () => card({ title: 'Watch time by day', sub: 'Films, episodes, music and the rest', body: chartOf({}, stackedBars) }) },
-  { key: 'form', name: 'Form', group: 'Blocks', icon: 'lock', title: 'Form', about: 'A form of the parts switched on — a sign-in, an account, a code, a service, people, a file, notifications, a key — and the button they call for.',
+  { key: 'form', name: 'Form', group: 'Blocks', icon: 'lock', title: 'Form', about: 'A form of the parts switched on (a sign-in, an account, a code, a service, people, a file, notifications, a key) and the button they call for.',
     playground: playable([
       { key: 'server', label: 'Server address', on: true }, { key: 'user', label: 'User name', on: true }, { key: 'names', label: 'Names' }, { key: 'email', label: 'E-mail' },
       { key: 'password', label: 'Password', on: true }, { key: 'code', label: 'Two-step code' }, { key: 'remember', label: 'Keep me signed in', on: true },
@@ -931,7 +931,7 @@ export const BLOCKS = [
     preview: [{ ranked: true, pictures: true, lineUnder: true, values: true }, { pictures: true, lineUnder: true, progress: true }, { progress: true, states: true }, { timeline: true },
       { roles: true, lineUnder: true }, { unread: true, lineUnder: true }, { filters: true, values: true }],
     render: () => card({ title: 'Most watched', body: listOf({}, pictures, lineUnder, values) }) },
-  { key: 'state', name: 'State', group: 'Blocks', icon: 'info', title: 'State', about: 'What a view says while it loads, when it is empty, when it failed, when it is done, or when it asks — as it is, as a banner or in a dialog.',
+  { key: 'state', name: 'State', group: 'Blocks', icon: 'info', title: 'State', about: 'What a view says while it loads, when it is empty, when it failed, when it is done, or when it asks: as it is, as a banner or in a dialog.',
     playground: playable([
       { key: 'state', label: 'State', choices: [['loading', 'Loading'], ['empty', 'Empty'], ['error', 'Error'], ['done', 'Done'], ['question', 'A question']] },
       { key: 'action', label: 'A way on', on: true }, { key: 'dismiss', label: 'Dismissible' }, { key: 'banner', label: 'As a banner', excludes: ['dialog'] }, { key: 'dialog', label: 'In a dialog', excludes: ['banner'] },
@@ -954,7 +954,7 @@ export const BLOCKS = [
       parts: [PAGES[o.content || 'table'], o.numbers && 'numbersAbove'].filter(Boolean) })),
     preview: [{ content: 'table', header: false }, { content: 'settings', header: false }, { content: 'table', sidebar: true, header: true, numbers: true }],
     render: () => pageOf({}, playsTable) },
-  { key: 'watching', name: 'Watching', group: 'Blocks', icon: 'play', title: 'Watching', about: 'What is on now, a title’s page, its seasons and episodes, and what plays next — each switched on as a part.',
+  { key: 'watching', name: 'Watching', group: 'Blocks', icon: 'play', title: 'Watching', about: 'What is on now, a title’s page, its seasons and episodes, and what plays next, each switched on as a part.',
     playground: family(WATCHING, 'watchingOf', 'Watching'),
     preview: [{ now: true }, { title: true }, { episodes: true, next: true }, { now: true, next: true }],
     render: () => card({ title: 'Watching', body: watchingOf(nowPlaying) }) },

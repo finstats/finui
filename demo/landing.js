@@ -1,4 +1,4 @@
-// The landing: what FinUI is, shown rather than told — a page of an app built from it, which any of FinUI create's whole
+// The landing: what FinUI is, shown rather than told: a page of an app built from it, which any of FinUI create's whole
 // looks restyles in place, the one line that installs the look picked, and every block and component a click away.
 // Made of FinUI like the rest of the site: hero, chips, swatches, a code line and cards.
 

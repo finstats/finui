@@ -1,5 +1,5 @@
 /* FinUI create's layout, and nothing else: the bar, the pickers, the cards and the code line are FinUI's components,
-   which draw themselves — a test holds this file to placing them (pages-lay-out.test.mjs). The preview's layout is
+   which draw themselves; a test holds this file to placing them (pages-lay-out.test.mjs). The preview's layout is
    preview.css, inside the frames. */
 .create-loading { padding: 40px; }
 .create-main { display: grid; gap: 16px; max-width: 1440px; margin: 0 auto; padding: 18px 24px 48px; }

@@ -1,5 +1,5 @@
 // The FinUI site: a landing that shows FinUI on a page you restyle, an index of every block and component, a workbench
-// for each — the example, its switches and the list of its kind on one screen — and the foundation (tokens and icons).
+// for each (the example, its switches and the list of its kind on one screen) and the foundation (tokens and icons).
 // It is made of FinUI: every part a person sees is one of FinUI's components, and demo.css only lays them out (a test
 // holds it to that). Its styles come from registry.json in its order, as a host page would load them. Invented data only.
 
@@ -174,7 +174,7 @@ async function codePanel(b, state = null) {
   });
 }
 
-/** A block: the example and its switches, and in the same place its code — the same code, with only what is on in it. */
+/** A block: the example and its switches, and in the same place its code: the same code, with only what is on in it. */
 function blockPage(slot, site, b) {
   let tab = 'preview';
   const codeSlot = h('div', { class: 'wb-codebox' });

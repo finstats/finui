@@ -1,8 +1,8 @@
 # FinUI
 
-The components [finstats](https://github.com/finstats/finstats) is built from — sixty-eight of them: buttons, fields,
+The components [finstats](https://github.com/finstats/finstats) is built from, sixty-eight of them: buttons, fields,
 checkboxes, sliders, date pickers and code inputs; cards, tables that sort by meaning, tabs, steps and timelines; dialogs
-that stack, drawers, popovers, menus and toasts; and charts — bars, lines, donuts, heatmaps — that read only tokens.
+that stack, drawers, popovers, menus and toasts; and charts (bars, lines, donuts, heatmaps) that read only tokens.
 Vanilla ES modules and plain CSS, no build step and no dependencies, light and dark from one set of tokens.
 
 **[See FinUI, and try its looks →](https://finstats.github.io/finui/)** · **[Make it yours in FinUI create →](https://finstats.github.io/finui/create/)** · **[Make it move with FinMotion →](https://finstats.github.io/finmotion/)**
@@ -26,8 +26,8 @@ FinUI is a registry in the spirit of shadcn/ui: the components are source you co
 
 ## Make it yours
 
-[FinUI create](https://finstats.github.io/finui/create/) shows a wall of FinUI — dashboards, forms, tables, settings,
-dialogs, charts — and lets you change it as you watch, in light, dark or both. Start from one of eleven styles (whole looks,
+[FinUI create](https://finstats.github.io/finui/create/) shows a wall of FinUI (dashboards, forms, tables, settings,
+dialogs, charts) and lets you change it as you watch, in light, dark or both. Start from one of eleven styles (whole looks,
 from Washi, finstats' own, to Noir, Gazette or Arcade), then change any of twenty-two choices: base colour, accent, chart
 colours, contrast; radius, density, borders, cards, buttons, fields, tables; highlight, motion, icon stroke and ends, menu,
 page, focus ring; the text, heading and mono fonts and how headings are set. Lock what you like and shuffle the rest. What
@@ -55,14 +55,14 @@ one line that installs the look picked. Every component and block then has a pag
 list of its kind, its example as large as the screen allows and its switches beside it, all on one screen. Switches turn
 its features on and a choice picks between its variants; the example is drawn in the page's theme, or in both themes side
 by side, or at 360 px, without losing what the switches made of it. The calendar, for one: a day, several days or a range,
-marked days, limits, a week that starts on Sunday — and its buttons and keys work as they will in an app, because a
+marked days, limits, a week that starts on Sunday. Its buttons and keys work as they will in an app, because a
 component that only looks right is no component.
 
 ## Icons that move
 
 Every icon comes twice: still, as `icon()` draws it, and moving, as `animatedIcon()` draws it. A moving icon is drawn
-in stroke by stroke, does what it is about — refresh turns, download's arrow drops into its tray, a heart beats, a
-slider's knobs slide, the trash lifts its lid — and is drawn out again, in a loop; or its act once each time it is
+in stroke by stroke, does what it is about (refresh turns, download's arrow drops into its tray, a heart beats, a
+slider's knobs slide, the trash lifts its lid) and is drawn out again, in a loop; or its act once each time it is
 pointed at (`play: 'hover'`), or once. At rest it is the still icon, and it stays still with reduced motion and with a
 preset's Motion: Off. What each icon does is one line of `components/animated-icon/motions.js`.
 
@@ -91,10 +91,10 @@ kind, each an entry of its own in its list. Each is one block with switches, not
 
 - **Calendar**: one day, several or a range, and beside it what comes out, times, the week's plans, the pick in words.
 - **Chart**: bars, a line, an area, a donut, rings, a radar, a heatmap, a bar list or storage, with a legend, numbers over it, a sentence, an export.
-- **Form**: a server address, a user name, names, an e-mail, a password, a two-step code, a service, people to invite, a file, notifications, a new key — and the button they call for.
+- **Form**: a server address, a user name, names, an e-mail, a password, a two-step code, a service, people to invite, a file, notifications, a new key, and the button they call for.
 - **List**: one set of rows, numbered or not, with pictures, a line under, values, progress, states, unread marks, roles, a timeline or filters.
 - **State**: loading, empty, an error, done or a question, as it is, as a banner or in a dialog, with a way on and a way to dismiss it.
-- **Look**: a preset part by part — colours, type, buttons, badges, focus and icons, keys, facts.
+- **Look**: a preset part by part: colours, type, buttons, badges, focus and icons, keys, facts.
 - **Page**: a table, settings or not found, with the app's menu, a page header and numbers over it.
 - **Watching**: now playing, a title's page, its seasons and episodes, and what plays next.
 - **Dashboard**: numbers with sparklines over a week of watch time, a year of plays, the top titles, when people watch, activity and downloads.
@@ -110,8 +110,8 @@ the QA stage pastes it into a page with nothing but FinUI and runs it.
 ## Using it
 
 Copy the folder, or let the installer above copy it.
-Load the stylesheets in `registry.json`'s order — `tokens.css`, `base.css`, then each component's CSS
-— either as separate `<link>`s or as one file joined in that order (finstats serves them joined, as `/assets/finui.css`).
+Load the stylesheets in `registry.json`'s order (`tokens.css`, `base.css`, then each component's CSS),
+either as separate `<link>`s or as one file joined in that order (finstats serves them joined, as `/assets/finui.css`).
 Then import what you need:
 
 ```js
@@ -131,8 +131,8 @@ FinUI's rule checker and tests are kept privately, not in this repository, and r
 ## With FinMotion
 
 FinUI is still on purpose: every component is plain and complete without movement, and installed as above it stays that
-way. [FinMotion](https://finstats.github.io/finmotion/) is how it moves, a project of its own put on top — toggles thrown,
-tabs whose line inches across, charts that draw themselves, notices held like a hand of cards — on four springs, at the
+way. [FinMotion](https://finstats.github.io/finmotion/) is how it moves, a project of its own put on top: toggles thrown,
+tabs whose line inches across, charts that draw themselves, notices held like a hand of cards, on four springs, at the
 pace FinUI's Motion choice sets, and still under reduced motion. FinUI needs no change for it: FinMotion finds each
 component by FinUI's own classes and moves what FinUI draws.
 
@@ -154,7 +154,7 @@ Then load FinMotion's stylesheet after all of FinUI's, and call `motion()` once:
 ```
 
 Every FinUI component on the page moves from then on, the ones drawn later too. Leave FinMotion out and FinUI is as it
-ships: still, plain and whole. FinMotion can also be used on its own, without FinUI — its springs and its script move
+ships: still, plain and whole. FinMotion can also be used on its own, without FinUI, since its springs and its script move
 anything; its [README](https://github.com/finstats/finmotion#install) says how.
 
 ## Where it is made
