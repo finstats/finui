@@ -4,7 +4,7 @@ The components [finstats](https://github.com/finstats/finstats) is built from: b
 menus, toasts and charts. Vanilla ES modules and plain CSS, no build step and no dependencies, light and dark from one
 set of tokens. Source you copy and own, in the spirit of shadcn/ui.
 
-**[See FinUI, and try its looks →](https://finui.finstats.no/)** · **[Make it yours in FinUI create →](https://finui.finstats.no/create/)** · **[Read the docs →](https://docs.finstats.no/finui/)**
+**[See FinUI, and try its looks →](https://finui.finstats.no/)** · **[Make it yours in FinUI create →](https://finui.finstats.no/create/)** · **[Read the docs →](https://finstats.no/finui/)**
 
 ```sh
 curl -fsSL https://finui.finstats.no/install.sh | sh -s -- <code>   # FinUI into ./finui, with the look FinUI create gave you
@@ -12,7 +12,7 @@ curl -fsSL https://finui.finstats.no/install.sh | sh -s -- <code>   # FinUI into
 
 The documentation (what FinUI is, FinUI create, using it, the icons that move, the blocks, and putting
 [FinMotion](https://github.com/finstats/finmotion) on top) lives at
-**[docs.finstats.no/finui](https://docs.finstats.no/finui/)**. Each component also documents itself, in the
+**[finstats.no/finui](https://finstats.no/finui/)**. Each component also documents itself, in the
 `meta` its module exports.
 
 FinUI's components are developed inside finstats (`web/assets/finui`) and copied here as they change; the gallery and
