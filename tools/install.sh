@@ -14,7 +14,7 @@ FONTS="@FONTS@"
 
 usage() {
   cat <<'HELP'
-FinUI: the components finstats is built from.
+FinUI: the components FinStats is built from.
 
   curl -fsSL https://finui.finstats.no/install.sh | sh -s -- <code> [--css] [--dir <folder>]
 

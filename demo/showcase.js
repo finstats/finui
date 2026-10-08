@@ -1,4 +1,4 @@
-// The page the landing restyles: the components together, the way a page of finstats uses them. Invented data only.
+// The page the landing restyles: the components together, the way a page of FinStats uses them. Invented data only.
 // Drawn into the landing's preview frame, a document of its own wearing the look that was picked.
 
 import { h, icon } from '../core.js';

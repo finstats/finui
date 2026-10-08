@@ -1,6 +1,6 @@
 // What FinUI create draws its preview with: every block (blocks/blocks.js), in each of the ways it shows itself (its
 // `preview`: settings of its switches), on one page as a wall of cards, under the
-// overview a page of finstats opens on. It is drawn into a frame that loads FinUI's stylesheets and a preset's tokens, so
+// overview a page of FinStats opens on. It is drawn into a frame that loads FinUI's stylesheets and a preset's tokens, so
 // every colour, corner, gap, font and line in it is the stylesheet's, as somebody who fetches that stylesheet will see it.
 
 import { h } from '../core.js';

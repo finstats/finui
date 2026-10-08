@@ -359,7 +359,7 @@ function twoStepCode() {
     });
     b.addEventListener('paste', (e) => { e.preventDefault(); fill(i, (e.clipboardData.getData('text') || '').replace(/\D/g, '')); });
   });
-  return h('div', { class: 'blk-stack blk-stack--tight blk-center' }, h('p', null, 'The six digits your authenticator app shows for finstats.'),
+  return h('div', { class: 'blk-stack blk-stack--tight blk-center' }, h('p', null, 'The six digits your authenticator app shows for FinStats.'),
     h('div', { class: 'blk-otp' }, boxes.slice(0, 3), h('span', { class: 'blk-otp__dash', 'aria-hidden': 'true' }, '–'), boxes.slice(3)));
 }
 
@@ -426,7 +426,7 @@ function newKey() {
   const key = 'fs_3f9a1c07d24e8b6a';
   return h('div', { class: 'blk-stack blk-stack--tight' },
     h('div', { class: 'blk-key-row blk-key-row--boxed' }, h('code', { class: 'mono trunc' }, `${key}…`), copyButton(key, 'Copy the key')),
-    h('p', { class: 'muted' }, 'Shown once. Anything that holds it reads finstats as you.'));
+    h('p', { class: 'muted' }, 'Shown once. Anything that holds it reads FinStats as you.'));
 }
 
 // ---------------------------------------------------------------- list: one set of rows, a feature of each switched on
@@ -596,7 +596,7 @@ function playsTable() {
     h('span', { class: 'blk-who' }, avatar(null, who, { size: 24 }), who), title, badge({ dot: how === 'Direct play' }, how),
     h('span', { class: 'blk-watched' }, meter({ value: ok }), `${Math.round(ok * 100)}%`)]), { right: [3] }) });
 }
-/** Settings as finstats lays them out: the list to move between, the open one marked, and its rows. */
+/** Settings as FinStats lays them out: the list to move between, the open one marked, and its rows. */
 function settingsPage() {
   const visible = [{ key: 'account', label: 'Account', icon: 'user', group: 'You' }, { key: 'appearance', label: 'Appearance', icon: 'sliders', group: 'You' },
     { key: 'notifications', label: 'Notifications', icon: 'inbox', group: 'You' }, { key: 'collection', label: 'Collection', icon: 'database', group: 'Server' },
@@ -760,7 +760,7 @@ function dashboardOf(...parts) {
 function setupWizard() {
   return h('div', { class: 'blk-stack' },
     steps({ steps: [{ label: 'Jellyfin' }, { label: 'Sign in' }, { label: 'History' }, { label: 'Done' }], current: 1, done: [0], onGo: noop }),
-    formField({ id: 'blk-setup-user', label: 'A Jellyfin administrator', placeholder: 'alice', help: 'Only to create the key finstats reads with.' }).el,
+    formField({ id: 'blk-setup-user', label: 'A Jellyfin administrator', placeholder: 'alice', help: 'Only to create the key FinStats reads with.' }).el,
     h('div', { class: 'blk-row blk-row--end' }, button({ variant: 'ghost' }, 'Back'), button({ variant: 'primary' }, 'Next')));
 }
 /** Settings in tabs: a slider, a number and a switch on one, a choice of several on the other. */
@@ -775,7 +775,7 @@ function settingsPanel() {
   ] });
 }
 const NOTES = [['download', 'Low Orbit S2E5 is on the server', '2 min ago', true], ['users', 'bob and carol watched together', '1 h ago', true], ['check', 'The backup is written', 'Yesterday', false]];
-/** What finstats told you: what needs a look first, then the rest, newest first, and a way to read them all. */
+/** What FinStats told you: what needs a look first, then the rest, newest first, and a way to read them all. */
 function notificationsCentre() {
   return h('div', { class: 'blk-stack' },
     callout({ tone: 'warning', title: 'Sonarr is not answering', body: 'Coming up shows what it knew an hour ago.', action: button({ size: 'sm' }, 'Look at it') }),
@@ -962,7 +962,7 @@ export const BLOCKS = [
     playground: family(DASHBOARD, 'dashboardOf', 'Overview'),
     preview: [{ numbers: true, week: true }, { year: true, top: true }, { when: true }, { activity: true, downloads: true }],
     render: () => card({ title: 'Overview', body: dashboardOf(numbersRow, weekChart) }) },
-  { key: 'account', name: 'Account', group: 'Blocks', icon: 'user', title: 'Account', about: 'Setting up, settings with sliders, numbers and choices, what finstats told you, a person’s header, and a two-step code.',
+  { key: 'account', name: 'Account', group: 'Blocks', icon: 'user', title: 'Account', about: 'Setting up, settings with sliders, numbers and choices, what FinStats told you, a person’s header, and a two-step code.',
     playground: family(ACCOUNT, 'accountOf', 'Account'),
     preview: [{ setup: true }, { settings: true }, { notes: true }, { profile: true, code: true }],
     render: () => card({ title: 'Account', body: accountOf(settingsPanel) }) },
