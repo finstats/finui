@@ -8,7 +8,7 @@ test-first) is in `qa/CLAUDE.md`, beside the suite it describes.
 ## Documentation lives in the docs repository
 
 **Every page of documentation is written in `github.com/finstats/docs`** (checked out beside FinUI as `../docs`; MkDocs,
-published at <https://finstats.github.io/docs/finui/>), never in this repository (the owner's decision,
+published at <https://docs.finstats.no/finui/>), never in this repository (the owner's decision,
 2026-10-07). The README stays a short landing page: what FinUI is, the links to its site and to the docs, the one install
 line and the licence. A component's own `meta` (what it is for, its props, variants, states and examples) is the
 gallery's documentation and stays with the component. A change that a page describes (an install line, an option, a rule a user of FinUI relies on)
