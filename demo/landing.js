@@ -84,7 +84,7 @@ export function landing(slot, { registry, metas, blocks, presets, sheets, scheme
     options: presets.styles.map((st) => ({ value: st.key, label: st.label, lead: swatch(colours(presets, styleChoice(presets, st))) })) });
   show(presets.styles.find((s) => s.key === 'washi') || presets.styles[0]);
   const top = hero({
-    title: 'The parts finstats is made of, yours to take.',
+    title: 'The parts FinStats is made of, yours to take.',
     lede: `${registry.components.length} components and ${blocks.length} blocks in plain JavaScript and CSS: no build step, no dependencies, light and dark from one set of tokens. Copy them into a project and change anything.`,
     actions: [button({ href: '#/components', variant: 'primary' }, 'Browse components'), create],
     aside: card({ cls: 'fui-card--flush landing-preview', body: frame.el }),

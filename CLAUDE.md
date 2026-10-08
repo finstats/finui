@@ -2,7 +2,7 @@
 
 This file provides guidance to Claude Code (claude.ai/code) when working with code in this repository.
 
-FinUI is finstats' component library (`github.com/finstats/finui`). How it is developed (the rule checker, the tests,
+FinUI is FinStats' component library (`github.com/finstats/finui`). How it is developed (the rule checker, the tests,
 test-first) is in `qa/CLAUDE.md`, beside the suite it describes.
 
 ## Documentation lives in the docs repository
@@ -17,7 +17,7 @@ push, the page goes to `main` there when the change goes to `main` here. Read `.
 
 ## Git conventions
 
-The same as finstats and FinMotion:
+The same as FinStats and FinMotion:
 
 - Conventional-commit subjects with a scope where one fits: `feat(toast):`, `fix(desktop-nav):`, `feat(create):`, `docs:`,
   `chore:`. The scope is the component, or the part of the site (`create`, `demo`). The subject says what changed; the body
@@ -30,7 +30,7 @@ The same as finstats and FinMotion:
 
 ## No em-dashes
 
-**No em-dash is used anywhere in the fin\* repositories on GitHub** (finstats, FinUI, FinMotion): not in code, comments,
+**No em-dash is used anywhere in the fin\* repositories on GitHub** (FinStats, FinUI, FinMotion): not in code, comments,
 UI text, docs or commit messages (the owner's decision, 2026-10-07). Where a sentence wants one, rewrite the sentence: a
 full stop, a colon, a semicolon, commas, parentheses or a joining word. Another dash in its place (a hyphen, an en dash,
 two hyphens) or an escape for the character is not a rewrite.
