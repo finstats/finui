@@ -1,6 +1,12 @@
 /* The FinUI site's layout, and nothing else: every part on the page is a FinUI component, which draws itself; a test
    holds this file to placing them (pages-lay-out.test.mjs). The landing's preview frame loads it too, for the page
    drawn in it. */
+/* FinUI's mark in the top bar, without its tile: one file per theme (a darker teal by day, for the paper), the other hidden. */
+.site-logo { display: inline-block; vertical-align: -3px; margin-right: 8px; }
+.site-logo--dark { display: none; }
+@media (prefers-color-scheme: dark) { :root:not([data-theme="light"]) .site-logo--light { display: none; } :root:not([data-theme="light"]) .site-logo--dark { display: inline-block; } }
+:root[data-theme="dark"] .site-logo--light { display: none; }
+:root[data-theme="dark"] .site-logo--dark { display: inline-block; }
 .demo { --site-top: 56px; display: flex; flex-direction: column; min-height: 100vh; }
 .demo-loading { padding: 40px; }
 /* Out of sight until the keyboard comes to it. */

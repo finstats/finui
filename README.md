@@ -1,3 +1,5 @@
+<p align="center"><img src="logo.svg" width="88" height="88" alt=""></p>
+
 # FinUI
 
 The components [FinStats](https://github.com/finstats/finstats) is built from: buttons, fields, cards, tables, dialogs,

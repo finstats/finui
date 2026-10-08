@@ -222,6 +222,8 @@ async function foundation(slot) {
   paint();
 }
 
+// FinUI's mark without its tile, as the top bar wears it: one file per theme, demo.css shows the one that fits.
+const logo = (theme) => h('img', { class: `site-logo site-logo--${theme}`, src: `mark-${theme}.svg`, width: 22, height: 22, alt: '' });
 const indexPage = (slot, title, line, body) => mount(slot, h('div', { class: 'site-page' }, pageHeader(title, line), body));
 
 async function start() {
@@ -243,7 +245,7 @@ async function start() {
   const previewSheets = [...sheets, 'demo/demo.css'].map((f) => new URL(f, here).href);
 
   const slot = h('div', { class: 'site-slot' });
-  const bar = topBar({ brand: { name: 'FinUI', href: '#/' }, label: 'FinUI',
+  const bar = topBar({ brand: { name: [logo('light'), logo('dark'), 'FinUI'], href: '#/' }, label: 'FinUI',
     links: [{ href: '#/components', label: 'Components', key: 'components' }, { href: '#/blocks', label: 'Blocks', key: 'blocks' }, { href: '#/foundation', label: 'Foundation', key: 'foundation' },
       { href: 'create/', label: 'Create', key: 'create' }, { href: 'https://finmotion.finstats.no/', label: 'FinMotion' }, { href: 'https://github.com/finstats/finui', label: 'GitHub' }],
     actions: themeSwitch({ value: kept('finui.theme') || 'device', onChange: applyTheme }) });
