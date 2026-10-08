@@ -164,7 +164,7 @@ async function codePanel(b, state = null) {
   const classes = [...new Set([el, ...el.querySelectorAll('[class]')].flatMap((e) => [...e.classList]).filter((c) => c.startsWith('blk-')))];
   return codeBlock({
     label: 'Code', fill: true, class: 'demo-code',
-    note: ['With FinUI in ./finui (curl -fsSL https://finstats.github.io/finui/install.sh | sh) and its stylesheets on the page: add the CSS, import the JavaScript, and append ',
+    note: ['With FinUI in ./finui (curl -fsSL https://finui.finstats.no/install.sh | sh) and its stylesheets on the page: add the CSS, import the JavaScript, and append ',
       h('code', { class: 'mono' }, `${b.key.replace(/-([a-z0-9])/g, (_, c) => c.toUpperCase())}Block()`), ' where it belongs. The HTML is the same block, drawn once, without its behaviour.'],
     panes: [
       { key: 'js', label: 'JavaScript', text: blockSource(js, b.key, './finui/', state ? b.playground.code(state) : null) },
@@ -245,7 +245,7 @@ async function start() {
   const slot = h('div', { class: 'site-slot' });
   const bar = topBar({ brand: { name: 'FinUI', href: '#/' }, label: 'FinUI',
     links: [{ href: '#/components', label: 'Components', key: 'components' }, { href: '#/blocks', label: 'Blocks', key: 'blocks' }, { href: '#/foundation', label: 'Foundation', key: 'foundation' },
-      { href: 'create/', label: 'Create', key: 'create' }, { href: 'https://finstats.github.io/finmotion/', label: 'FinMotion' }, { href: 'https://github.com/finstats/finui', label: 'GitHub' }],
+      { href: 'create/', label: 'Create', key: 'create' }, { href: 'https://finmotion.finstats.no/', label: 'FinMotion' }, { href: 'https://github.com/finstats/finui', label: 'GitHub' }],
     actions: themeSwitch({ value: kept('finui.theme') || 'device', onChange: applyTheme }) });
   mount(root,
     button({ href: '#main', class: 'site-skip', onClick: (e) => { e.preventDefault(); document.getElementById('main').focus(); } }, 'Skip to the page'),

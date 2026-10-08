@@ -13,7 +13,7 @@ import { sectionHeader } from '../components/page-header/page-header.js';
 import { encode, overlay, styleChoice } from '../create/preset.js';
 import { livingRoom } from './showcase.js';
 
-const INSTALL = 'curl -fsSL https://finstats.github.io/finui/install.sh | sh';
+const INSTALL = 'curl -fsSL https://finui.finstats.no/install.sh | sh';
 const first = (c) => (Array.isArray(c) ? c[0] : c);
 const sentence = (text) => String(text || '').split(/(?<=\.)\s/)[0];
 export const nameOf = (key) => key.replace(/-/g, ' ').replace(/^./, (c) => c.toUpperCase());

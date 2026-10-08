@@ -1,4 +1,4 @@
-// The site the pages workflow publishes at https://finstats.github.io/finui/: the gallery and FinUI create as they are in
+// The site the pages workflow publishes at https://finui.finstats.no/: the gallery and FinUI create as they are in
 // the repository, FinUI's files for the installer to fetch, finui.css (every stylesheet joined), one small file of
 // tokens for each option a preset can choose (p/<axis>/<option>.css), install.sh with the lists it needs filled in, and
 // every icon as a file of its own, still and animated (icons/<name>.svg, icons/animated/<name>.svg).

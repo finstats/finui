@@ -1,5 +1,5 @@
-# The site at https://finstats.github.io/finui/: the gallery, FinUI create, and what the installer fetches
-# (curl -fsSL https://finstats.github.io/finui/install.sh | sh -s -- <code>), built by tools/build-site.mjs on every push
+# The site at https://finui.finstats.no/: the gallery, FinUI create, and what the installer fetches
+# (curl -fsSL https://finui.finstats.no/install.sh | sh -s -- <code>), built by tools/build-site.mjs on every push
 # to main. FinUI's checks and tests are kept privately and run before a push. No dependencies, so nothing to install first.
 name: pages
 on:

@@ -1,13 +1,13 @@
 #!/bin/sh
-# FinUI's installer, published at https://finstats.github.io/finui/install.sh by the pages workflow (tools/build-site.mjs
+# FinUI's installer, published at https://finui.finstats.no/install.sh by the pages workflow (tools/build-site.mjs
 # fills in the lists below). FinUI is source you copy and own, so installing it is copying it, with the tokens of a
 # preset made at FinUI create after tokens.css' own. Nothing but sh and curl:
-#   curl -fsSL https://finstats.github.io/finui/install.sh | sh -s -- <code> [--css] [--dir <folder>]
+#   curl -fsSL https://finui.finstats.no/install.sh | sh -s -- <code> [--css] [--dir <folder>]
 # A preset is one small file of tokens per choice (p/<axis>/<option>.css), fetched in axis order: the later sets a
 # token last, as create/preset.js says it should.
 set -eu
 
-SITE="${FINUI_SITE:-https://finstats.github.io/finui}"
+SITE="${FINUI_SITE:-https://finui.finstats.no}"
 COUNTS="@COUNTS@"
 FILES="@FILES@"
 FONTS="@FONTS@"
@@ -16,9 +16,9 @@ usage() {
   cat <<'HELP'
 FinUI: the components finstats is built from.
 
-  curl -fsSL https://finstats.github.io/finui/install.sh | sh -s -- <code> [--css] [--dir <folder>]
+  curl -fsSL https://finui.finstats.no/install.sh | sh -s -- <code> [--css] [--dir <folder>]
 
-  <code>          a preset made at https://finstats.github.io/finui/create/ (none: FinUI as it ships)
+  <code>          a preset made at https://finui.finstats.no/create/ (none: FinUI as it ships)
   --dir <folder>  where to put it (default: finui); it must be empty, or not there yet
   --css           one stylesheet, finui.css, with the fonts beside it, instead of the source
 HELP
@@ -39,7 +39,7 @@ done
 
 # The code: one base-36 digit per axis, in presets.json's order. A shorter one was made before the later axes existed,
 # and leaves them at their defaults.
-nopreset() { fail "\"$code\" names no preset. A code is one letter or digit per choice, such as 0101; make one at https://finstats.github.io/finui/create/"; }
+nopreset() { fail "\"$code\" names no preset. A code is one letter or digit per choice, such as 0101; make one at https://finui.finstats.no/create/"; }
 digits=0123456789abcdefghijklmnopqrstuvwxyz
 case "$code" in *[!0123456789abcdefghijklmnopqrstuvwxyz]*) nopreset ;; esac
 set -- $COUNTS
