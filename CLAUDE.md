@@ -28,6 +28,12 @@ The same as FinStats and FinMotion:
 - **Never push unless explicitly told to.**
 - One commit identity, the repository's usual author.
 
+## Logos
+
+The logos' masters, their PNGs and the brand guidelines live in the branding repository (`../FinBranding`).
+This repository keeps byte-identical copies of the three SVGs it serves, `logo.svg`, `mark-light.svg` and `mark-dark.svg` at the root: the rounded tile for the README and the favicon, the bare marks for the gallery's top bar. A logo changes
+there first and is copied here in the same sitting; no other logo file (a `logo/` folder of PNGs) belongs here.
+
 ## No em-dashes
 
 **No em-dash is used anywhere in the fin\* repositories on GitHub** (FinStats, FinUI, FinMotion): not in code, comments,
