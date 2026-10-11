@@ -12,15 +12,17 @@ import { chartFigure, legend, tableTwin, tone, foldSeries, sized, hoverable } fr
 const r2 = (n) => Math.round(n * 100) / 100;
 const MARK_TONES = { critical: 'var(--critical)', warning: 'var(--warning)' };
 let clips = 0;
-/** lineChart({ title, sub, labels, series: [{ name, values }], format, area, height, limit: { value, label }, marks: [{ name, tone, values }] }) */
+/** lineChart({ title, sub, labels, series: [{ name, values, colour }], format, area, height, limit: { value, label }, marks: [{ name, tone, values }] }) */
 export function lineChart({ title = null, sub = null, labels, series, format = compact, area = null, height = 220, limit = null, marks = [] }) {
   const all = foldSeries(series);
+  // A series may name its own colour (a total that is nobody's, say); else it has its place's.
+  const hue = (k) => all[k].colour || tone(k);
   const wash = area ?? all.length === 1;
   const box = h('div', { class: 'fui-line-chart__box' });
   const limitName = limit ? `${limit.label || 'Limit'} (${format(limit.value)})` : null;
   // With a limit or marks, the legend names the line too, so every key says what it is.
   const keys = [
-    ...(all.length > 1 || limit || marks.length ? all.map((x) => ({ name: x.name })) : []),
+    ...(all.length > 1 || limit || marks.length ? all.map((x, k) => ({ name: x.name, colour: hue(k) })) : []),
     ...(limit ? [{ name: limitName, colour: MARK_TONES.critical }] : []),
     ...marks.map((mk) => ({ name: mk.name, colour: MARK_TONES[mk.tone] || MARK_TONES.warning })),
   ];
@@ -39,17 +41,17 @@ export function lineChart({ title = null, sub = null, labels, series, format = c
     const x = linear([0, Math.max(1, labels.length - 1)], [m.left, m.left + pw]);
     const every = Math.max(1, Math.ceil(labels.length / Math.max(1, Math.floor(pw / 56))));
     const cross = s('line', { class: 'fui-chart__cross', y1: String(m.top), y2: String(m.top + ph), visibility: 'hidden' });
-    const dots = all.map((_, k) => { const d = s('circle', { class: 'fui-chart__dot', r: '4', visibility: 'hidden' }); d.style.fill = tone(k); return d; });
+    const dots = all.map((_, k) => { const d = s('circle', { class: 'fui-chart__dot', r: '4', visibility: 'hidden' }); d.style.fill = hue(k); return d; });
     // Above the limit: what is drawn there again, clipped to it, in the critical colour.
     const clip = limit ? `fui-line-chart-over-${++clips}` : null;
     const over = limit ? s('clipPath', { id: clip }, s('rect', { x: String(m.left - 6), y: '0', width: String(pw + 12), height: String(Math.max(0, r2(y(limit.value)))) })) : null;
     const lines = all.map((ser, k) => {
       const pts = ser.values.map((v, i) => [x(i), y(v || 0)]);
-      const line = s('path', { class: 'fui-chart__line', d: linePath(pts) }); line.style.stroke = tone(k);
+      const line = s('path', { class: 'fui-chart__line', d: linePath(pts) }); line.style.stroke = hue(k);
       const under = wash ? s('path', { class: 'fui-chart__area', d: `${linePath(pts)}L${r2(x(labels.length - 1))} ${r2(y(0))}L${r2(x(0))} ${r2(y(0))}Z` }) : null;
-      if (under) under.style.fill = tone(k);
+      if (under) under.style.fill = hue(k);
       const past = limit && ser.values.some((v) => (v || 0) > limit.value) ? s('path', { class: 'fui-chart__line fui-chart__over', d: linePath(pts), 'clip-path': `url(#${clip})` }) : null;
-      const end = s('circle', { class: 'fui-chart__dot', r: '4', cx: String(r2(pts[pts.length - 1][0])), cy: String(r2(pts[pts.length - 1][1])) }); end.style.fill = tone(k);
+      const end = s('circle', { class: 'fui-chart__dot', r: '4', cx: String(r2(pts[pts.length - 1][0])), cy: String(r2(pts[pts.length - 1][1])) }); end.style.fill = hue(k);
       return [under, line, past, end];
     });
     // A mark's runs span the plot's height, half a step either side of their first and last moment.
@@ -82,7 +84,7 @@ export function lineChart({ title = null, sub = null, labels, series, format = c
       at: (i) => {
         const r = svg.getBoundingClientRect(), hi = Math.max(...all.map((ser) => ser.values[i] || 0));
         const rows = [
-          ...all.map((ser, k) => ({ color: tone(k), value: format(ser.values[i] || 0), label: ser.name })),
+          ...all.map((ser, k) => ({ color: hue(k), value: format(ser.values[i] || 0), label: ser.name })),
           ...marks.filter((mk) => mk.values[i] > 0).map((mk) => ({ color: MARK_TONES[mk.tone] || MARK_TONES.warning, value: format(mk.values[i]), label: mk.name })),
           ...(limit ? [{ color: MARK_TONES.critical, value: format(limit.value), label: limit.label || 'Limit' }] : []),
         ];
@@ -103,7 +105,7 @@ export const meta = {
   variants: ['one series with a wash', 'several series', 'a year of months', 'a limit, gone past, with the moments it was hit'],
   states: ['a moment pointed at or arrowed to (the crosshair and its dots)'],
   a11y: 'A figure named by its title; the plot is one tab stop whose arrows move the crosshair and its tooltip; every number is in a table read instead of the picture.',
-  props: { 'lineChart({ title, sub, labels, series, format, area, height, limit, marks })': 'series: [{ name, values }]; area: the wash (one series by default); limit: { value, label }, a dashed line in the critical colour the axis always reaches, a line past it drawn in that colour; marks: [{ name, tone: critical | warning, values }], the moments a value is above 0 shaded the plot\'s height' },
+  props: { 'lineChart({ title, sub, labels, series, format, area, height, limit, marks })': 'series: [{ name, values, colour }] (colour: a token of its own, else its place\'s); area: the wash (one series by default); limit: { value, label }, a dashed line in the critical colour the axis always reaches, a line past it drawn in that colour; marks: [{ name, tone: critical | warning, values }], the moments a value is above 0 shaded the plot\'s height' },
   playground: {
     controls: [
       { key: 'several', label: 'Several series' },
