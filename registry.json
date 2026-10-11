@@ -1460,6 +1460,8 @@
       "tokens": [
         "--axis",
         "--bg-2",
+        "--critical",
+        "--critical-text",
         "--focus-color",
         "--focus-width",
         "--grid",
@@ -1468,7 +1470,8 @@
         "--text",
         "--text-faint",
         "--text-muted",
-        "--text-strong"
+        "--text-strong",
+        "--warning"
       ],
       "requires": [
         "core",
