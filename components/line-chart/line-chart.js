@@ -8,6 +8,7 @@
 import { h, s } from '../../core.js';
 import { niceTicks, linear, linePath, compact, runs } from '../chart/plan.js';
 import { chartFigure, legend, tableTwin, tone, foldSeries, sized, hoverable } from '../chart/chart.js';
+import { say } from '../../i18n.js';
 
 const r2 = (n) => Math.round(n * 100) / 100;
 const MARK_TONES = { critical: 'var(--critical)', warning: 'var(--warning)' };
@@ -19,7 +20,7 @@ export function lineChart({ title = null, sub = null, labels, series, format = c
   const hue = (k) => all[k].colour || tone(k);
   const wash = area ?? all.length === 1;
   const box = h('div', { class: 'fui-line-chart__box' });
-  const limitName = limit ? `${limit.label || 'Limit'} (${format(limit.value)})` : null;
+  const limitName = limit ? `${limit.label || say('line_chart.limit', 'Limit')} (${format(limit.value)})` : null;
   // With a limit or marks, the legend names the line too, so every key says what it is.
   const keys = [
     ...(all.length > 1 || limit || marks.length ? all.map((x, k) => ({ name: x.name, colour: hue(k) })) : []),
@@ -27,10 +28,11 @@ export function lineChart({ title = null, sub = null, labels, series, format = c
     ...marks.map((mk) => ({ name: mk.name, colour: MARK_TONES[mk.tone] || MARK_TONES.warning })),
   ];
   const figure = chartFigure({ title, sub, legend: keys.length ? legend(keys) : null, plot: box,
-    table: tableTwin({ caption: title || 'The numbers', head: ['', ...all.map((x) => x.name), ...marks.map((mk) => mk.name), ...(limit ? [limitName] : [])],
+    table: tableTwin({ caption: title || say('chart.numbers', 'The numbers'), head: ['', ...all.map((x) => x.name), ...marks.map((mk) => mk.name), ...(limit ? [limitName] : [])],
       rows: labels.map((l, i) => [l, ...all.map((x) => format(x.values[i] || 0)), ...marks.map((mk) => format(mk.values[i] || 0)), ...(limit ? [format(limit.value)] : [])]) }) });
   let spec = null;
-  hoverable(box, () => spec, `${title || 'A line chart'}: ${labels[0]} to ${labels[labels.length - 1]}`);
+  const named = title || say('line_chart.name', 'A line chart');
+  hoverable(box, () => spec, say('line_chart.aria', `${named}: ${labels[0]} to ${labels[labels.length - 1]}`, { title: named, from: labels[0], to: labels[labels.length - 1] }));
   sized(box, (width) => {
     // The axis reaches the limit even when nothing has come near it, and goes past it when something did.
     const top = Math.max(0, ...all.flatMap((x) => x.values), limit ? limit.value : 0);
@@ -86,7 +88,7 @@ export function lineChart({ title = null, sub = null, labels, series, format = c
         const rows = [
           ...all.map((ser, k) => ({ color: hue(k), value: format(ser.values[i] || 0), label: ser.name })),
           ...marks.filter((mk) => mk.values[i] > 0).map((mk) => ({ color: MARK_TONES[mk.tone] || MARK_TONES.warning, value: format(mk.values[i]), label: mk.name })),
-          ...(limit ? [{ color: MARK_TONES.critical, value: format(limit.value), label: limit.label || 'Limit' }] : []),
+          ...(limit ? [{ color: MARK_TONES.critical, value: format(limit.value), label: limit.label || say('line_chart.limit', 'Limit') }] : []),
         ];
         return { rect: { left: r.left + x(i) - 1, top: r.top + y(hi), width: 2, height: 1, bottom: r.top + y(hi) }, title: labels[i], rows };
       },

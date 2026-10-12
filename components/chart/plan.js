@@ -2,6 +2,8 @@
 // of a line and of a ring's slice, how busy a heat cell is, where something happened, and numbers said compactly. Pure;
 // tested in FinUI's repository.
 
+import { say, locale } from '../../i18n.js';
+
 const dust = (n) => Number(n.toPrecision(12));
 /** Round ticks from 0 (or below) covering `min`…`max`, about `count` of them: steps of 1, 2, 2.5 or 5 times a power of ten,
  *  and only whole ones with `whole`. */
@@ -46,12 +48,13 @@ export function runs(values) {
   });
   return out;
 }
-const whole = new Intl.NumberFormat('en-US');
+let whole = null, tenth = null, numFor = '';
 /** 1,284 · 12.9K · 4.2M */
 export function compact(n) {
+  if (numFor !== locale()) { numFor = locale(); whole = new Intl.NumberFormat(numFor); tenth = new Intl.NumberFormat(numFor, { maximumFractionDigits: 1, useGrouping: false }); }
   const a = Math.abs(n);
   if (a < 10000) return whole.format(Math.round(n));
-  const [d, u] = a >= 1e9 ? [1e9, 'B'] : a >= 1e6 ? [1e6, 'M'] : [1e3, 'K'];
-  const v = n / d;
-  return `${Math.abs(v) >= 100 ? Math.round(v) : Number(v.toFixed(1))}${u}`;
+  const [d, u, key] = a >= 1e9 ? [1e9, 'B', 'chart.billions'] : a >= 1e6 ? [1e6, 'M', 'chart.millions'] : [1e3, 'K', 'chart.thousands'];
+  const v = n / d, said = tenth.format(Math.abs(v) >= 100 ? Math.round(v) : Number(v.toFixed(1)));
+  return say(key, `${said}${u}`, { n: said });
 }
