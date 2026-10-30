@@ -77,7 +77,8 @@ function fontFaces(presets) {
 /** A frame the preview is drawn in: a document of its own (srcdoc, so standards mode) with FinUI's stylesheets, the
  *  preview's layout and a <style> that holds the preset's tokens. */
 function frame(theme, sheets, onScroll, onLead) {
-  const el = h('iframe', { class: 'create-frame', title: `Preview, ${theme}`, srcdoc: '<!doctype html><html lang="en"><head><meta charset="utf-8"></head><body></body></html>' });
+  const el = h('iframe', { class: 'create-frame', title: `Preview, ${theme}` });
+  el.srcdoc = '<!doctype html><html lang="en"><head><meta charset="utf-8"></head><body></body></html>';
   let preset = null, pending = '';
   el.addEventListener('load', () => {
     const win = el.contentWindow;

@@ -27,7 +27,8 @@ export function colours(presets, choice) {
 /** The preview: a document of its own (srcdoc, so standards mode) with FinUI's stylesheets and a <style> holding the
  *  look's tokens. A look cannot be put on a part of a page: a token made from another is worked out where it is set. */
 function previewFrame(sheets, scheme) {
-  const el = h('iframe', { title: 'A page built with FinUI, in the look picked', srcdoc: '<!doctype html><html lang="en"><head><meta charset="utf-8"></head><body class="landing-preview__body"></body></html>' });
+  const el = h('iframe', { title: 'A page built with FinUI, in the look picked' });
+  el.srcdoc = '<!doctype html><html lang="en"><head><meta charset="utf-8"></head><body class="landing-preview__body"></body></html>';
   let preset = null, pending = '';
   el.addEventListener('load', () => {
     const doc = el.contentDocument;
